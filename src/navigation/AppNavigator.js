@@ -1,12 +1,12 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import BottomTabNavigation from './BottomTabNavigation';
-
-const Stack = createNativeStackNavigator();
-
+// src/navigation/AppNavigator.js
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import DrawerNavigator from './DrawerNavigator';
+import StackNavigator from './StackNavigator';
 export default function AppNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="BottomTabs" component={BottomTabNavigation} />
-    </Stack.Navigator>
+    <NavigationContainer>
+      <StackNavigator />
+    </NavigationContainer>
   );
 }
