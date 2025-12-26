@@ -65,7 +65,7 @@ export const apiService = {
       throw error;
     }
   },
-  
+
   featuredProjects: async () => {
     try {
       const response = await fetch(
@@ -111,6 +111,105 @@ export const apiService = {
     try {
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.USER.OWNERS_PROPERTIES}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      return {
+        status: response.status,
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  },
+  agricultural: async () => {
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.USER.ARGICULTURAL}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      console.log("Agricultural data from the api:", data);
+
+      return {
+        status: response.status,
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  },
+  land: async () => {
+    try {
+      const response = await fetch(`${ENV.BASE_URL}${API_ROUTES.USER.LAND}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      return {
+        status: response.status,
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  },
+  commercial: async () => {
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.USER.COMMERCIAL}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      return {
+        status: response.status,
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  },
+  residential: async () => {
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.USER.RESIDENTIAL}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      return {
+        status: response.status,
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  },
+   agent: async () => {
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.USER.AGENT}`,
         {
           method: "GET",
           headers: {

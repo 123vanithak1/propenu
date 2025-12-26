@@ -1,5 +1,12 @@
-import { View, Image, FlatList, Text, ScrollView, StyleSheet } from "react-native";
-import React, { useLayoutEffect, useState } from "react";
+import {
+  View,
+  Image,
+  FlatList,
+  Text,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import SearchBar from "../../components/SearchBar";
 import useDimensions from "../../components/CustomHooks/UseDimension";
 import HomePageImage from "../../../assets/HomePageImage.png";
@@ -9,7 +16,6 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FeaturedCard from "../../components/FeaturedCard/FeatureCard";
 import HighLightProjects from "../../components/HighlightProjects/HighLightProjects";
 import OwnerProperties from "../../components/OwnersProperties/OwnerProperties";
-
 
 const HomeScreen = ({ navigation }) => {
   const { width, height, isLandscape } = useDimensions();
@@ -54,14 +60,14 @@ const HomeScreen = ({ navigation }) => {
       onPress: () => console.log("Agriculture pressed"),
     },
   ];
-    const [scrolled, setScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerStyle: {
         backgroundColor: scrolled ? "#27AE60" : "transparent",
-              height: 48,    
-              border:"none"
+        height: 48,
+        border: "none",
       },
       headerTransparent: !scrolled,
       headerTintColor: scrolled ? "#fff" : "#000",
@@ -69,12 +75,14 @@ const HomeScreen = ({ navigation }) => {
   }, [navigation, scrolled]);
 
   return (
-    <ScrollView style={styles.home}  
-    onScroll={(event) => {
+    <ScrollView
+      style={styles.home}
+      onScroll={(event) => {
         const yOffset = event.nativeEvent.contentOffset.y;
         setScrolled(yOffset > 50);
       }}
-      scrollEventThrottle={16}>
+      scrollEventThrottle={16}
+    >
       <Image
         source={HomePageImage}
         style={{
@@ -86,11 +94,13 @@ const HomeScreen = ({ navigation }) => {
       />
       <View style={styles.searchWrapper}>
         <SearchBar />
-        <View style={{ marginTop: 20, marginHorizontal: 10, marginBottom:10}}>
-          <Text style={{ fontSize: 16, fontWeight: "600", }}>
+        <View style={{ marginTop: 20, marginHorizontal: 10, marginBottom: 10 }}>
+          <Text style={{ fontSize: 16, fontWeight: "600" }}>
             Get Started with
           </Text>
-          <Text style={{ fontSize: 12, color:"#6b6965ff",}}>Explore real estate options in top cities</Text>
+          <Text style={{ fontSize: 12, color: "#6b6965ff" }}>
+            Explore real estate options in top cities
+          </Text>
           <FlatList
             data={HOME_CARDS}
             keyExtractor={(item) => item.id}
@@ -105,11 +115,10 @@ const HomeScreen = ({ navigation }) => {
               />
             )}
           />
-         
         </View>
         <FeaturedCard />
-         <HighLightProjects />
-         <  OwnerProperties />
+        <HighLightProjects />
+        <OwnerProperties />
       </View>
     </ScrollView>
   );
