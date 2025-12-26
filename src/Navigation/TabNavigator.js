@@ -1,8 +1,9 @@
 // src/navigation/TabNavigator.js
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Pressable, Text, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Pressable, Text, StyleSheet,View } from "react-native";
+// import { Ionicons } from "@expo/vector-icons";
+import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import HomeScreen from "../screens/HomeScreen/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen/ProfileScreen";
@@ -17,9 +18,9 @@ export default function TabNavigator() {
       screenOptions={({ navigation, route }) => ({
          headerTitle: () => null,
         // headerTitle: () => <Logo width={30} height={30} />,
-        // headerTitleAlign: 'center',   for centering the logo
+        // headerTitleAlign: 'center',   for centering the logo   
         headerStyle:{
-          height:55
+          height:50
         },
           headerLeft: () => (
           <Pressable
@@ -34,12 +35,18 @@ export default function TabNavigator() {
           </Pressable>
         ),
         headerRight: () => (
-          <Pressable
+          <View style={{flexDirection:"row",marginRight:8}}>
+            <Pressable
             onPress={() => navigation.navigate("PostProperty")}
             style={styles.postPropertyButton}
           >
-            <Text style={{ color: "#007AFF" }}>Post Property</Text>
+            <Text style={{ color: "#27AE60" }}>Post Property</Text>
           </Pressable>
+          <Pressable onPress={()=>{console.log("Notifications Pressed")}}>
+            <Ionicons name="notifications" size={20} color="white" />
+          </Pressable>
+          </View>
+          
         ),
 
         tabBarIcon: ({ focused, color }) => {
@@ -69,17 +76,16 @@ export default function TabNavigator() {
           marginBottom: -3,
         },
 
-        tabBarActiveTintColor: "#007AFF",
+        tabBarActiveTintColor: "#27AE60",
         tabBarInactiveTintColor: "gray",
       })}
     >
-      <Tab.Screen
+  <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
           headerTransparent: true,
-        }}
-      />
+        }}  /> 
       <Tab.Screen name="ShortListed" component={ShortListedScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
@@ -88,7 +94,7 @@ export default function TabNavigator() {
 
 const styles = StyleSheet.create({
   postPropertyButton: {
-    marginRight: 15,
+    marginRight: 8,
     backgroundColor: "white",
     paddingHorizontal: 15,
     paddingVertical: 2,

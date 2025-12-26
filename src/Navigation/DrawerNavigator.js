@@ -30,10 +30,10 @@ function CustomDrawerContent() {
           onPress={() => setModalVisible(true)}
           style={[
             styles.loginButton,
-            { width: isLandscape ? width * 0.35 : width * 0.6 },
+            // { width: isLandscape ? width * 0.35 : width * 0.6 },
           ]}
         >
-          <Text style={{ color: "#007AFF" }}>Login / Register</Text>
+          <Text style={{ color: "#27AE60" }}>Login / Register</Text>
         </Pressable>
       </View>
 
@@ -57,14 +57,16 @@ const styles = StyleSheet.create({
   drawerContent: { flex: 1 },
   drawerHeader: {
     justifyContent: "center",
-    // borderTopRightRadius:15, to corner profile
-    backgroundColor: "#007AFF",
+    borderTopRightRadius:15, 
+    backgroundColor: "#27AE60",
     width: "100%",
     paddingLeft: 40,
     gap: 10,
   },
   textColor: { color: "white" },
   loginButton: {
+    width :150,
+    // alignSelf: "flex-start",
     alignItems: "center",
     justifyContent: "center",
     marginTop: 10,

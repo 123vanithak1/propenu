@@ -18,8 +18,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "lightblue",
+    borderWidth: 0.5,
+    borderColor: "#8ee2b1ff",
     borderRadius: 10,
     backgroundColor:"white"
   },

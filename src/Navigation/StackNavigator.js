@@ -1,9 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import PostProperty from  "../screens/PostPropertyScreen/PostProperty"
-import DrawerNavigator from './DrawerNavigator';
-import Login from '../auth/Login';  
-import OTPLoginScreen from '../auth/OTPLoginScreen';   
+import DrawerNavigator from './DrawerNavigator'; 
 
 const Stack = createNativeStackNavigator();
 
@@ -21,16 +19,7 @@ export default function StackNavigator() {
       component={PostProperty}
       options={{ title: 'Post Property' }}
     />
-    <Stack.Screen
-      name="Login"
-      component={Login}
-      options={{ title: 'Login' }}
-    />
-     <Stack.Screen
-      name="OTPLogin"
-      component={OTPLoginScreen}
-      options={{ title: 'Login' }}
-    />
+  
   </Stack.Navigator>
 )
 }

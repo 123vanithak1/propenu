@@ -15,10 +15,11 @@ const styles = StyleSheet.create({
   card: {
     width: 80,
     padding: 10,
-    borderRadius: 10,
+    marginVertical:10,
+    borderRadius: 7,
     backgroundColor: "#fff",
     alignItems: "center",
-    margin: 5,
+    marginRight: 5,
     elevation: 3,
   },
   iconContainer: {

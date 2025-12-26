@@ -2,11 +2,13 @@ export const API_ROUTES = {
 AUTH :{
     LOGIN:"/api/users/auth/request-otp",
     VERIFY_OTP:"/api/users/auth/verify-otp",
-
+    VERIFY_TOKEN :"/api/users/auth/me"
 },
-//  USER: {
-   
-//   },
+ USER: {
+   FEATURED_PROJECTS : "/api/properties/featured-project",
+   HIGHLIGHT_PROJECTS : "/api/properties/highlight-projects",
+   OWNERS_PROPERTIES : "/api/properties/owners-properties",
+  },
 
 
 }
