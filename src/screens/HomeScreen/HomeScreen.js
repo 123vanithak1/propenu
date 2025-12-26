@@ -13,7 +13,7 @@ import OwnerProperties from "../../components/OwnersProperties/OwnerProperties";
 
 const HomeScreen = ({ navigation }) => {
   const { width, height, isLandscape } = useDimensions();
-  
+  console.log("Dimensions", width, height, isLandscape);
   const HOME_CARDS = [
     {
       id: "buy",
