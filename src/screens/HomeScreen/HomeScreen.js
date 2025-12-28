@@ -16,10 +16,12 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FeaturedCard from "../../components/FeaturedCard/FeatureCard";
 import HighLightProjects from "../../components/HighlightProjects/HighLightProjects";
 import OwnerProperties from "../../components/OwnersProperties/OwnerProperties";
+import Button from "../../components/Button";
+import AgentProperties from "../../components/Agent/AgentProperties";
 
 const HomeScreen = ({ navigation }) => {
   const { width, height, isLandscape } = useDimensions();
-  console.log("Dimensions", width, height, isLandscape);
+
   const HOME_CARDS = [
     {
       id: "buy",
@@ -60,36 +62,16 @@ const HomeScreen = ({ navigation }) => {
       onPress: () => console.log("Agriculture pressed"),
     },
   ];
-  const [scrolled, setScrolled] = useState(false);
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerStyle: {
-        backgroundColor: scrolled ? "#27AE60" : "transparent",
-        height: 48,
-        border: "none",
-      },
-      headerTransparent: !scrolled,
-      headerTintColor: scrolled ? "#fff" : "#000",
-    });
-  }, [navigation, scrolled]);
 
   return (
-    <ScrollView
-      style={styles.home}
-      onScroll={(event) => {
-        const yOffset = event.nativeEvent.contentOffset.y;
-        setScrolled(yOffset > 50);
-      }}
-      scrollEventThrottle={16}
-    >
+    <ScrollView style={{ flex: 1 }}>
       <Image
         source={HomePageImage}
         style={{
           width: "100%",
           height: height * 0.25,
           resizeMode: "cover",
-          opacity: 0.8,
+          // opacity: 0.8,
         }}
       />
       <View style={styles.searchWrapper}>
@@ -106,7 +88,6 @@ const HomeScreen = ({ navigation }) => {
             keyExtractor={(item) => item.id}
             horizontal
             showsHorizontalScrollIndicator={false}
-            // contentContainerStyle={{ paddingHorizontal: 10 }}
             renderItem={({ item }) => (
               <CardHome
                 title={item.title}
@@ -119,6 +100,7 @@ const HomeScreen = ({ navigation }) => {
         <FeaturedCard />
         <HighLightProjects />
         <OwnerProperties />
+        <AgentProperties/>
       </View>
     </ScrollView>
   );
@@ -130,4 +112,5 @@ const styles = StyleSheet.create({
     top: -15,
   },
 });
+
 export default HomeScreen;

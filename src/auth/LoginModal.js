@@ -91,7 +91,8 @@ export default function LoginModal({ visible, onClose, onOtpSuccess }) {
                 errors.username && styles.errorInput,
                 { marginBottom: errors.username ? 0 : 12 },
               ]}
-              placeholder="Username"
+              placeholder="Enter Your Name"
+              placeholderTextColor={"gray"}
               value={username}
               onChangeText={setUsername}
             />
@@ -105,9 +106,10 @@ export default function LoginModal({ visible, onClose, onOtpSuccess }) {
                 errors.email && styles.errorInput,
                 { marginBottom: errors.email ? 0 : 12 },
               ]}
-              placeholder="Email"
+              placeholder="Enter Email"
               keyboardType="email-address"
               autoCapitalize="none"
+              placeholderTextColor={"gray"}
               value={email}
               onChangeText={setEmail}
             />

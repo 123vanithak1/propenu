@@ -24,8 +24,8 @@ const FeaturedCard = ({ navigation }) => {
 
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>Newly launched projects</Text>
-      <Text style={styles.subtitle}>Best prices - Unit of choice - Easy payment plans</Text>
+      <Text style={styles.title}>Prime Properties</Text>
+      <Text style={styles.subtitle}>Exceptional properties Hyderabad</Text>
       <FlatList
         data={details}
         keyExtractor={(item) => item._id}
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 16, fontWeight: "600" },
   subtitle:{
-    fontSize:11,
+    fontSize:12,
     color:"#8f8d87ff",
     marginBottom:8,
     marginTop:2,

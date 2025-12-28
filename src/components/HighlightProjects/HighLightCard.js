@@ -24,9 +24,9 @@ const HighLightCard = ({ details }) => {
 
   return (
     <View style={styles.card}>
-      <View style={styles.likeIcon}>
+      {/* <View style={styles.likeIcon}>
         <LikedIconContainer />
-      </View>
+      </View> */}
       <ImageBackground
         source={heroImage ? { uri: heroImage } : HomePageImage}
         style={styles.imageBackground}

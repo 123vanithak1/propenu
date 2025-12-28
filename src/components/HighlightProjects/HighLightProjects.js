@@ -25,7 +25,8 @@ const HighLightProjects = () => {
     }, []);
     return (
     <View style={styles.container}>
-        <Text style={styles.title}>Handpicked Residential Projects</Text>
+        <Text style={styles.title}>Highlight Projects</Text>
+        <Text style={styles.subtitle}>Explore properties across locations</Text>
         <FlatList
 
             data={projects}
@@ -45,9 +46,14 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 16,
         fontWeight: "600",
-        marginBottom: 10,
+        // marginBottom: 10,
     },
-
+ subtitle:{
+    fontSize:12,
+    color:"#8f8d87ff",
+    marginBottom:8,
+    marginTop:2,
+  }
 
 
 })

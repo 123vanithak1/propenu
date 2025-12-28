@@ -5,6 +5,7 @@ import TabNavigator from "./TabNavigator";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import useDimensions from "../components/CustomHooks/UseDimension";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { SafeAreaView } from "react-native-safe-area-context";
 const Drawer = createDrawerNavigator();
 
 function CustomDrawerContent() {
@@ -17,7 +18,7 @@ function CustomDrawerContent() {
   };
 
   return (
-    <View style={styles.drawerContent}>
+    <SafeAreaView style={styles.drawerContent}>
       <View style={[styles.drawerHeader, { height: height * 0.15 }]}>
         <View style={{ flexDirection: "row", gap: 10 }}>
           <FontAwesome name="user-circle" size={40} color="white" />
@@ -38,7 +39,7 @@ function CustomDrawerContent() {
       </View>
 
     
-    </View>
+    </SafeAreaView>
   );
 }
 
