@@ -6,15 +6,13 @@ import StackNavigator from "./StackNavigator";
 import { StatusBar } from "react-native";
 
 export default function AppNavigator() {
-  
   return (
-   
     <SafeAreaProvider>
-     <StatusBar
-  translucent
-  backgroundColor="transparent"
-  barStyle="light-content"
-/>
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle="light-content"
+      />
       <NavigationContainer>
         <StackNavigator />
       </NavigationContainer>
