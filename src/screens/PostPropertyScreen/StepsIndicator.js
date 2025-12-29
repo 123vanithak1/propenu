@@ -1,3 +1,4 @@
+
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
@@ -60,6 +61,9 @@ const StepIndicator = ({ steps = [], currentStep = 0 }) => {
     </View>
   );
 };
+
+export default StepIndicator;
+
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
@@ -75,9 +79,9 @@ const styles = StyleSheet.create({
 
   /* OUTER CIRCLE */
   outerCircle: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     borderWidth: 2,
     justifyContent: "center",
     alignItems: "center",
@@ -154,5 +158,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#27AE60",
   },
 });
-
-export default StepIndicator;

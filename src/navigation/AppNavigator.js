@@ -13,9 +13,9 @@ export default function AppNavigator() {
         backgroundColor="transparent"
         barStyle="light-content"
       />
-      <NavigationContainer>
+     
         <StackNavigator />
-      </NavigationContainer>
+    
     </SafeAreaProvider>
   );
 }
