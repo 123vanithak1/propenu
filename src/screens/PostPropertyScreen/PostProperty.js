@@ -20,11 +20,11 @@ export default function PostProperty({ navigation }) {
   const isLastStep = currentStep === STEPS.length;
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <StepIndicator steps={STEPS} currentStep={currentStep - 1} />
       <StepRenderer />
 
-      <View style={[styles.footer, isFirstStep && styles.centerFooter]}>
+      {/* <View style={[styles.footer, isFirstStep && styles.centerFooter]}>
         {isFirstStep ? (
           <Pressable
             onPress={() => dispatch(nextStep())}
@@ -45,12 +45,13 @@ export default function PostProperty({ navigation }) {
                 // isLastStep ? handleSubmit() : dispatch(nextStep())
               }
               style={styles.nextBtn}
+             
             ><Text style={styles.btnTextColor}>{isLastStep ? "Submit" : "Next" }</Text>
             </Pressable>
           </>
         )}
-      </View>
-    </SafeAreaView>
+      </View> */}
+    </View>
   );
 }
 const styles = StyleSheet.create({

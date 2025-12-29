@@ -6,10 +6,11 @@ import PostProperty from "../screens/PostPropertyScreen/PostProperty";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import DrawerNavigator from "./DrawerNavigator";
+import Entypo from "@expo/vector-icons/Entypo";
 
 const Stack = createNativeStackNavigator();
 
-export default function StackNavigator() {
+export default function StackNavigator({navigation}) {
   return (
     <Stack.Navigator
     // screenOptions={({ navigation }) => ({
@@ -48,7 +49,7 @@ export default function StackNavigator() {
       <Stack.Screen
         name="PostProperty"
         component={PostProperty}
-        options={{
+        options={({ navigation }) => ({
           headerTitle: () => (
             <View>
               <Text style={{ fontSize: 16, fontWeight: "600" }}>
@@ -59,8 +60,17 @@ export default function StackNavigator() {
               </Text>
             </View>
           ),
-          // headerTitleAlign: "center",
-        }}
+
+          headerRight: () => (
+            <Pressable
+              onPress={() => navigation.navigate("Drawer")} 
+              hitSlop={10}
+              style={{ marginRight: 16 }}
+            >
+              <Entypo name="cross" size={24} color="#363636ff" />
+            </Pressable>
+          ),
+        })}
       />
     </Stack.Navigator>
   );
