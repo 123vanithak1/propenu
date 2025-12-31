@@ -163,6 +163,7 @@ export const apiService = {
         data,
       };
     } catch (error) {
+      console.error("land error:", error);
       throw error;
     }
   },
@@ -183,6 +184,7 @@ export const apiService = {
         data,
       };
     } catch (error) {
+      console.error("land error:", error);
       throw error;
     }
   },
@@ -203,26 +205,111 @@ export const apiService = {
         data,
       };
     } catch (error) {
+      console.error("residential error:", error);
       throw error;
     }
   },
-   agent: async () => {
+  agent: async () => {
     try {
-      const response = await fetch(
-        `${ENV.BASE_URL}${API_ROUTES.USER.AGENT}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${ENV.BASE_URL}${API_ROUTES.USER.AGENT}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       const data = await response.json();
       return {
         status: response.status,
         data,
       };
     } catch (error) {
+      console.error("agent error:", error);
+      throw error;
+    }
+  },
+  residentialApi: async (formData) => {
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.USER.RESIDENTIAL}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      console.log("sucess residentialApi :", response.status,response, data);
+      return {
+        success: response.ok,
+        status: response.status,
+        data,
+      };
+    } catch (error) {
+      console.error("residentialApi error:", error);
+      throw error;
+    }
+  },
+
+  commercialApi: async (formData) => {
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.USER.COMMERCIAL}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      console.log("sucess commercialApi :", response.status,response, data);
+      return {
+        success: response.ok,
+        status: response.status,
+        data,
+      };
+    } catch (error) {
+      console.error("commercialApi error:", error);
+      throw error;
+    }
+  },
+  landApi: async (formData) => {
+    try {
+      const response = await fetch(`${ENV.BASE_URL}${API_ROUTES.USER.LAND}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      return {
+        success: response.ok,
+        status: response.status,
+        data,
+      };
+    } catch (error) {
+      console.error("agriculturalApi error:", error);
+      throw error;
+    }
+  },
+  agriculturalApi: async (formData) => {
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.USER.ARGICULTURAL}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      return {
+        success: response.ok,
+        status: response.status,
+        data,
+      };
+    } catch (error) {
+      console.error("agriculturalApi error:", error);
       throw error;
     }
   },

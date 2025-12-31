@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,17 +6,22 @@ import {
   StyleSheet,
   ScrollView,
   Platform,
+  Keyboard,
   KeyboardAvoidingView,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
-import { setBaseField, nextStep, prevStep } from "../../../redux/slice/PostPropertySlice";
+import {
+  setBaseField,
+  nextStep,
+  prevStep,
+} from "../../../redux/slice/PostPropertySlice";
 import { validateLocationDetails } from "../../../zod/locationDetailsZod";
 import InputField from "../../../components/ui/InputField";
 
 import TextArea from "../../../components/ui/TextArea";
 import MapScreen from "../../../components/location/MapScreen";
-// import NearbyLocationSearch from "@/components/location/NearbyLocationSearch";
+import NearbyLocationSearch from "../../../components/location/NearbyLocationSearch";
 
 import { search } from "india-pincode-search";
 
@@ -25,7 +30,7 @@ const LocationDetailsStep = () => {
 
   const dispatch = useDispatch();
   const [showErrors, setShowErrors] = useState(false);
-
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
   const validationResult = validateLocationDetails(base);
   const isFormValid = validationResult.success;
 
@@ -86,6 +91,22 @@ const LocationDetailsStep = () => {
   const isLandOrAgri =
     propertyType === "land" || propertyType === "agricultural";
 
+  useEffect(() => {
+    const show = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      () => setKeyboardOpen(true)
+    );
+    const hide = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      () => setKeyboardOpen(false)
+    );
+
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
   /* ---------------- UI ---------------- */
 
   return (
@@ -96,7 +117,7 @@ const LocationDetailsStep = () => {
     >
       <ScrollView
         style={styles.container}
-        // contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: keyboardOpen ? 100 : 0 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -198,6 +219,7 @@ const LocationDetailsStep = () => {
         </View>
 
         {/* Map placeholder */}
+        <Text style={styles.mapText}>Pin Property Location</Text>
         <View style={styles.mapBox}>
           {Platform.OS === "web" ? (
             <Text>Map is available on mobile only</Text>
@@ -205,13 +227,19 @@ const LocationDetailsStep = () => {
             <MapScreen />
           )}
         </View>
+        <Text style={styles.markLocation}>
+          Click on the map to mark the exact location of your property.
+        </Text>
 
         {/* Nearby places */}
-        {/* <NearbyLocationSearch /> */}
+        <NearbyLocationSearch />
 
         {/* Continue */}
         <View style={styles.btnOptions}>
-          <Pressable style={styles.backButton} onPress={() => dispatch(prevStep())}>
+          <Pressable
+            style={styles.backButton}
+            onPress={() => dispatch(prevStep())}
+          >
             <Text style={styles.backButtonText}>Back</Text>
           </Pressable>
           <Pressable
@@ -251,17 +279,23 @@ const styles = StyleSheet.create({
     // alignItems: "center",
   },
   mapText: {
+    fontSize: 14,
+    color: "#374151",
+    marginBottom: 6,
+    fontWeight: "500",
+  },
+  markLocation: {
     fontSize: 12,
-    color: "#414040ff",
+    color: "#74777eff",
   },
   btnOptions: {
     flexDirection: "row",
     justifyContent: "flex-end",
     gap: 12,
     alignItems: "center",
-    marginRight:10,
-    marginBottom:20.,
-    marginTop:15
+    marginRight: 10,
+    marginBottom: 20,
+    marginTop: 15,
   },
   backButton: {
     width: "35%",

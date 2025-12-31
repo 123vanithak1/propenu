@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  ScrollView,
+  Image,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import {
   nextStep,
@@ -302,7 +309,18 @@ export default function BasicDetailsStep() {
         </View>
       )}
       <Text style={styles.label}>Property Images</Text>
-      {/* Image Upload Placeholder */}
+      <View style={styles.previewContainer}>
+        {files.map((img, index) => (
+          <Image
+            key={index}
+            source={{ uri: img.uri }}
+            style={styles.previewImage}
+          />
+        ))}
+      </View>
+
+      {/* Image Upload */}
+
       <Pressable style={styles.uploadBox} onPress={pickImages}>
         <Text style={styles.uploadText}>
           {files.length > 0
@@ -336,8 +354,8 @@ export default function BasicDetailsStep() {
 const styles = StyleSheet.create({
   container: {
     // padding: 16,
-    paddingHorizontal:16,
-    paddingBottom:16
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
   label: {
     fontSize: 14,
@@ -345,6 +363,21 @@ const styles = StyleSheet.create({
     color: "#374151",
     marginBottom: 8,
   },
+  previewContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    // justifyContent:"flex-start",
+    flexWrap: "wrap",
+    marginBottom: 10,
+  },
+  previewImage: {
+    width: "30%",
+    height: 100,
+    borderRadius: 8,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+
   row: {
     flexDirection: "row",
     gap: 12,
@@ -411,10 +444,10 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
   },
   section: {
-    marginBottom: 20 ,
+    marginBottom: 20,
   },
-  specificType:{
-    marginBottom:5
+  specificType: {
+    marginBottom: 5,
   },
   grid: {
     flexDirection: "row",
@@ -452,7 +485,7 @@ const styles = StyleSheet.create({
     borderStyle: "dashed",
     borderRadius: 10,
     borderColor: "#acaeb3ff",
-    marginBottom: 24,
+    marginBottom: 20,
   },
   uploadText: {
     textAlign: "center",
@@ -462,7 +495,7 @@ const styles = StyleSheet.create({
     color: "#DC2626",
     marginTop: 5,
     fontSize: 12,
-    alignSelf:"center"
+    alignSelf: "center",
   },
   continueBtn: {
     width: "60%",
