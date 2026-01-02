@@ -238,7 +238,7 @@ export const apiService = {
       );
 
       const data = await response.json();
-      console.log("sucess residentialApi :", response.status,response, data);
+      console.log("sucess residentialApi :", response.status);
       return {
         success: response.ok,
         status: response.status,
@@ -261,7 +261,7 @@ export const apiService = {
       );
 
       const data = await response.json();
-      console.log("sucess commercialApi :", response.status,response, data);
+      console.log("sucess commercialApi :", response.status);
       return {
         success: response.ok,
         status: response.status,

@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 import { setProfileField } from "../../../redux/slice/PostPropertySlice";
 import { submitPropertyThunk } from "../../../redux/thunk/SubmitPropertyThunk";
@@ -23,6 +24,7 @@ import Toggle from "../../../components/ui/ToggleSwitch";
 import InputField from "../../../components/ui/InputField";
 import TextArea from "../../../components/ui/TextArea";
 import DateInputField from "../../../components/ui/DateInputField";
+import { ToastSuccess, ToastError } from "../../../utils/Toast";
 
 export const FLOORING_TYPES = [
   "vitrified",
@@ -54,7 +56,7 @@ const ResidentialProfile = () => {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const { residential } = useSelector((state) => state.postProperty);
   const dispatch = useAppDispatch();
-
+  const navigation = useNavigation();
   useEffect(() => {
     const price =
       Number(residential.price) || Number(residential.expectedPrice);
@@ -511,6 +513,7 @@ const ResidentialProfile = () => {
               label="Total Price"
               value={residential.price || ""}
               placeholder="e.g. 75,00,000"
+              keyboardType="numeric"
               onChange={(value) =>
                 dispatch(
                   setProfileField({
@@ -525,6 +528,7 @@ const ResidentialProfile = () => {
               label="Carpet Area (sq ft)"
               value={residential.carpetArea || ""}
               placeholder="e.g. 1200"
+              keyboardType="numeric"
               onChange={(value) =>
                 dispatch(
                   setProfileField({
@@ -545,6 +549,7 @@ const ResidentialProfile = () => {
               label="Built-up (sq ft)"
               value={residential.builtUpArea || ""}
               placeholder="Optional"
+              keyboardType="numeric"
               onChange={(value) =>
                 dispatch(
                   setProfileField({
@@ -612,15 +617,27 @@ const ResidentialProfile = () => {
           onPress={() => {
             dispatch(submitPropertyThunk())
               .unwrap()
-              .then((response) =>
-                console.log("Property submission successful:", response)
-              )
-              .catch((error) =>
-                console.error("Property submission failed:", error)
-              );
+              .then((response) => {
+                if (response.status) {
+                  ToastSuccess("Property posted successfully");
+                  console.log("Property Submission Status:", response.status);
+                  navigation.navigate("Drawer");
+                }
+              })
+              .catch((error) => {
+                ToastError("Failed to post property");
+                console.error("Property submission failed:", error);
+              });
           }}
         >
-          <Text style={{ color: "#fff", textAlign: "center",fontSize:16, fontWeight: 600 }}>
+          <Text
+            style={{
+              color: "#fff",
+              textAlign: "center",
+              fontSize: 16,
+              fontWeight: 600,
+            }}
+          >
             Submit Property
           </Text>
         </TouchableOpacity>

@@ -4,6 +4,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import DrawerNavigator from "./DrawerNavigator";
 import StackNavigator from "./StackNavigator";
 import { StatusBar } from "react-native";
+import Toast from "react-native-toast-message";
 
 export default function AppNavigator() {
   return (
@@ -15,6 +16,7 @@ export default function AppNavigator() {
       />
      
         <StackNavigator />
+         <Toast />
     
     </SafeAreaProvider>
   );

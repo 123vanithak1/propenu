@@ -15,7 +15,7 @@ import DateInputField from "../../../components/ui/DateInputField";
 import { setProfileField } from "../../../redux/slice/PostPropertySlice";
 import { submitPropertyThunk } from "../../../redux/thunk/SubmitPropertyThunk";
 import { useAppDispatch } from "../../../redux/store/store";
-
+import { useNavigation } from "@react-navigation/native";
 import InputField from "../../../components/ui/InputField";
 import CounterField from "../../../components/ui/CounterField";
 import Dropdownui from "../../../components/ui/DropDownUI";
@@ -23,6 +23,7 @@ import Toggle from "../../../components/ui/ToggleSwitch";
 import TextArea from "../../../components/ui/TextArea";
 import AmenitiesSelect from "./AmenitiesSelect";
 import { AMENITIES } from "../constants/amenities";
+import { ToastError, ToastSuccess } from "../../../utils/Toast";
 
 export const WALL_FINISH_STATUS = [
   "no-partitions",
@@ -57,7 +58,7 @@ const CommercialProfile = () => {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const { commercial } = useSelector((state) => state.postProperty);
   const dispatch = useAppDispatch();
-
+  const navigation = useNavigation();
   /** Auto calculate price per sqft */
   useEffect(() => {
     const price = Number(commercial.price || commercial.expectedPrice);
@@ -823,7 +824,22 @@ const CommercialProfile = () => {
         {/* Submit */}
         <Pressable
           style={styles.submitBtn}
-          onPress={() => dispatch(submitPropertyThunk())}
+          // onPress={() => dispatch(submitPropertyThunk())}
+          onPress={() => {
+            dispatch(submitPropertyThunk())
+              .unwrap()
+              .then((response) => {
+                if (response.status) {
+                  ToastSuccess("Property posted successfully");
+                  console.log("Property Submission Successful:", response.status);
+                  navigation.navigate("Drawer");
+                }
+              })
+              .catch((error) => {
+                ToastError("Failed to post property");
+                console.error("Property submission failed:", error);
+              });
+          }}
         >
           <Text style={styles.submitText}>Submit Property</Text>
         </Pressable>

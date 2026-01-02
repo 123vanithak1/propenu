@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import  { apiService } from "../../services/apiService";
+import { apiService } from "../../services/apiService";
 import { getItem } from "../../utils/Storage";
 import {
   getFiles as getFileStoreFiles,
@@ -20,7 +20,7 @@ export const submitPropertyThunk = createAsyncThunk(
 
       // 🔹 Get logged-in user
       const userData = await getItem("user");
-      console.log("userData in the submit property thunk:", userData)
+      console.log("userData in the submit property thunk:", userData);
       if (!userData || !userData.user) {
         throw new Error("User not authenticated");
       }
@@ -44,7 +44,8 @@ export const submitPropertyThunk = createAsyncThunk(
           ? state.commercial.propertyType || state.commercial.propertySubType
           : propertyType === "land"
           ? state.land.propertyType || state.land.propertySubType
-          : state.agricultural.propertyType || state.agricultural.propertySubType;
+          : state.agricultural.propertyType ||
+            state.agricultural.propertySubType;
 
       if (!apiPropertyType) {
         throw new Error(`Property sub-type is required for ${propertyType}`);
@@ -67,22 +68,42 @@ export const submitPropertyThunk = createAsyncThunk(
       // 🔹 Handle gallery metadata & files
       const galleryMeta = payload.galleryFiles || [];
       const actualFiles = getFileStoreFiles("postProperty");
+      // if (Array.isArray(galleryMeta) && galleryMeta.length > 0) {
+      //   const existingGallery = Array.isArray(payload.gallery)
+      //     ? payload.gallery
+      //     : [];
+
+      //   const urlEntries = galleryMeta.filter(
+      //     (g) => g && (g.url || (g.filename && g.url))
+      //   );
+
+      //   if (Array.isArray(actualFiles) && actualFiles.length > 0) {
+      //     if (urlEntries.length > 0) {
+      //       payload.gallery = [...existingGallery, ...urlEntries];
+      //     }
+      //   } else {
+      //     payload.gallery = [...existingGallery, ...galleryMeta];
+      //   }
+
+      //   delete payload.galleryFiles;
+      //   delete payload.files;
+      // }
 
       if (Array.isArray(galleryMeta) && galleryMeta.length > 0) {
         const existingGallery = Array.isArray(payload.gallery)
           ? payload.gallery
           : [];
 
-        const urlEntries = galleryMeta.filter(
-          (g) => g && (g.url || (g.filename && g.url))
-        );
+        // ONLY allow valid url-based gallery items
+        const urlEntries = galleryMeta
+          .filter((g) => typeof g?.url === "string" && g.url.trim().length > 0)
+          .map((g) => ({ url: g.url }));
 
+        // If files are still local (ImagePicker), DO NOT push them to gallery
         if (Array.isArray(actualFiles) && actualFiles.length > 0) {
-          if (urlEntries.length > 0) {
-            payload.gallery = [...existingGallery, ...urlEntries];
-          }
+          payload.gallery = [...existingGallery, ...urlEntries];
         } else {
-          payload.gallery = [...existingGallery, ...galleryMeta];
+          payload.gallery = [...existingGallery, ...urlEntries];
         }
 
         delete payload.galleryFiles;

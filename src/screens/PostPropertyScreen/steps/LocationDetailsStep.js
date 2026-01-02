@@ -247,7 +247,7 @@ const LocationDetailsStep = () => {
             onPress={() => {
               setShowErrors(true);
               if (isFormValid) {
-                console.log("Location Data:", base);
+                // console.log("Location Data:", base);
                 dispatch(nextStep());
               }
             }}
