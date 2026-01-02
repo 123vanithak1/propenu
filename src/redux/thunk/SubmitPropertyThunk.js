@@ -20,7 +20,6 @@ export const submitPropertyThunk = createAsyncThunk(
 
       // 🔹 Get logged-in user
       const userData = await getItem("user");
-      console.log("userData in the submit property thunk:", userData);
       if (!userData || !userData.user) {
         throw new Error("User not authenticated");
       }
