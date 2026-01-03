@@ -618,9 +618,9 @@ const ResidentialProfile = () => {
             dispatch(submitPropertyThunk())
               .unwrap()
               .then((response) => {
-                if (response.status) {
+                if (response.success) {
                   ToastSuccess("Property posted successfully");
-                  console.log("Property Submission Status:", response.status);
+                  console.log("Property Submission Status:", response.status, response.success);
                   navigation.navigate("Drawer");
                 }
               })

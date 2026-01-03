@@ -18,15 +18,14 @@ export const submitPropertyThunk = createAsyncThunk(
         throw new Error("Property type not selected");
       }
 
-      // 🔹 Get logged-in user
-      const userData = await getItem("user");
+       const userData = await getItem("user");
       if (!userData || !userData.user) {
         throw new Error("User not authenticated");
       }
 
       const user = userData.user;
 
-      // 🔹 Select property profile based on type
+      // 🔹 Select profile by property type
       const profile =
         propertyType === "residential"
           ? state.residential
@@ -38,9 +37,11 @@ export const submitPropertyThunk = createAsyncThunk(
 
       const apiPropertyType =
         propertyType === "residential"
-          ? state.residential.propertyType || state.residential.propertySubType
+          ? state.residential.propertyType ||
+            state.residential.propertySubType
           : propertyType === "commercial"
-          ? state.commercial.propertyType || state.commercial.propertySubType
+          ? state.commercial.propertyType ||
+            state.commercial.propertySubType
           : propertyType === "land"
           ? state.land.propertyType || state.land.propertySubType
           : state.agricultural.propertyType ||
@@ -55,8 +56,8 @@ export const submitPropertyThunk = createAsyncThunk(
         throw new Error("User ID not found");
       }
 
-      // 🔹 Build payload
-      let payload = {
+      // 🔹 Base payload (NO files here)
+      const payload = {
         ...base,
         ...profile,
         propertyType: apiPropertyType,
@@ -64,49 +65,21 @@ export const submitPropertyThunk = createAsyncThunk(
         listingSource: user.roleName || "user",
       };
 
-      // 🔹 Handle gallery metadata & files
-      const galleryMeta = payload.galleryFiles || [];
-      const actualFiles = getFileStoreFiles("postProperty");
-      // if (Array.isArray(galleryMeta) && galleryMeta.length > 0) {
-      //   const existingGallery = Array.isArray(payload.gallery)
-      //     ? payload.gallery
-      //     : [];
+      // 🔹 Handle gallery metadata (ONLY URLs)
+      const galleryMeta = Array.isArray(payload.galleryFiles)
+        ? payload.galleryFiles
+        : [];
 
-      //   const urlEntries = galleryMeta.filter(
-      //     (g) => g && (g.url || (g.filename && g.url))
-      //   );
-
-      //   if (Array.isArray(actualFiles) && actualFiles.length > 0) {
-      //     if (urlEntries.length > 0) {
-      //       payload.gallery = [...existingGallery, ...urlEntries];
-      //     }
-      //   } else {
-      //     payload.gallery = [...existingGallery, ...galleryMeta];
-      //   }
-
-      //   delete payload.galleryFiles;
-      //   delete payload.files;
-      // }
-
-      if (Array.isArray(galleryMeta) && galleryMeta.length > 0) {
-        const existingGallery = Array.isArray(payload.gallery)
-          ? payload.gallery
-          : [];
-
-        // ONLY allow valid url-based gallery items
-        const urlEntries = galleryMeta
-          .filter((g) => typeof g?.url === "string" && g.url.trim().length > 0)
+      if (galleryMeta.length > 0) {
+        const urlGallery = galleryMeta
+          .filter((g) => typeof g?.url === "string")
           .map((g) => ({ url: g.url }));
 
-        // If files are still local (ImagePicker), DO NOT push them to gallery
-        if (Array.isArray(actualFiles) && actualFiles.length > 0) {
-          payload.gallery = [...existingGallery, ...urlEntries];
-        } else {
-          payload.gallery = [...existingGallery, ...urlEntries];
+        if (urlGallery.length > 0) {
+          payload.gallery = urlGallery;
         }
 
         delete payload.galleryFiles;
-        delete payload.files;
       }
 
       // 🔹 Build FormData
@@ -122,11 +95,18 @@ export const submitPropertyThunk = createAsyncThunk(
         }
       });
 
-      // 🔹 Attach actual image files
+      // 🔹 Attach local images (uri-based)
+      const actualFiles = getFileStoreFiles("postProperty");
+
       if (Array.isArray(actualFiles) && actualFiles.length > 0) {
         actualFiles.forEach((file) => {
-          formData.append("galleryFiles", file);
+          formData.append("galleryFiles", {
+            uri: file.uri,
+            name: file.fileName || file.name || "image.jpg",
+            type: file.mimeType || file.type || "image/jpeg",
+          });
         });
+
         clearFileStoreFiles("postProperty");
       }
 

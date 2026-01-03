@@ -68,12 +68,9 @@ export const COMMERCIAL_SUBTYPE_MAP = {
 /* ---------------- LAND ---------------- */
 
 export const LAND_PROPERTY_OPTIONS = [
-  { key: "plot", label: "Plot", icon: "📐" },
   { key: "residential-plot", label: "Residential Plot", icon: "🏠" },
   { key: "commercial-plot", label: "Commercial Plot", icon: "🏢" },
   { key: "industrial-plot", label: "Industrial Plot", icon: "🏭" },
-  { key: "investment-plot", label: "Investment Plot", icon: "💰" },
-  { key: "corner-plot", label: "Corner Plot", icon: "🔲" },
   { key: "na-plot", label: "NA Plot", icon: "📝" },
 ];
 
@@ -109,3 +106,37 @@ export const LAND_PROPERTY_SUBTYPES = [
   "resale",
   "new-plot",
 ];
+
+export const AGRICULTURAL_PROPERTY_OPTIONS= [
+  { key: "farm-land", label: "Farm Land", icon: "🚜" },
+  { key: "wet-land", label: "Wet Land", icon: "💧" },
+  { key: "dry-land", label: "Dry Land", icon: "☀️" },
+  { key: "dairy-farm", label: "Dairy Farm", icon: "🥛" },
+];
+
+export const AGRICULTURAL_PROPERTY_KEYS = [
+  "agricultural-land",
+  "farm-land",
+  "orchard-land",
+  "plantation",
+  "wet-land",
+  "dry-land",
+  "ranch",
+  "dairy-farm",
+] 
+
+  export const AGRICULTURAL_PROPERTY_SUBTYPES = [
+  "irrigated",
+  "non-irrigated",
+  "fenced",
+  "unfenced",
+  "with-well",
+  "with-borewell",
+  "with-electricity",
+  "near-road",
+  "inside-village",
+  "farmhouse-permission",
+] 
+
+  
+

@@ -781,7 +781,7 @@ const CommercialProfile = () => {
               Enable this if you are open to offers from buyers
             </Text>
           </View>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10, }}>
             <Text
               style={{
                 color: commercial.isPriceNegotiable ? "green" : "gray",
@@ -829,9 +829,9 @@ const CommercialProfile = () => {
             dispatch(submitPropertyThunk())
               .unwrap()
               .then((response) => {
-                if (response.status) {
+                if (response.success) {
                   ToastSuccess("Property posted successfully");
-                  console.log("Property Submission Successful:", response.status);
+                  console.log("Property Submission Successful:", response.status,response.success);
                   navigation.navigate("Drawer");
                 }
               })
@@ -885,6 +885,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "#f5f5f5",
     marginBottom: 20,
+    borderStyle:"dashed"
   },
   label: {
     fontSize: 14,

@@ -238,7 +238,7 @@ export const apiService = {
       );
 
       const data = await response.json();
-      console.log("sucess residentialApi :", response.status);
+      console.log("success residentialApi :", response.status,response);
       return {
         success: response.ok,
         status: response.status,
@@ -261,7 +261,7 @@ export const apiService = {
       );
 
       const data = await response.json();
-      console.log("sucess commercialApi :", response.status);
+      console.log("success commercialApi :", response.status);
       return {
         success: response.ok,
         status: response.status,
@@ -280,6 +280,7 @@ export const apiService = {
       });
 
       const data = await response.json();
+      console.log("success Land API :", response.status, response);
 
       return {
         success: response.ok,
@@ -287,7 +288,7 @@ export const apiService = {
         data,
       };
     } catch (error) {
-      console.error("agriculturalApi error:", error);
+      console.error("landApi error:", error);
       throw error;
     }
   },
@@ -302,7 +303,6 @@ export const apiService = {
       );
 
       const data = await response.json();
-
       return {
         success: response.ok,
         status: response.status,

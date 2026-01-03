@@ -14,6 +14,8 @@ import {
   setProfileField,
   setPropertyType,
 } from "../../../redux/slice/PostPropertySlice";
+
+import { setFiles as setFileStoreFiles } from "../../../lib/FileStore";
 import {
   RESIDENTIAL_PROPERTY_OPTIONS,
   COMMERCIAL_PROPERTY_OPTIONS,
@@ -21,6 +23,8 @@ import {
   LAND_PROPERTY_KEYS,
   LAND_PROPERTY_OPTIONS,
   LAND_PROPERTY_SUBTYPES,
+  AGRICULTURAL_PROPERTY_OPTIONS,
+  AGRICULTURAL_PROPERTY_SUBTYPES,
 } from "../../PostPropertyScreen/constants/subTypes";
 import { validateBasicDetails } from "../../../zod/basicDetailsZod";
 import * as ImagePicker from "expo-image-picker";
@@ -85,13 +89,13 @@ export default function BasicDetailsStep() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: true,
-      selectionLimit: 5, // iOS 14+ & Android supported
+      // selectionLimit: 5, // iOS 14+ & Android supported
       quality: 0.8,
     });
 
     if (!result.canceled) {
       setFiles(result.assets);
-
+      console.log("result assets", result.assets);
       // OPTIONAL: save metadata to redux
       dispatch(
         setBaseField({
@@ -103,6 +107,7 @@ export default function BasicDetailsStep() {
           })),
         })
       );
+      setFileStoreFiles("postProperty", result.assets );
     }
   };
 
@@ -113,6 +118,8 @@ export default function BasicDetailsStep() {
       ? COMMERCIAL_PROPERTY_OPTIONS
       : propertyType === "land"
       ? LAND_PROPERTY_OPTIONS
+      : propertyType === "agricultural"
+      ? AGRICULTURAL_PROPERTY_OPTIONS
       : [];
 
   const selectedCommercialType = commercial.propertyType;
@@ -125,6 +132,8 @@ export default function BasicDetailsStep() {
       : [];
 
   const landSubTypes = propertyType === "land" ? LAND_PROPERTY_SUBTYPES : [];
+  const agriculturalSubTypes =
+    propertyType === "agricultural" ? AGRICULTURAL_PROPERTY_SUBTYPES : [];
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -308,6 +317,47 @@ export default function BasicDetailsStep() {
           </View>
         </View>
       )}
+
+      {agriculturalSubTypes.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.label}>Agricultural Characteristics</Text>
+
+          <View style={styles.rowWrap}>
+            {agriculturalSubTypes.map((subType) => {
+              const isSelected = agricultural.agriculturalSubType === subType;
+
+              return (
+                <Pressable
+                  key={subType}
+                  onPress={() =>
+                    dispatch(
+                      setProfileField({
+                        propertyType: "agricultural",
+                        key: "agriculturalSubType",
+                        value: subType,
+                      })
+                    )
+                  }
+                  style={[
+                    styles.optionBtn,
+                    isSelected && styles.optionBtnActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.optionText,
+                      isSelected && styles.optionTextActive,
+                    ]}
+                  >
+                    {subType.replace(/-/g, " ").toUpperCase()}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+      )}
+
       <Text style={styles.label}>Property Images</Text>
       <View style={styles.previewContainer}>
         {files.map((img, index) => (
@@ -457,7 +507,8 @@ const styles = StyleSheet.create({
   card: {
     width: "30%",
     minWidth: 100,
-    padding: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#c0c3c7ff",
