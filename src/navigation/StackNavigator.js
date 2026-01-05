@@ -3,7 +3,7 @@ import { Pressable, View, Text } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import PostProperty from "../screens/PostPropertyScreen/PostProperty";
-
+import PropertyDetailsScreen from "../screens/PropertyDetails/PropertyDetailsScreen";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import DrawerNavigator from "./DrawerNavigator";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -43,6 +43,11 @@ export default function StackNavigator({navigation}) {
       <Stack.Screen
         name="Drawer"
         component={DrawerNavigator}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PropertyDetails"
+        component={PropertyDetailsScreen}
         options={{ headerShown: false }}
       />
 

@@ -87,6 +87,26 @@ export const apiService = {
     }
   },
 
+featuredProjectById: async (id) => {
+  try {
+    const response = await fetch(
+      `${ENV.BASE_URL}${API_ROUTES.USER.FEATURED_PROJECTS}/${id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+},
+
   HighlightProjects: async () => {
     try {
       const response = await fetch(
@@ -222,6 +242,21 @@ export const apiService = {
         status: response.status,
         data,
       };
+    } catch (error) {
+      console.error("agent error:", error);
+      throw error;
+    }
+  },
+  location: async () => {
+    try {
+      const response = await fetch(`${ENV.BASE_URL}${API_ROUTES.USER.LOCATION}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      // const data = await response.json();
+      return response;
     } catch (error) {
       console.error("agent error:", error);
       throw error;

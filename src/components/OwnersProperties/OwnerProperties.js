@@ -22,7 +22,7 @@ const OwnerProperties = () => {
   }, []);
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Properties by Owners</Text>
+      <Text style={styles.title}>Popular Owner Properties</Text>
       <FlatList
         data={properties}
         keyExtractor={(item) => item._id}

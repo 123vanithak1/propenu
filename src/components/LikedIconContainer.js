@@ -14,7 +14,7 @@ const LikedIconContainer = () => {
         pressed && styles.pressed,
       ]}
     >
-      <Entypo name="heart" size={22 } color={liked ? "#2ecc71" : "#575555ff"}  />
+      <Entypo name="heart" size={22} color={liked ? "#2ecc71" : "#575555ff"} />
     </Pressable>
   );
 };

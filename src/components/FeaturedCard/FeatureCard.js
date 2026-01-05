@@ -25,13 +25,17 @@ const FeaturedCard = ({ navigation }) => {
   return (
     <View style={styles.card}>
       <Text style={styles.title}>Prime Properties</Text>
-      <Text style={styles.subtitle}>Exceptional properties Hyderabad</Text>
+      {/* <Text style={styles.subtitle}>Exceptional properties Hyderabad</Text> */}
       <FlatList
         data={details}
         keyExtractor={(item) => item._id}
         horizontal
         showsHorizontalScrollIndicator={false}
-        renderItem={({ item }) => <CardDetails details={item} />}
+        renderItem={({ item }) => (
+          <CardDetails
+            details={item}
+          />
+        )}
       />
     </View>
   );
@@ -39,16 +43,15 @@ const FeaturedCard = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#eeeadbff",
-    paddingHorizontal: 10,
-    paddingVertical: 25,
+    marginHorizontal: 10,
+    // paddingVertical: 10,
   },
   title: { fontSize: 16, fontWeight: "600" },
-  subtitle:{
-    fontSize:12,
-    color:"#8f8d87ff",
-    marginBottom:8,
-    marginTop:2,
-  }
+  subtitle: {
+    fontSize: 12,
+    color: "#8f8d87ff",
+    marginBottom: 8,
+    marginTop: 2,
+  },
 });
 export default FeaturedCard;

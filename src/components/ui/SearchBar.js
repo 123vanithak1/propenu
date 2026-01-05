@@ -1,34 +1,41 @@
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
+import { Voice_Mic } from "../../../assets/svg/Logo";
 
-const SearchBar = () => {
-
+const SearchBar = ({ placeholder, value }) => {
   return (
     <View style={styles.search}>
       <EvilIcons style={{ width: 20 }} name="search" size={24} color="gray" />
-      <TextInput style={styles.input} value="" placeholder="Search... " placeholderTextColor="gray"/>
+      <TextInput
+        style={styles.input}
+        value={value}
+        placeholder={placeholder}
+        placeholderTextColor="gray"
+      />
+      <Voice_Mic width={20} height={20} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   search: {
-    width: "75%",
-    alignSelf: "center",
+    width: "85%",
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
     borderWidth: 0.5,
-    borderColor: "#8ee2b1ff",
+    borderColor: "#ADADAD",
     borderRadius: 10,
-    backgroundColor:"white"
+    paddingVertical: 2,
+    paddingHorizontal: 12,
+    backgroundColor: "white",
   },
   input: {
-    width: "88%",
+    width: "90%",
     borderWidth: 0,
+   paddingLeft:10,
     paddingVertical: 5,
     borderColor: "red",
-    
   },
 });
 export default SearchBar;

@@ -6,7 +6,7 @@ import LikedIconContainer from "../LikedIconContainer";
 const HighLightCard = ({ details }) => {
   // console.log("details", details);
 
-  const { title, city, heroImage, priceFrom, priceTo, currency } = details;
+  const { title, city, heroImage,address, priceFrom, priceTo, currency } = details;
 
   const formatPrice = (price) => {
     if (!price) return "";
@@ -24,25 +24,23 @@ const HighLightCard = ({ details }) => {
 
   return (
     <View style={styles.card}>
-      {/* <View style={styles.likeIcon}>
-        <LikedIconContainer />
-      </View> */}
-      <ImageBackground
-        source={heroImage ? { uri: heroImage } : HomePageImage}
-        style={styles.imageBackground}
-        imageStyle={styles.image}
-      >
+      <View style={styles.imageWrapper}>
+        <ImageBackground
+          source={heroImage ? { uri: heroImage } : HomePageImage}
+          style={styles.imageBackground}
+          imageStyle={styles.image}
+        />
+
         <View style={styles.lowerCard}>
           <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
-          <Text style={styles.city}>{city}</Text> 
-<Text style={styles.price}>
-          {formatPrice(priceFrom)} – {formatPrice(priceTo)}
-        </Text>
-          {/* <Text style={styles.price}>{formatPrice(details.price)}</Text> */}
+          <Text style={styles.city} numberOfLines={1}> {address}</Text>
+          <Text style={styles.price} numberOfLines={1}>
+            {formatPrice(priceFrom)} – {formatPrice(priceTo)}
+          </Text>
         </View>
-      </ImageBackground>
+      </View>
     </View>
   );
 };
@@ -50,55 +48,43 @@ const HighLightCard = ({ details }) => {
 const styles = StyleSheet.create({
   card: {
     marginTop: 10,
-    marginRight: 12,
-    borderRadius: 14,
-    overflow: "hidden",
-    backgroundColor: "#fff",
-
-    // Shadow
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    marginRight: 15,
+    height:230
   },
 
-  likeIcon: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    zIndex: 10,
+  imageWrapper: {
+    position: "relative",
+    paddingBottom: 0,
   },
 
   imageBackground: {
-    width: 200,
-    height: 250,
+    width: 250,
+    height: 180,
   },
 
   image: {
-    borderRadius: 14,
+    borderRadius: 10,
   },
 
   lowerCard: {
     position: "absolute",
     bottom: 0,
-    left: "50%",
-    transform: [{ translateX: -75 }], // half of width
-    width: 150,
+    alignSelf: "center",
+
+    width: 200,
+    height: 80,
+    transform: [{ translateY: 40 }],
 
     backgroundColor: "#fff",
     borderRadius: 10,
-    // borderTopLeftRadius: 10,
-    // borderTopRightRadius: 10,
-    padding: 8,
+    padding: 5,
 
     alignItems: "center",
     justifyContent: "center",
 
-    // shadow for floating effect
-    elevation: 3,
+    elevation: 4,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 3,
   },
@@ -108,16 +94,18 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#222",
   },
-  price: {
-    fontSize: 12,
-    fontWeight:500,
-    color: "#27AE60",
-    marginTop: 4,
-  },
+
   city: {
     fontSize: 11,
-    color: "#666",
+    color: "#000",
     marginTop: 2,
+  },
+
+  price: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#27AE60",
+    marginTop: 4,
   },
 });
 

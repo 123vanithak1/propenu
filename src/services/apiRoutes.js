@@ -12,6 +12,7 @@ export const API_ROUTES = {
     LAND : "/api/properties/land",
     COMMERCIAL : "/api/properties/commercial",
     RESIDENTIAL : "/api/properties/residential",
-    AGENT : "/api/users/agent"
+    AGENT : "/api/users/agent",
+    LOCATION : "/api/users/location",
   },
 };

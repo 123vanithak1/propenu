@@ -36,7 +36,6 @@ const OwnerPropertyCard = ({ details }) => {
           {details.title}
         </Text>
         <Text style={styles.propertyLocation}>
-          {/* <EvilIcons name="location" size={16} color="black" /> */}
           {details.city}
         </Text>
         {details?.superBuiltUpArea && (
@@ -52,15 +51,16 @@ const styles = StyleSheet.create({
   card: {
     width: 250,
     backgroundColor: "#fff",
-    padding: 10,
-    borderRadius: 8,
+    padding: 8,
+    borderRadius: 10,
     marginVertical: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    marginRight: 12,
+    marginRight: 15,
+    marginLeft: 2,
   },
   detailsSection: {
     paddingHorizontal: 10,
@@ -70,8 +70,8 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginTop: 10,
   },
-  area:{
-fontSize:12,
+  area: {
+    fontSize: 12,
     color: "#666",
   },
   likeIcon: {
@@ -88,8 +88,8 @@ fontSize:12,
   },
   propertyLocation: {
     fontSize: 12,
-    color: "#666",
-    // marginBottom: 5,
+    color: "#000",
+    marginBottom: 2,
   },
   propertyPrice: {
     fontSize: 12,

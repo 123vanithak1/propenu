@@ -9,15 +9,9 @@ import Toast from "react-native-toast-message";
 export default function AppNavigator() {
   return (
     <SafeAreaProvider>
-      <StatusBar
-        translucent
-        backgroundColor="transparent"
-        barStyle="light-content"
-      />
-     
-        <StackNavigator />
-         <Toast />
-    
+      <StatusBar translucent backgroundColor="white" barStyle="dark-content" />
+      <StackNavigator />
+      <Toast />
     </SafeAreaProvider>
   );
 }

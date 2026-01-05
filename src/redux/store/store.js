@@ -1,20 +1,11 @@
-// import { configureStore } from "@reduxjs/toolkit";
-// import postPropertyReducer from "../slice/PostPropertySlice";
-
-// export const store = configureStore({
-//   reducer: {
-//     postProperty: postPropertyReducer,
-//   },
-// });
-
-
-
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
+import cityReducer from "../slice/CitySlice";
 import postPropertyReducer from "../slice/PostPropertySlice";
 
 export const store = configureStore({
   reducer: {
+     city: cityReducer,
     postProperty: postPropertyReducer,
   },
   // devTools enabled by default in development

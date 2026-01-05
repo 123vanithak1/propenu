@@ -1,80 +1,87 @@
-import { View, Text, StyleSheet, FlatList, Image } from "react-native";
+import { View, Text, StyleSheet, Image, Pressable } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
-const CardDetails = ({ details }) => {
-  const { title, city, heroImage, priceFrom, priceTo, currency } = details;
+const CardDetails = ({ details, onPress }) => {
+  const navigation = useNavigation();
+  const { title, city, heroImage, priceFrom, priceTo } = details;
 
   const formatPrice = (price) => {
     if (!price) return "";
-
-    if (price >= 10000000) {
-      return `₹ ${(price / 10000000).toFixed(1)} Cr`;
-    }
-
-    if (price >= 100000) {
-      return `₹ ${(price / 100000).toFixed(0)} L`;
-    }
-
+    if (price >= 10000000) return `₹ ${(price / 10000000).toFixed(1)} Cr`;
+    if (price >= 100000) return `₹ ${(price / 100000).toFixed(0)} L`;
     return `₹ ${price.toLocaleString("en-IN")}`;
   };
 
+  const handleClick = () => {
+    console.log("getting id when select", details._id);
+    navigation.navigate("PropertyDetails", { propertyId: details._id });
+  };
+
   return (
-    <View style={styles.card}>
+    <Pressable onPress={handleClick} style={styles.card}>
       <Image source={{ uri: heroImage }} style={styles.image} />
 
       <View style={styles.infoContainer}>
-        <Text style={styles.title} numberOfLines={1}>
-          {title}
-        </Text>
+        <View style={styles.nameContainer}>
+          <Text style={styles.title} numberOfLines={1}>
+            {title}
+          </Text>
+          <Text style={styles.city}>2,3 BHK Flats</Text>
+        </View>
 
-        <Text style={styles.city}>{city}</Text>
-
-        <Text style={styles.price}>
-          {formatPrice(priceFrom)} – {formatPrice(priceTo)}
-        </Text>
-        {/* <Text style={styles.price}>
-          {currency} {priceFrom?.toLocaleString()} – {priceTo?.toLocaleString()}
-        </Text> */}
+        <View style={styles.nameContainer}>
+          <Text style={styles.city} numberOfLines={1}>
+            {city}
+          </Text>
+          <Text style={styles.price}>
+            {formatPrice(priceFrom)} – {formatPrice(priceTo)}
+          </Text>
+        </View>
       </View>
-    </View>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
     width: 250,
-    marginTop: 10,
-    flexDirection: "row",
+    height: 200,
+    marginLeft: 2,
+    marginRight: 15,
+    marginVertical: 10,
     backgroundColor: "#fff",
     borderRadius: 12,
-    padding: 10,
-    marginRight: 12,
-    alignItems: "center",
-
-    // Shadow (Android)
     elevation: 3,
-
-    // Shadow (iOS)
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
   },
+  nameContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
 
   image: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    marginRight: 12,
+    width: "100%",
+    height: 140,
+    borderRadius: 10,
+
     backgroundColor: "#eee",
   },
 
   infoContainer: {
     flex: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
   },
 
   title: {
-    fontSize: 13,
-    color: "#222",
+    width: "50%",
+    fontSize: 12,
+    color: "#000",
+    fontWeight: 500,
   },
 
   city: {
@@ -85,8 +92,7 @@ const styles = StyleSheet.create({
 
   price: {
     fontSize: 12,
-    marginTop: 4,
-    fontWeight:500,
+    fontWeight: 500,
     color: "#27AE60",
   },
 });
