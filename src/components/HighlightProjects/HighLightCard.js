@@ -1,12 +1,19 @@
-import { View, Text, ImageBackground, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  ImageBackground,
+  StyleSheet,
+  Pressable,
+} from "react-native";
 import React from "react";
+import { useNavigation } from "@react-navigation/native";
 import HomePageImage from "../../../assets/HomePageImage.png";
 import LikedIconContainer from "../LikedIconContainer";
 
 const HighLightCard = ({ details }) => {
-  // console.log("details", details);
-
-  const { title, city, heroImage,address, priceFrom, priceTo, currency } = details;
+  const navigation = useNavigation();
+  const { title, city, heroImage, address, priceFrom, priceTo, currency } =
+    details;
 
   const formatPrice = (price) => {
     if (!price) return "";
@@ -22,8 +29,13 @@ const HighLightCard = ({ details }) => {
     return `₹ ${price.toLocaleString("en-IN")}`;
   };
 
+  const handleClick = () => {
+    console.log("getting id when select", details._id);
+    navigation.navigate("PropertyDetails", { propertyId: details._id });
+  };
+
   return (
-    <View style={styles.card}>
+    <Pressable onPress={handleClick} style={styles.card}>
       <View style={styles.imageWrapper}>
         <ImageBackground
           source={heroImage ? { uri: heroImage } : HomePageImage}
@@ -35,13 +47,16 @@ const HighLightCard = ({ details }) => {
           <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
-          <Text style={styles.city} numberOfLines={1}> {address}</Text>
+          <Text style={styles.city} numberOfLines={1}>
+            {" "}
+            {address}
+          </Text>
           <Text style={styles.price} numberOfLines={1}>
             {formatPrice(priceFrom)} – {formatPrice(priceTo)}
           </Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 };
 
@@ -49,7 +64,7 @@ const styles = StyleSheet.create({
   card: {
     marginTop: 10,
     marginRight: 15,
-    height:230
+    height: 230,
   },
 
   imageWrapper: {

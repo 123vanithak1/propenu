@@ -5,6 +5,7 @@ const CardDetails = ({ details, onPress }) => {
   const navigation = useNavigation();
   const { title, city, heroImage, priceFrom, priceTo } = details;
 
+
   const formatPrice = (price) => {
     if (!price) return "";
     if (price >= 10000000) return `₹ ${(price / 10000000).toFixed(1)} Cr`;

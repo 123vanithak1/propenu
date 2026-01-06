@@ -10,16 +10,16 @@ export const Logo = ({ width = 66, height = 80 }) => (
   </Svg>
 );
 
-export const LocationIcon = ({ width = 16, height = 16, ...props }) => (
+export const LocationIcon = ({ width = 16, height = 16, color="#000",  ...props }) => (
   <Svg width={width} height={height} viewBox="0 0 16 16" fill="none" {...props}>
     <Path
-      stroke="#000"
+      stroke={color}
       strokeLinecap="round"
       strokeLinejoin="round"
       d="M8 1.5c-2.484 0-4.5 1.918-4.5 4.281 0 2.719 3 7.027 4.102 8.516a.492.492 0 0 0 .796 0C9.5 12.809 12.5 8.502 12.5 5.78 12.5 3.418 10.484 1.5 8 1.5Z"
     />
     <Path
-      stroke="#000"
+      stroke={color}
       strokeLinecap="round"
       strokeLinejoin="round"
       d="M8 7.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"
