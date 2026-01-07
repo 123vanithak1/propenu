@@ -15,14 +15,13 @@ import RemoteSvg from "../../lib/RemoteSVG";
 import { LocationIcon, Logo } from "../../../assets/svg/Logo";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import AmenitiesWithModal from "./AmenitiesWithModal";
-import MapScreen from "../../components/location/MapScreen";
+import NearByLocations from "./NearByLocation";
+import AvailableProperties from "./AvailableProperties";
+import Gallery from "./Gallary";
 
 const PropertyDetailsScreen = ({ route }) => {
   const { propertyId } = route.params;
   const [property, setProperty] = useState(null);
-  const [selectedBhk, setSelectedBhk] = useState(null);
-  const [selectedUnit, setSelectedUnit] = useState(null);
-  const [showAllAmenities, setShowAllAmenities] = useState(false);
 
   useEffect(() => {
     fetchPropertyDetails();
@@ -31,12 +30,13 @@ const PropertyDetailsScreen = ({ route }) => {
   const fetchPropertyDetails = async () => {
     try {
       const res = await apiService.featuredProjectById(propertyId);
-      // console.log("response :", res.data.heroTagline);
+      // console.log("response :", res.data);
       setProperty(res.data);
     } catch (error) {
       console.error(error);
     }
   };
+
   if (!property) {
     return (
       <SafeAreaView style={styles.center}>
@@ -44,21 +44,6 @@ const PropertyDetailsScreen = ({ route }) => {
       </SafeAreaView>
     );
   }
-
-  const formatPrice = (price) => {
-    if (!price) return "";
-    if (price >= 10000000) return `₹ ${(price / 10000000).toFixed(1)} Cr`;
-    if (price >= 100000) return `₹ ${(price / 100000).toFixed(0)} L`;
-    return `₹ ${price.toLocaleString("en-IN")}`;
-  };
-  const activeBhk = selectedBhk ?? property?.bhkSummary?.[0] ?? null;
-
-  const activeUnits = activeBhk?.units ?? [];
-  const activeUnit = selectedUnit ?? activeUnits?.[0] ?? null;
-
-  const visibleAmenities = showAllAmenities
-    ? property.amenities
-    : property.amenities.slice(0, 5);
 
   const formatMonthYear = (dateString) => {
     if (!dateString) return "";
@@ -156,10 +141,6 @@ const PropertyDetailsScreen = ({ route }) => {
           </View>
         </View>
 
-        {/* <Text style={styles.price}>
-          {formatPrice(property.priceFrom)} – {formatPrice(property.priceTo)}
-        </Text> */}
-
         <View style={styles.section}>
           <View style={styles.sectionRow}>
             <View style={styles.center}>
@@ -209,46 +190,11 @@ const PropertyDetailsScreen = ({ route }) => {
           </View>
         </View>
 
-        <Text style={styles.aboutUs}>About US</Text>
-        {property?.aboutSummary?.map((item, index) => (
-          <View key={index} style={styles.homepage}>
-            <View style={styles.imageWrapper}>
-              <Image source={{ uri: item.url }} style={styles.homePageImage} />
-              <Text style={styles.overlayText}>Why Choose Us</Text>
-            </View>
+        <AvailableProperties bhk={property} />
 
-            <Text style={styles.about}>{item.aboutDescription}</Text>
-          </View>
-        ))}
+        <Gallery property={property} />
+
         <AmenitiesWithModal amenities={property.amenities} />
-
-        <View style={styles.gallery}>
-          <Text numberOfLines={1} style={styles.galleryText}>
-            Gallery
-          </Text>
-
-          <FlatList
-            data={property?.gallerySummary}
-            horizontal
-            keyExtractor={(item) => item.order.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.galleryItem}>
-                <Image
-                  source={{ uri: item.url }}
-                  style={styles.galleryImage}
-                  resizeMode="cover"
-                />
-
-                {/* Overlay */}
-                <View style={styles.overlay}>
-                  <Text style={styles.overlayImageText}>{item.category}</Text>
-                </View>
-              </View>
-            )}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 16 }}
-          />
-        </View>
 
         {property?.nearbyPlaces && (
           <View style={styles.gallery}>
@@ -272,11 +218,23 @@ const PropertyDetailsScreen = ({ route }) => {
               {Platform.OS === "web" ? (
                 <Text>Map is available on mobile only</Text>
               ) : (
-                <MapScreen />
+                <NearByLocations nearbyPlaces={property.nearbyPlaces} />
               )}
             </View>
           </View>
         )}
+
+        <Text style={styles.aboutUs}>About US</Text>
+        {property?.aboutSummary?.map((item, index) => (
+          <View key={index} style={styles.homepage}>
+            <View style={styles.imageWrapper}>
+              <Image source={{ uri: item.url }} style={styles.homePageImage} />
+              <Text style={styles.overlayText}>Why Choose Us</Text>
+            </View>
+
+            <Text style={styles.about}>{item.aboutDescription}</Text>
+          </View>
+        ))}
       </ScrollView>
     </SafeAreaView>
   );
@@ -398,46 +356,6 @@ const styles = StyleSheet.create({
     marginTop: 17,
     paddingHorizontal: 7,
     textAlign: "justify",
-  },
-  gallery: {
-    marginVertical: 10,
-  },
-
-  galleryText: {
-    marginHorizontal: 10,
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 10,
-  },
-
-  galleryItem: {
-    width: 260,
-    height: 180,
-    marginRight: 18,
-    borderRadius: 12,
-    overflow: "hidden", // IMPORTANT for rounded overlay
-  },
-
-  galleryImage: {
-    width: "100%",
-    height: "100%",
-  },
-
-  overlay: {
-    position: "absolute",
-    bottom: 8,
-    left: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    backgroundColor: "rgba(53, 53, 53, 0.75)", // light background
-    borderRadius: 8,
-  },
-
-  overlayImageText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "white",
-    textTransform: "capitalize",
   },
   aboutUs: {
     fontSize: 16,

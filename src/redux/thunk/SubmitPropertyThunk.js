@@ -109,6 +109,7 @@ export const submitPropertyThunk = createAsyncThunk(
 
         clearFileStoreFiles("postProperty");
       }
+      console.log("formData" , formData)
 
       // 🔹 Submit based on property type
       switch (propertyType) {

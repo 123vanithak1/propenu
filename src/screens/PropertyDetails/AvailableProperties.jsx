@@ -1,0 +1,265 @@
+// components/AvailableProperties.js
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  Image,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
+import HomePage from "../../../assets/HomePage.png";
+
+/** INR formatter */
+function formatINR(v) {
+  if (!v) return "--";
+  return v.toLocaleString("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  });
+}
+
+const AvailableProperties = ({ bhk }) => {
+  const items = Array.isArray(bhk?.bhkSummary) ? bhk.bhkSummary : [];
+  const color = bhk?.color || "#F59E0B";
+
+  const { width } = useWindowDimensions();
+
+  const [activeBhkIndex, setActiveBhkIndex] = useState(0);
+  const [activeUnitIndex, setActiveUnitIndex] = useState(0);
+
+  useEffect(() => {
+    if (activeBhkIndex >= items.length) {
+      setActiveBhkIndex(0);
+    }
+  }, [items.length]);
+
+  useEffect(() => {
+    setActiveUnitIndex(0);
+  }, [activeBhkIndex]);
+
+  const handlePress = () =>{
+    console.log("Sucessfully book a consultaion")
+  }
+  const activeBhk = items[activeBhkIndex];
+  const units = Array.isArray(activeBhk?.units) ? activeBhk.units : [];
+
+  const sqftLabels = useMemo(
+    () =>
+      units.map((u) =>
+        u.minSqft ? `${u.minSqft} sqft` : u.plan?.url ? "Plan" : "—"
+      ),
+    [units]
+  );
+
+  const activeUnit = units[activeUnitIndex];
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* Header */}
+
+      <View>
+        <Text style={styles.title}>Available Properties</Text>
+        <Text style={styles.subtitle}>Building excellence in Hyderabad</Text>
+      </View>
+
+      {/* Card */}
+      <View style={[styles.card, { backgroundColor: `${color}1A` }]}>
+        {/* BHK Tabs */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.row}>
+            {items.map((b, i) => {
+              const active = i === activeBhkIndex;
+              return (
+                <Pressable
+                  key={i}
+                  onPress={() => setActiveBhkIndex(i)}
+                  style={[
+                    styles.tab,
+                    {
+                      backgroundColor: active ? color : "#f3f4f6",
+                    },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      color: active ? "#fff" : "#2c2c2c",
+                      fontWeight: "500",
+                      fontSize: 12,
+                    }}
+                  >
+                    {b.bhkLabel || `${b.bhk} BHK`}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </ScrollView>
+
+        {/* Sqft Chips */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.row}>
+            {sqftLabels.map((label, idx) => {
+              const active = idx === activeUnitIndex;
+              return (
+                <Pressable
+                  key={idx}
+                  onPress={() => setActiveUnitIndex(idx)}
+                  style={[
+                    styles.chip,
+                    {
+                      borderColor: active ? color : "#e5e7eb",
+                    },
+                  ]}
+                >
+                  <Text style={{ color: active ? color : "#374151" }}>
+                    {label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </ScrollView>
+
+        {/* Main Content */}
+        <View>
+          {/* Image */}
+          <View style={styles.imageBox}>
+            <Image
+              source={
+                activeUnit?.plan?.url ? { uri: activeUnit.plan.url } : HomePage
+              }
+              style={styles.image}
+              //   resizeMode="cover"
+            />
+          </View>
+
+          {/* Details */}
+          <View style={styles.details}>
+            <View style={styles.priceData}>
+              <Text style={styles.label}>Starting Price :</Text>
+              <Text style={styles.price}>
+                {formatINR(activeUnit?.maxPrice)}
+              </Text>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Unit</Text>
+              <Text style={styles.infoValue}>
+                {activeBhk?.bhkLabel || `${activeBhk?.bhk} BHK`}
+              </Text>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Area</Text>
+              <Text style={styles.infoValue}>
+                {activeUnit?.minSqft ? `${activeUnit.minSqft} sqft` : "—"}
+              </Text>
+            </View>
+
+            <Pressable style={[styles.cta, { backgroundColor: color }]} onPress={handlePress}>
+              <Text style={styles.ctaText}>Book a Consultation</Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </ScrollView>
+  );
+};
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 12,
+    marginVertical: 6,
+  },
+
+  title: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  subtitle: {
+    color: "#6b7280",
+    fontSize: 12,
+    marginTop: 5,
+    marginBottom: 10,
+  },
+  card: {
+    marginTop:10,
+    borderRadius: 12,
+    padding: 15,
+  },
+  row: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 16,
+  },
+  tab: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  chip: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    backgroundColor: "#fff",
+  },
+  imageBox: {
+    flex: 2,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+  },
+  image: {
+    width: "100%",
+    height: 300,
+    borderRadius: 10,
+  },
+  priceData: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    marginBottom: 10,
+  },
+  details: {
+    flex: 1,
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+  },
+  label: {
+    // color:"gray",
+    fontSize: 13,
+  },
+  price: {
+    fontSize: 15,
+    fontWeight: "600",
+    // marginBottom: 12,
+  },
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  infoLabel: {
+    // color: "#585d66ff",
+  },
+  infoValue: {
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  cta: {
+    width: "70%",
+    alignSelf: "center",
+    marginTop: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  ctaText: {
+    color: "#fff",
+    fontWeight: "700",
+  },
+});
+
+export default AvailableProperties;
