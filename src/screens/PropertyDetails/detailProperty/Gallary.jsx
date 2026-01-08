@@ -62,7 +62,7 @@ const Gallery = ({ property }) => {
             <Image
               source={{ uri: imageUrl }}
               style={styles.fullScreenImage}
-              // resizeMode="cover"
+              // resizeMode="contain"
             />
           </View>
         </View>
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     height: 220,
     marginRight: 18,
     borderRadius: 12,
-    overflow: "hidden", // IMPORTANT for rounded overlay
+    overflow: "hidden",
   },
 
   galleryImage: {
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     width: "90%",
     height: "85%",
     borderRadius: 10,
-    position: "relative", // 🔥 KEY LINE
+    position: "relative",
     overflow: "hidden",
   },
 

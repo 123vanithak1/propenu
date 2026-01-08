@@ -9,7 +9,7 @@ import {
   StyleSheet,
   useWindowDimensions,
 } from "react-native";
-import HomePage from "../../../assets/HomePage.png";
+import HomePage from "../../../../assets/HomePage.png";
 
 /** INR formatter */
 function formatINR(v) {

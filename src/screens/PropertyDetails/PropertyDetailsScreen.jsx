@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -14,18 +14,40 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import RemoteSvg from "../../lib/RemoteSVG";
 import { LocationIcon, Logo } from "../../../assets/svg/Logo";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import AmenitiesWithModal from "./AmenitiesWithModal";
-import NearByLocations from "./NearByLocation";
-import AvailableProperties from "./AvailableProperties";
-import Gallery from "./Gallary";
+import AmenitiesWithModal from "./detailProperty/AmenitiesWithModal";
+import NearByLocations from "./detailProperty/NearByLocation";
+import AvailableProperties from "./detailProperty/AvailableProperties";
+import Gallery from "./detailProperty/Gallary";
 
 const PropertyDetailsScreen = ({ route }) => {
   const { propertyId } = route.params;
   const [property, setProperty] = useState(null);
+  const [showNav, setShowNav] = useState(false);
+
+  const scrollRef = useRef(null);
+  const sectionPositions = useRef({
+    properties: 0,
+    gallery: 0,
+    amenities: 0,
+    location: 0,
+    about: 0,
+  });
+
+  const handleScroll = (e) => {
+    const y = e.nativeEvent.contentOffset.y;
+    if (y > 220 && !showNav) {
+      setShowNav(true);
+    }
+    // else setShowNav(false)
+  };
 
   useEffect(() => {
     fetchPropertyDetails();
   }, [propertyId]);
+
+  useEffect(() => {
+    return () => setShowNav(false);
+  }, []);
 
   const fetchPropertyDetails = async () => {
     try {
@@ -58,14 +80,76 @@ const PropertyDetailsScreen = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.safe}>
+      {showNav && (
+        <View style={styles.stickyNav}>
+          <Pressable
+            onPress={() =>
+              scrollRef.current?.scrollTo({
+                y: sectionPositions.current.properties - 60,
+                animated: true,
+              })
+            }
+          >
+            <Text style={styles.sectionTitle}>Properties</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() =>
+              scrollRef.current?.scrollTo({
+                y: sectionPositions.current.gallery - 60,
+                animated: true,
+              })
+            }
+          >
+            <Text style={styles.sectionTitle}>Gallery</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() =>
+              scrollRef.current?.scrollTo({
+                y: sectionPositions.current.amenities - 60,
+                animated: true,
+              })
+            }
+          >
+            <Text style={styles.sectionTitle}>Amenities</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() =>
+              scrollRef.current?.scrollTo({
+                y: sectionPositions.current.location - 60,
+                animated: true,
+              })
+            }
+          >
+            <Text style={styles.sectionTitle}>Location</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() =>
+              scrollRef.current?.scrollTo({
+                y: sectionPositions.current.about - 60,
+                animated: true,
+              })
+            }
+          >
+            <Text style={styles.sectionTitle}>About</Text>
+          </Pressable>
+        </View>
+      )}
+
       <ScrollView
-        contentContainerStyle={styles.container}
+        // contentContainerStyle={styles.container}
+        ref={scrollRef}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
       >
         {property?.heroImage ? (
           <Image
             source={{ uri: property.heroImage }}
-            style={styles.image}
+            style={[styles.image, { marginTop: showNav ? 40 : 0 }]}
             resizeMode="cover"
           />
         ) : (
@@ -190,51 +274,82 @@ const PropertyDetailsScreen = ({ route }) => {
           </View>
         </View>
 
-        <AvailableProperties bhk={property} />
+        <View
+          onLayout={(e) => {
+            sectionPositions.current.properties = e.nativeEvent.layout.y;
+          }}
+        >
+          <AvailableProperties bhk={property} />
+        </View>
 
-        <Gallery property={property} />
+        <View
+          onLayout={(e) =>
+            (sectionPositions.current.gallery = e.nativeEvent.layout.y)
+          }
+        >
+          <Gallery property={property} />
+        </View>
 
-        <AmenitiesWithModal amenities={property.amenities} />
+        <View
+          onLayout={(e) =>
+            (sectionPositions.current.amenities = e.nativeEvent.layout.y)
+          }
+        >
+          <AmenitiesWithModal amenities={property.amenities} />
+        </View>
+        <View
+          onLayout={(e) =>
+            (sectionPositions.current.location = e.nativeEvent.layout.y)
+          }
+        >
+          {property?.nearbyPlaces && (
+            <View style={styles.gallery}>
+              <Text style={styles.aboutUs}>Location & Landmarks</Text>
 
-        {property?.nearbyPlaces && (
-          <View style={styles.gallery}>
-            <Text style={styles.aboutUs}>Location & Landmarks</Text>
-
-            <FlatList
-              data={property.nearbyPlaces}
-              horizontal
-              keyExtractor={(item) => item.order.toString()}
-              renderItem={({ item }) => (
-                <View style={styles.placeRow}>
-                  <LocationIcon color="#FFAC1D" width={16} height={16} />
-                  <Text style={styles.placeName}>
-                    {item.name} : {item.distanceText}
-                  </Text>
-                </View>
-              )}
-              showsHorizontalScrollIndicator={false}
-            />
-            <View style={styles.mapBox}>
-              {Platform.OS === "web" ? (
-                <Text>Map is available on mobile only</Text>
-              ) : (
-                <NearByLocations nearbyPlaces={property.nearbyPlaces} />
-              )}
+              <FlatList
+                data={property.nearbyPlaces}
+                horizontal
+                keyExtractor={(item) => item.order.toString()}
+                renderItem={({ item }) => (
+                  <View style={styles.placeRow}>
+                    <LocationIcon color="#FFAC1D" width={16} height={16} />
+                    <Text style={styles.placeName}>
+                      {item.name} : {item.distanceText}
+                    </Text>
+                  </View>
+                )}
+                showsHorizontalScrollIndicator={false}
+              />
+              <View style={styles.mapBox}>
+                {Platform.OS === "web" ? (
+                  <Text>Map is available on mobile only</Text>
+                ) : (
+                  <NearByLocations nearbyPlaces={property.nearbyPlaces} />
+                )}
+              </View>
             </View>
-          </View>
-        )}
+          )}
+        </View>
+        <View
+          onLayout={(e) =>
+            (sectionPositions.current.about = e.nativeEvent.layout.y)
+          }
+        >
+          <Text style={styles.aboutUs}>Why Choose Us</Text>
+          {property?.aboutSummary?.map((item, index) => (
+            <View key={index} style={styles.homepage}>
+              <View style={styles.imageWrapper}>
+                <Image
+                  source={{ uri: item.url }}
+                  style={styles.homePageImage}
+                />
+                {/* <Text style={styles.overlayText}>Why Choose Us</Text> */}
+              </View>
 
-        <Text style={styles.aboutUs}>About US</Text>
-        {property?.aboutSummary?.map((item, index) => (
-          <View key={index} style={styles.homepage}>
-            <View style={styles.imageWrapper}>
-              <Image source={{ uri: item.url }} style={styles.homePageImage} />
-              <Text style={styles.overlayText}>Why Choose Us</Text>
+              <Text style={styles.about}>{item.aboutDescription}</Text>
             </View>
-
-            <Text style={styles.about}>{item.aboutDescription}</Text>
-          </View>
-        ))}
+          ))}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -246,17 +361,36 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    // padding: 16,
+    paddingBottom: 16,
   },
   image: {
     width: "100%",
     height: 220,
-    paddingHorizontal: 5,
+    // paddingHorizontal: 5,
+
     backgroundColor: "#eee",
   },
   imagePlaceholder: {
     alignItems: "center",
     justifyContent: "center",
+  },
+  stickyNav: {
+    position: "absolute",
+    top: 40,
+    left: 0,
+    right: 0,
+    height: 56,
+    zIndex: 1000,
+    backgroundColor: "white",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+  },
+
+  navItem: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#333",
   },
   row: {
     flexDirection: "row",
@@ -360,7 +494,7 @@ const styles = StyleSheet.create({
   aboutUs: {
     fontSize: 16,
     fontWeight: "600",
-    marginTop: 10,
+    marginTop: 15,
     marginLeft: 16,
   },
   placeRow: {
@@ -373,7 +507,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderColor: "#eee",
     marginRight: 17,
-    marginVertical: 8,
+    marginVertical: 12,
   },
 
   placeName: {

@@ -22,7 +22,7 @@ import {
   SecurityIcon,
   CCTVIcon,
   FireSafetyIcon,
-} from "../../../assets/svg/AmenitiesIcons";
+} from "../../../../assets/svg/AmenitiesIcons";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const AMENITY_ICON_MAP = {

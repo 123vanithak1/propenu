@@ -1,8 +1,6 @@
 import { WebView } from "react-native-webview";
 import { View } from "react-native";
 import { useState, useRef } from "react";
-import { useDispatch } from "react-redux";
-import { setBaseField } from "../../redux/slice/PostPropertySlice";
 
 export default function NearByLocations({ nearbyPlaces }) {
 
@@ -21,7 +19,7 @@ export default function NearByLocations({ nearbyPlaces }) {
     <View style={{ flex: 1 }}>
       <WebView
         ref={webRef}
-        source={require("../../../assets/map.html")}
+        source={require("../../../../assets/map.html")}
         javaScriptEnabled
         domStorageEnabled
         scrollEnabled={false}
