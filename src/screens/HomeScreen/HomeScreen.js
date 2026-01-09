@@ -35,74 +35,66 @@ const HomeScreen = ({ navigation }) => {
       id: "residential",
       title: "Residential",
       icon: <Residential width={24} height={24} />,
-      onPress: () => console.log("Residential pressed"),
     },
     {
       id: "commercial",
       title: "Commercial",
       icon: <Commercial width={24} height={24} />,
-      onPress: () => console.log("Commercial pressed"),
     },
     {
       id: "land",
-      title: "Plot/Land",
+      title: "Land",
       icon: <Land width={24} height={24} />,
-      onPress: () => console.log("Land pressed"),
     },
     {
-      id: "agriculture",
-      title: "Agriculture",
+      id: "agricultural",
+      title: "Agricultural",
       icon: <Agriculture width={24} height={24} />,
-      onPress: () => console.log("Agriculture pressed"),
     },
   ];
 
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <View style={styles.searchWrapper}>
-        <SearchBar placeholder='Search "Hyderabad" '  value="" />
+        <SearchBar placeholder='Search "Hyderabad" ' value="" />
         <View style={styles.bellIcon}>
           <BellIcon width={18} height={18} />
         </View>
-      </View> 
-    <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
-      {/* */}
-      <View style={styles.imageContainer}>
-        <Image
-          source={HomePage}
-          style={[styles.homePageImage, { height: height * 0.2 }]}
-        />
       </View>
+      <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
+        {/* */}
+        <View style={styles.imageContainer}>
+          <Image
+            source={HomePage}
+            style={[styles.homePageImage, { height: height * 0.2 }]}
+          />
+        </View>
 
-      <View style={{ marginTop: 20, marginHorizontal: 10, marginBottom: 10 }}>
-        <Text style={{ fontSize: 16, fontWeight: "600" }}>
-          Get Started with
-        </Text>
-        {/*<Text style={{ fontSize: 12, color: "#6b6965ff" }}>
+        <View style={{ marginTop: 20, marginHorizontal: 10, marginBottom: 10 }}>
+          <Text style={{ fontSize: 16, fontWeight: "600" }}>
+            Get Started with
+          </Text>
+          {/*<Text style={{ fontSize: 12, color: "#6b6965ff" }}>
           Explore real estate options 
            in top cities
         </Text> */}
-        <FlatList
-          data={HOME_CARDS}
-          keyExtractor={(item) => item.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          // contentContainerStyle={{ paddingHorizontal: 2 }}
-          renderItem={({ item }) => (
-            <CardHome
-              title={item.title}
-              icon={item.icon}
-              onPress={item.onPress}
-            />
-          )}
-        />
-      </View>
-      <FeaturedCard />
-      <HighLightProjects />
-      <OwnerProperties />
-      <AgentProperties />
-      <ServiceHub />
-    </ScrollView>
+          <FlatList
+            data={HOME_CARDS}
+            keyExtractor={(item) => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            // contentContainerStyle={{ paddingHorizontal: 2 }}
+            renderItem={({ item }) => (
+              <CardHome id={item.id} title={item.title} icon={item.icon} />
+            )}
+          />
+        </View>
+        <FeaturedCard />
+        <HighLightProjects />
+        <OwnerProperties />
+        <AgentProperties />
+        <ServiceHub />
+      </ScrollView>
     </View>
   );
 };
@@ -125,7 +117,7 @@ const styles = StyleSheet.create({
     borderColor: "#ADADAD",
   },
   imageContainer: {
-    paddingTop:5,
+    paddingTop: 5,
     paddingHorizontal: 10,
   },
 

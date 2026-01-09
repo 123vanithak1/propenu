@@ -87,25 +87,25 @@ export const apiService = {
     }
   },
 
-featuredProjectById: async (id) => {
-  try {
-    const response = await fetch(
-      `${ENV.BASE_URL}${API_ROUTES.USER.FEATURED_PROJECTS}/${id}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+  featuredProjectById: async (id) => {
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.USER.FEATURED_PROJECTS}/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    const data = await response.json();
+      const data = await response.json();
 
-    return data;
-  } catch (error) {
-    throw error;
-  }
-},
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  },
 
   HighlightProjects: async () => {
     try {
@@ -249,12 +249,15 @@ featuredProjectById: async (id) => {
   },
   location: async () => {
     try {
-      const response = await fetch(`${ENV.BASE_URL}${API_ROUTES.USER.LOCATION}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.USER.LOCATION}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       // const data = await response.json();
       return response;
     } catch (error) {
@@ -273,7 +276,7 @@ featuredProjectById: async (id) => {
       );
 
       const data = await response.json();
-      console.log("success residentialApi :", response.status,response);
+      console.log("success residentialApi :", response.status, response);
       return {
         success: response.ok,
         status: response.status,
@@ -345,6 +348,74 @@ featuredProjectById: async (id) => {
       };
     } catch (error) {
       console.error("agriculturalApi error:", error);
+      throw error;
+    }
+  },
+
+  //  Returning NDJSON (newline-delimited JSON) NOT normal JSON
+  category_search: async (params) => {
+    try {
+      const query = new URLSearchParams({
+        category: params.category,
+      }).toString();
+
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.SEARCH.CATEGORY_SEARCH}?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      // 🔥 NDJSON handling
+      const text = await response.text();
+
+      if (!text) return [];
+
+      const items = text
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => JSON.parse(line));
+
+      return items;
+    } catch (error) {
+      console.error("Category Search error:", error);
+      throw error;
+    }
+  },
+  residential_category_search: async (id) => {
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.SEARCH.RESIDENTIAL_CATEGORY_SEARCH}/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      // 🔥 NDJSON handling
+      const text = await response.text();
+
+      if (!text) return [];
+
+      const items = text
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => JSON.parse(line));
+
+      return items;
+    } catch (error) {
+      console.error("Category Search error:", error);
       throw error;
     }
   },

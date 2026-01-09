@@ -1,16 +1,30 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import useDimensions from "../../components/CustomHooks/UseDimension";
+import { apiService } from "../../services/apiService";
+import { useNavigation } from "@react-navigation/native";
 
-
-const CardHome = ({ title, icon, onPress }) => {
+const CardHome = ({ title, icon, id }) => {
+  const navigation = useNavigation();
   const { width, height, isLandscape } = useDimensions();
-const CARD_WIDTH = width / 4 - 12; 
+
+  const handlePress = async () => {
+    console.log("checking id and title :", title, id);
+    try {
+      const result = await apiService.category_search({ category: title });
+      console.log("result ", result);
+
+      navigation.navigate("PropertyList", { id, items: result });
+    } catch (error) {
+      console.log("Error occured when search by category", error);
+    }
+  };
 
   return (
-    <TouchableOpacity style={[styles.card,{width: width * 0.2}]} onPress={onPress}>
-      <View style={styles.iconContainer}>
-        {icon}
-      </View>
+    <TouchableOpacity
+      style={[styles.card, { width: width * 0.2 }]}
+      onPress={handlePress}
+    >
+      <View style={styles.iconContainer}>{icon}</View>
       <Text style={styles.cardTitle}>{title}</Text>
     </TouchableOpacity>
   );

@@ -215,3 +215,118 @@ export const TabBarHome= ({width =20, height = 20,color="#27AE60", ...props }) =
     />
   </Svg>
 );
+export const ReadyToMoveIcon= ({width =20, height = 20,color="#27AE60", ...props }) => (
+   <Svg
+    viewBox="0 0 24 24"
+    width={width}
+    height={height}
+    fill="none"
+    {...props}
+  >
+      <Mask
+      id="a"
+      width={24}
+      height={24}
+      x={0}
+      y={0}
+      maskUnits="userSpaceOnUse"
+      style={{
+        maskType: "alpha",
+      }}
+    >
+      <Path fill="#D9D9D9" d="M0 0h24v24H0z" />
+    </Mask>
+    <G mask="url(#a)">
+      <Path
+        fill="#8BEAB2"
+        d="M2 21V3h10v4h10v14H2Zm2-2h2v-2H4v2Zm0-4h2v-2H4v2Zm0-4h2V9H4v2Zm0-4h2V5H4v2Zm4 12h2v-2H8v2Zm0-4h2v-2H8v2Zm0-4h2V9H8v2Zm0-4h2V5H8v2Zm4 12h8V9h-8v2h2v2h-2v2h2v2h-2v2Zm4-6v-2h2v2h-2Zm0 4v-2h2v2h-2Z"
+      />
+    </G>
+  </Svg>
+);
+export const BedIcon= ({width =20, height = 20,color="#27AE60", ...props }) => (
+   <Svg
+    viewBox="0 0 24 24"
+    width={width}
+    height={height}
+    fill="none"
+    {...props}
+  >
+        <Mask
+      id="a"
+      width={24}
+      height={24}
+      x={0}
+      y={0}
+      maskUnits="userSpaceOnUse"
+      style={{
+        maskType: "alpha",
+      }}
+    >
+      <Path fill="#27AE60" d="M0 0h24v24H0z" />
+    </Mask>
+    <G mask="url(#a)">
+      <Path
+        fill="#8BEAB2"
+        d="M2 19v-6c0-.45.092-.858.275-1.225.183-.367.425-.692.725-.975V8c0-.833.292-1.542.875-2.125A2.893 2.893 0 0 1 6 5h4c.383 0 .742.07 1.075.213.333.141.642.337.925.587.283-.25.592-.446.925-.587A2.72 2.72 0 0 1 14 5h4c.833 0 1.542.292 2.125.875S21 7.167 21 8v2.8c.3.283.542.608.725.975.183.367.275.775.275 1.225v6h-2v-2H4v2H2Zm11-9h6V8a.967.967 0 0 0-.288-.713A.968.968 0 0 0 18 7h-4a.968.968 0 0 0-.713.287A.967.967 0 0 0 13 8v2Zm-8 0h6V8a.967.967 0 0 0-.287-.713A.968.968 0 0 0 10 7H6a.968.968 0 0 0-.713.287A.968.968 0 0 0 5 8v2Zm-1 5h16v-2a.968.968 0 0 0-.288-.713A.968.968 0 0 0 19 12H5a.967.967 0 0 0-.713.287A.968.968 0 0 0 4 13v2Z"
+      />
+    </G>
+  </Svg>
+);
+export const AreaIcon= ({width =20, height = 20,color="#27AE60", ...props }) => (
+   <Svg
+    viewBox="0 0 24 24"
+    width={width}
+    height={height}
+    fill="none"
+    {...props}
+  >
+     <Mask
+      id="a"
+      width={24}
+      height={24}
+      x={0}
+      y={0}
+      maskUnits="userSpaceOnUse"
+      style={{
+        maskType: "alpha",
+      }}
+    >
+      <Path fill="#D9D9D9" d="M0 0h24v24H0z" />
+    </Mask>
+    <G mask="url(#a)">
+      <Path
+        fill="#8BEAB2"
+        d="M12.977 20.8v-7.823h7.822v7.822h-7.822Zm0-9.779V3.2h7.822v7.822h-7.822Zm-9.778 0V3.2h7.822v7.822H3.2Zm0 9.778v-7.822h7.822v7.822H3.2Z"
+      />
+    </G>
+  </Svg>
+);
+export const PhoneIcon= ({width =20, height = 20,color="#27AE60", ...props }) => (
+   <Svg
+    viewBox="0 0 24 24"
+    width={width}
+    height={height}
+    fill="none"
+    {...props}
+  >
+ <Path
+      fill="#fff"
+      d="m16.204 12.25-2.54-.29a1.99 1.99 0 0 0-1.64.57l-1.84 1.84a15.05 15.05 0 0 1-6.59-6.59l1.85-1.85c.43-.43.64-1.03.57-1.64l-.29-2.52A2 2 0 0 0 3.734 0h-1.73c-1.13 0-2.07.94-2 2.07.53 8.54 7.36 15.36 15.89 15.89 1.13.07 2.07-.87 2.07-2v-1.73c.01-1.01-.75-1.86-1.76-1.98Z"
+    />
+  </Svg>
+);
+export const  ImageListIcon= ({width =12, height = 12,color="#27AE60", ...props }) => (
+   <Svg
+    viewBox="0 0 24 24"
+    width={width}
+    height={height}
+    fill="none"
+    {...props}
+  >
+   <Path
+      fill="#fff"
+      d="M3.6 9.6c-.33 0-.613-.117-.848-.352A1.156 1.156 0 0 1 2.4 8.4V1.2c0-.33.118-.612.353-.847C2.986.118 3.27 0 3.6 0h7.2c.33 0 .612.117.848.352.235.236.352.518.352.848v7.2c0 .33-.117.612-.352.848a1.156 1.156 0 0 1-.848.352H3.6Zm0-1.2h7.2V1.2H3.6v7.2ZM1.2 12c-.33 0-.612-.117-.847-.352A1.156 1.156 0 0 1 0 10.8V2.4h1.2v8.4h8.4V12H1.2Z"
+    />
+  </Svg>
+);

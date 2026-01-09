@@ -7,6 +7,8 @@ import PropertyDetailsScreen from "../screens/PropertyDetails/PropertyDetailsScr
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import DrawerNavigator from "./DrawerNavigator";
 import Entypo from "@expo/vector-icons/Entypo";
+import PropertyListScreen from "../screens/PropertyListScreen/PropertyListScreen";
+import MoreResidentialDetails from "../screens/PropertyListScreen/MoreDetails/MoreResidentialDetails";
 
 const Stack = createNativeStackNavigator();
 
@@ -48,6 +50,16 @@ export default function StackNavigator({navigation}) {
       <Stack.Screen
         name="PropertyDetails"
         component={PropertyDetailsScreen}
+        options={{ headerShown: false }}
+      />
+        <Stack.Screen
+        name="PropertyList"
+        component={PropertyListScreen}
+        options={{ headerShown: false }}
+      />
+        <Stack.Screen
+        name="MorePropertyDetails"
+        component={MoreResidentialDetails}
         options={{ headerShown: false }}
       />
 

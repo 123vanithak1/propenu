@@ -6,12 +6,11 @@ import filerSliceReducer from "../slice/FilterSlice";
 
 export const store = configureStore({
   reducer: {
-     city: cityReducer,
-     filter : filerSliceReducer,
+    city: cityReducer,
+    filter: filerSliceReducer,
     postProperty: postPropertyReducer,
   },
 });
 
 export const useAppDispatch = () => useDispatch();
 export const useAppSelector = useSelector;
-

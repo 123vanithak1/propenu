@@ -15,4 +15,8 @@ export const API_ROUTES = {
     AGENT : "/api/users/agent",
     LOCATION : "/api/users/location",
   },
+  SEARCH :{
+    CATEGORY_SEARCH :"/api/properties/search",
+    RESIDENTIAL_CATEGORY_SEARCH :  "/api/properties/residential"
+  }
 };
