@@ -63,6 +63,7 @@ export default function TabNavigator() {
         )}
         {isOpen && (
           <View style={styles.selectCitySpace}>
+            <Text style={styles.stateTitle}>Popular Cities</Text>
             {popularCities.map((item) => (
               <Pressable
                 key={item._id || item.city}

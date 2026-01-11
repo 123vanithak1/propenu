@@ -3,9 +3,11 @@ import React, { useEffect, useState } from "react";
 import { apiService } from "../../services/apiService";
 import OwnerPropertyCard from "./OwnerPropertyCard";
 import { useQuery } from "@tanstack/react-query";
+import useCity from "../CustomHooks/useCity";
 
 const OwnerProperties = () => {
   const [properties, setProperties] = useState([]);
+  const {selectedCity} = useCity()
 
   const fetchOwnerProperties = async () => {
     const res = await apiService.ownersProperties();
@@ -36,6 +38,7 @@ const OwnerProperties = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Popular Owner Properties</Text>
+      <Text style={styles.subTitle}>Building excellence in {selectedCity?.city ?? "Hyderabad"}</Text>
       <FlatList
         data={data}
         keyExtractor={(item) => item._id}
@@ -55,7 +58,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "600",
+    marginBottom: 2,
+  },
+   subTitle: {
+    fontSize: 12,
+    color: "#8f8d87ff",
     marginBottom: 10,
+    marginTop: 2,
   },
 });
 export default OwnerProperties;

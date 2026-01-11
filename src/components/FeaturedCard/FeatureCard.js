@@ -2,9 +2,11 @@ import { View, Text, StyleSheet, FlatList } from "react-native";
 import CardDetails from "./CardDetails";
 import { apiService } from "../../services/apiService";
 import React, { useEffect, useState } from "react";
+import useCity from "../CustomHooks/useCity";
 
 const FeaturedCard = ({ navigation }) => {
   const [details, setDetails] = useState([]);
+    const { selectedCity } = useCity();
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -25,7 +27,7 @@ const FeaturedCard = ({ navigation }) => {
   return (
     <View style={styles.card}>
       <Text style={styles.title}>Prime Properties</Text>
-      {/* <Text style={styles.subtitle}>Exceptional properties Hyderabad</Text> */}
+      <Text style={styles.subtitle}>Exceptional  properties {selectedCity?.city ?? "Hyderabad"}</Text>
       <FlatList
         data={details}
         keyExtractor={(item) => item._id}

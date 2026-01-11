@@ -6,11 +6,14 @@ import {
   ArrowIcon,
   TopRightArrow,
 } from "../../../assets/svg/Logo";
+import useCity from "../CustomHooks/useCity";
 
 const ServiceHub = () => {
+  const { selectedCity } = useCity();
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Explore Our Services</Text>
+      <Text style={styles.subtitle}> Building excellence in {selectedCity?.city ?? "Hyderabad"}</Text>
 
       <View style={styles.subContainer}>
         <View style={styles.homeLoans}>
@@ -19,7 +22,9 @@ const ServiceHub = () => {
             Easy Home Loans with Expert Support
           </Text>
           <Text style={styles.bodyText}>
-            Quick approvals, low interest, zero hassle End-to-End Support.
+            Get easy access to home loans with fast approvals and competitive
+            interest rates. Our experts guide you through eligibility,
+            documentation, and lender selection.
           </Text>
           <Pressable style={styles.knowButton}>
             <Text style={{ color: "#AE276B", fontWeight: 500, lineHeight: 18 }}>
@@ -35,7 +40,7 @@ const ServiceHub = () => {
           <View style={styles.homeCare}>
             <View style={styles.row}>
               <HomeCare width={35} height={35} />
-              <TopRightArrow width={30} height={30} style={styles.arrowIcon}/>
+              <TopRightArrow width={30} height={30} style={styles.arrowIcon} />
             </View>
 
             <Text style={styles.bodyTitle}>Professional Home Care</Text>
@@ -47,7 +52,12 @@ const ServiceHub = () => {
           <View style={styles.interior}>
             <View style={styles.row}>
               <HomeInterior width={30} height={30} />
-              <TopRightArrow width={30} height={30} color="#8F3AFF" style={styles.arrowIcon}/>
+              <TopRightArrow
+                width={30}
+                height={30}
+                color="#8F3AFF"
+                style={styles.arrowIcon}
+              />
             </View>
             <Text style={styles.bodyTitle}>Modern Interior Designers</Text>
             <Text style={styles.bodyText}>
@@ -64,11 +74,17 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     margin: 10,
-    marginBottom:60
+    marginBottom: 60,
   },
   title: {
     fontSize: 16,
     fontWeight: "600",
+  },
+    subtitle: {
+    fontSize: 12,
+    color: "#8f8d87ff",
+    marginBottom: 5,
+    marginTop: 2,
   },
   subContainer: {
     position: "relative",
@@ -121,13 +137,13 @@ const styles = StyleSheet.create({
   },
   bodyText: {
     color: "#8C8989",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 400,
-    lineHeight: 22,
+    lineHeight: 21,
   },
   knowButton: {
     position: "absolute",
-    bottom: 10,
+    bottom: 6,
     alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",

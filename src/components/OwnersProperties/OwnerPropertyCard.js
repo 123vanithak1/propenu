@@ -1,11 +1,25 @@
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import React from "react";
 import HomePageImage from "../../../assets/HomePageImage.png";
 import LikedIconContainer from "../LikedIconContainer";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
+import {
+  AreaIcon,
+  BedIcon,
+  ReadyToMoveIcon,
+  PhoneIcon,
+} from "../../../assets/svg/Logo";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import formatINR from "../../utils/FormatINR";
+import { getItem } from "../../utils/Storage";
+import AutoImageSlider from "../ui/AutoImageSlider";
+import useDimensions from "../CustomHooks/UseDimension";
+import { ToastInfo, ToastSuccess } from "../../utils/Toast";
 
 const OwnerPropertyCard = ({ details }) => {
-
+  // console.log("details :", details);
+  const { width, height } = useDimensions();
+  const cardWidth = width * 0.8;
   const imageSource =
     details?.gallery?.length > 0
       ? { uri: details.gallery[0].url }
@@ -25,23 +39,87 @@ const OwnerPropertyCard = ({ details }) => {
     return `₹ ${price.toLocaleString("en-IN")}`;
   };
 
-  return (
-    <View style={styles.card}>
-      <View style={styles.likeIcon}>
-        <LikedIconContainer />
+  const handleContact = async () => {
+    const userData = await getItem("user");
+    if (!userData || !userData.user) {
+      ToastInfo("User not authenticated");
+    } else {
+      ToastSuccess("We will contact you shortly");
+    }
+  };
+
+  const MetaItem = ({ label, value, Icon }) => (
+    <View style={styles.metaItemRow}>
+      {Icon}
+      <View style={{ gap: 3 }}>
+        <Text style={styles.metaLabel}>{label}</Text>
+        <Text style={styles.metaValue}>{value}</Text>
       </View>
-      <Image source={imageSource} style={styles.image} />
+    </View>
+  );
+
+  return (
+    <View style={[styles.card, { width: cardWidth }]}>
+      <View style={styles.imageWrapper}>
+        <AutoImageSlider
+          images={details?.gallery?.map((img) => ({ uri: img.url }))}
+          height={200}
+          width={cardWidth - 20}
+        />
+
+        {/* Top-right like icon */}
+        <View style={styles.likeIcon}>
+          <LikedIconContainer />
+        </View>
+      </View>
       <View style={styles.detailsSection}>
         <Text style={styles.propertyTitle} numberOfLines={1}>
           {details.title}
         </Text>
-        <Text style={styles.propertyLocation}>
-          {details.city}
-        </Text>
-        {details?.superBuiltUpArea && (
-          <Text style={styles.area}>{details.superBuiltUpArea} sqft</Text>
-        )}
-        <Text style={styles.propertyPrice}>{formatPrice(details.price)}</Text>
+        <Text style={styles.propertyLocation}>{details.city}</Text>
+
+        {/* <Text style={styles.propertyPrice}>{formatPrice(details.price)}</Text> */}
+
+        {/* Meta */}
+        <View style={styles.metaRow}>
+          <MetaItem
+            Icon={<AreaIcon width={20} height={20} />}
+            label="Area"
+            value={`${details.superBuiltUpArea ?? "—"} sqft`}
+          />
+          <MetaItem
+            Icon={<ReadyToMoveIcon width={20} height={20} />}
+            label="Parking"
+            value={`${details?.parkingDetails?.twoWheeler || 0} + ${
+              details?.parkingDetails?.fourWheeler || 0
+            }`}
+          />
+        </View>
+        <View style={styles.metaRow}>
+          <MetaItem
+            Icon={<BedIcon width={20} height={20} />}
+            label="Furnishing"
+            value={details?.furnishing || "Unfurnished"}
+          />
+          <MetaItem
+            Icon={<FontAwesome5 name="car" size={19} color="#8BEAB2" />}
+            label="Parking"
+            value={`${details?.parkingDetails?.twoWheeler || 0} + ${
+              details?.parkingDetails?.fourWheeler || 0
+            }`}
+          />
+        </View>
+        <View style={styles.priceBox}>
+          <View>
+            <Text style={styles.price}>{formatINR(details?.price)}</Text>
+            <Text style={styles.priceSub}>₹ {details?.pricePerSqft}/sqft</Text>
+          </View>
+
+          <Pressable style={styles.button} onPress={handleContact}>
+            {/* <PhoneIcon width={18} height={18} /> */}
+            <Text style={styles.buttonText}>Contact Owner</Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -49,9 +127,9 @@ const OwnerPropertyCard = ({ details }) => {
 
 const styles = StyleSheet.create({
   card: {
-    width: 250,
+    // width: 250,
     backgroundColor: "#fff",
-    padding: 8,
+    padding: 10,
     borderRadius: 10,
     marginVertical: 10,
     shadowColor: "#000",
@@ -63,12 +141,16 @@ const styles = StyleSheet.create({
     marginLeft: 2,
   },
   detailsSection: {
-    paddingHorizontal: 10,
+    // paddingHorizontal: 10,
   },
   propertyTitle: {
     fontSize: 14,
     fontWeight: "500",
     marginTop: 10,
+    paddingHorizontal: 10,
+  },
+  imageWrapper: {
+    position: "relative",
   },
   area: {
     fontSize: 12,
@@ -76,8 +158,8 @@ const styles = StyleSheet.create({
   },
   likeIcon: {
     position: "absolute",
-    top: 18,
-    right: 18,
+    top: 10,
+    right: 10,
     zIndex: 10,
   },
   image: {
@@ -90,11 +172,71 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#000",
     marginBottom: 2,
+    paddingHorizontal: 10,
   },
   propertyPrice: {
     fontSize: 12,
     fontWeight: "500",
     color: "#27AE60",
+  },
+  metaItemRow: {
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "center",
+  },
+  metaRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 10,
+    paddingHorizontal: 10,
+    gap: 7,
+  },
+  metaItem: {
+    // alignItems: "center",
+    gap: 3,
+  },
+  metaLabel: {
+    fontSize: 11,
+    color: "#777",
+  },
+  metaValue: {
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  priceBox: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 8,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    backgroundColor: "#EAF8F0",
+    marginTop: 10,
+  },
+  price: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#27AE60",
+  },
+  priceSub: {
+    fontSize: 12,
+    // fontWeight: 500,
+    // color: "#555",
+  },
+  button: {
+    flexDirection: "row",
+    paddingHorizontal: 20,
+    backgroundColor: "#27AE60",
+    paddingVertical: 7,
+    borderRadius: 6,
+    gap: 5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
   },
 });
 export default OwnerPropertyCard;
