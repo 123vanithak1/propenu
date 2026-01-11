@@ -41,7 +41,7 @@ const OTPLoginModal = ({ visible, onClose, email, username }) => {
     try {
       setLoading(true);
       const otpResult = await apiService.verifyOtp({
-        name: username,
+        // name: username,
         email,
         otp: otpValue,
       });
@@ -62,7 +62,7 @@ const OTPLoginModal = ({ visible, onClose, email, username }) => {
         throw new Error("Token verification failed");
       }
       await setItem("user", tokenResult?.data);
-      console.log("Login successful",tokenResult);
+      console.log("Login successful", tokenResult);
 
       onClose();
     } catch (error) {

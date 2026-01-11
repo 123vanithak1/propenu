@@ -1,17 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  ScrollView,
-  Image,
-  StyleSheet,
-  Dimensions,
-} from "react-native";
+import { View, ScrollView, Image, StyleSheet, Dimensions } from "react-native";
 
 const { width } = Dimensions.get("window");
 
 const AutoImageSlider = ({
   images = [],
-  width ="100%",
+  width = "100%",
   height = 250,
   autoScrollInterval = 3000,
 }) => {
@@ -41,9 +35,7 @@ const AutoImageSlider = ({
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={(e) => {
-          const index = Math.round(
-            e.nativeEvent.contentOffset.x / width
-          );
+          const index = Math.round(e.nativeEvent.contentOffset.x / width);
           setActiveIndex(index);
         }}
       >
@@ -61,10 +53,7 @@ const AutoImageSlider = ({
         {images.map((_, i) => (
           <View
             key={i}
-            style={[
-              styles.dot,
-              activeIndex === i && styles.activeDot,
-            ]}
+            style={[styles.dot, activeIndex === i && styles.activeDot]}
           />
         ))}
       </View>
@@ -76,7 +65,7 @@ export default AutoImageSlider;
 const styles = StyleSheet.create({
   image: {
     resizeMode: "cover",
-    borderRadius:10
+    borderRadius: 10,
   },
   dotsContainer: {
     position: "absolute",
@@ -95,5 +84,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     width: 8,
     height: 8,
+  },
+  counterContainer: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+
+  counterText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "500",
   },
 });

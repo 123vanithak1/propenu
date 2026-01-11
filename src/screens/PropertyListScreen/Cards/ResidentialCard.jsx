@@ -5,7 +5,7 @@ import { getItem } from "../../../utils/Storage";
 import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
 import useDimensions from "../../../components/CustomHooks/UseDimension";
 import formatINR from "../../../utils/FormatINR";
-import { apiService } from "../../../services/apiService";
+import LikedIconContainer from "../../../components/LikedIconContainer";
 import {
   AreaIcon,
   BedIcon,
@@ -19,27 +19,13 @@ const ResidentialCard = ({ item }) => {
   const navigation = useNavigation();
 
   const handleNavigate = async () => {
-    try {
-      console.log("Clicked property id:", item.id);
-
-      const res = await apiService.residential_category_search(item.id);
-      const details = res?.[0]?.data;
-
-      if (!details) {
-        ToastInfo("Property details not found");
-        return;
-      }
-
-      navigation.navigate("MorePropertyDetails", {
-        details,
-      });
-    } catch (error) {
-      console.log("Error fetching property details:", error);
-      ToastInfo("Failed to load property details");
-    }
+    console.log("Checking property id : ", item?.id);
+    navigation.navigate("MorePropertyDetails", {
+      id: item?.id,
+    });
   };
 
-  const handleContactOwner = async () => {
+  const handleContact = async () => {
     const userData = await getItem("user");
     if (!userData || !userData.user) {
       ToastInfo("User not authenticated");
@@ -51,23 +37,26 @@ const ResidentialCard = ({ item }) => {
   return (
     <Pressable style={styles.card} onPress={handleNavigate}>
       {/* Image slider */}
-      <AutoImageSlider
-        images={item.gallery.map((img) => ({ uri: img.url }))}
-        height={180}
-        width={width * 0.9}
-      />
+      <View style={styles.imageWrapper}>
+        <AutoImageSlider
+          images={item?.gallery?.map((img) => ({ uri: img.url }))}
+          height={200}
+          width={width * 0.9}
+        />
 
+        {/* Top-right like icon */}
+        <View style={styles.likeIcon}>
+          <LikedIconContainer />
+        </View>
+      </View>
       {/* Content */}
       <View style={styles.content}>
-        <View style={styles.row}>
-          <Text style={styles.title} numberOfLines={1}>
-            {item.buildingName}
-          </Text>
-          <Text style={styles.price}>{formatINR(item.price)}</Text>
-        </View>
+        <Text style={styles.title} numberOfLines={1}>
+          {item?.title}
+        </Text>
 
-        <Text style={styles.subTitle} numberOfLines={2}>
-          {item.title}
+        <Text style={styles.subTitle} numberOfLines={1}>
+          {item?.buildingName}
         </Text>
 
         {/* Meta */}
@@ -75,12 +64,12 @@ const ResidentialCard = ({ item }) => {
           <MetaItem
             Icon={AreaIcon}
             label="Area"
-            value={`${item.builtUpArea ?? "—"} sqft`}
+            value={`${item?.builtUpArea ?? "—"} sqft`}
           />
           <MetaItem
             Icon={BedIcon}
             label="Furnishing"
-            value={item.furnishing || "Unfurnished"}
+            value={item?.furnishing || "Unfurnished"}
           />
           <MetaItem
             Icon={ReadyToMoveIcon}
@@ -94,9 +83,12 @@ const ResidentialCard = ({ item }) => {
 
       {/* Footer */}
       <View style={styles.priceBox}>
-        <Text style={styles.priceSub}>Owner</Text>
+        <View>
+          <Text style={styles.price}>{formatINR(item?.price)}</Text>
+          <Text style={styles.priceSub}>₹ {item?.pricePerSqft}/sqft</Text>
+        </View>
 
-        <Pressable style={styles.button} onPress={handleContactOwner}>
+        <Pressable style={styles.button} onPress={handleContact}>
           <PhoneIcon width={18} height={18} />
           <Text style={styles.buttonText}>Contact</Text>
         </Pressable>
@@ -127,10 +119,15 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     elevation: 3,
   },
-  image: {
-    width: "100%",
-    height: 180,
-    borderRadius: 10,
+  imageWrapper: {
+    position: "relative",
+  },
+
+  likeIcon: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 10,
   },
   content: {
     padding: 12,
@@ -192,8 +189,8 @@ const styles = StyleSheet.create({
     color: "#27AE60",
   },
   priceSub: {
-    fontSize: 13,
-    fontWeight: 500,
+    fontSize: 12,
+    // fontWeight: 500,
     // color: "#555",
   },
   button: {

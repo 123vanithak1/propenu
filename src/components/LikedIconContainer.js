@@ -8,30 +8,25 @@ const LikedIconContainer = () => {
   return (
     <Pressable
       onPress={() => setLiked(!liked)}
+      hitSlop={6}
       style={({ pressed }) => [
         styles.container,
         liked && styles.likedContainer,
         pressed && styles.pressed,
       ]}
     >
-      <Entypo name="heart" size={22} color={liked ? "#2ecc71" : "#575555ff"} />
+      <Entypo name="heart" size={22} color={liked ? "#DD3355" : "#575555ff"} />
     </Pressable>
   );
 };
 const styles = StyleSheet.create({
   container: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 24,
+    height: 24,
+    borderRadius: 6,
     backgroundColor: "rgba(241, 237, 237, 0.85)",
-
     justifyContent: "center",
     alignItems: "center",
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 2,
   },
 
   likedContainer: {
@@ -42,5 +37,4 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
 });
-
 export default LikedIconContainer;

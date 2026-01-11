@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import AutoImageSlider from "../../../components/ui/AutoImageSlider";
+import { useRoute } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiService } from "../../../services/apiService";
 import formatINR from "../../../utils/FormatINR";
@@ -15,15 +16,10 @@ import useDimensions from "../../../components/CustomHooks/UseDimension";
 import Entypo from "@expo/vector-icons/Entypo";
 import { getItem } from "../../../utils/Storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import {
-  AreaIcon,
-  BedIcon,
-  PhoneIcon,
-  ImageListIcon,
-} from "../../../../assets/svg/Logo";
+import { AreaIcon, BedIcon, PhoneIcon, ImageListIcon } from "../../../../assets/svg/Logo";
 import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
 
-const MoreResidentialDetails = ({ route }) => {
+const MoreAgriculturalDetails = ({ route }) => {
   const { width, height } = useDimensions();
   const { id } = route.params;
 
@@ -34,7 +30,7 @@ const MoreResidentialDetails = ({ route }) => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await apiService.residential_category_search(id);
+      const res = await apiService.agricultural_category_search(id);
       const data = res?.[0]?.data;
       if (!data) {
         ToastInfo("Property details not found");
@@ -87,7 +83,7 @@ const MoreResidentialDetails = ({ route }) => {
         {/* IMAGE GALLERY */}
         <AutoImageSlider
           images={details?.gallery?.map((img) => ({ uri: img.url })) || []}
-          height={height * 0.3}
+          height={height * 0.5}
           width={width}
         />
 
@@ -99,20 +95,16 @@ const MoreResidentialDetails = ({ route }) => {
 
         {/* META INFO */}
         <View style={styles.metaRow}>
-          {details?.builtUpArea !== undefined && (
-            <MetaItem
-              Icon={<AreaIcon width={24} height={24} />}
-              label="Area"
-              value={`${details?.builtUpArea} sqft`}
-            />
-          )}
-          {details?.bhk !== undefined && (
-            <MetaItem
-              Icon={<BedIcon width={24} height={24} />}
-              label="BHK"
-              value={`${details?.bhk}`}
-            />
-          )}
+          <MetaItem
+            Icon={<AreaIcon width={24} height={24} />}
+            label="Area"
+            value={`${details?.builtUpArea} sqft`}
+          />
+          <MetaItem
+            Icon={<BedIcon width={24} height={24} />}
+            label="BHK"
+            value={`${details?.bhk}`}
+          />
           {details?.bathrooms !== undefined && (
             <MetaItem
               Icon={<MaterialIcons name="bathtub" size={23} color="#8BEAB2" />}
@@ -120,13 +112,11 @@ const MoreResidentialDetails = ({ route }) => {
               value={`${details.bathrooms}`}
             />
           )}
-          {details?.balconies !== undefined && (
-            <MetaItem
-              Icon={<MaterialIcons name="balcony" size={23} color="#8BEAB2" />}
-              label="Balcony"
-              value={`${details?.balconies}`}
-            />
-          )}
+          <MetaItem
+            Icon={<MaterialIcons name="balcony" size={23} color="#8BEAB2" />}
+            label="Balcony"
+            value={`${details?.balconies}`}
+          />
         </View>
 
         {/* DETAILS */}
@@ -153,8 +143,8 @@ const MoreResidentialDetails = ({ route }) => {
         <Section title="Amenities">
           {details?.amenities?.length ? (
             <View style={styles.amenities}>
-              {details?.amenities.map((item, index) => (
-                <View key={index} style={styles.amenityItem}>
+              {details?.amenities.map((item) => (
+                <View key={item.key} style={styles.amenityItem}>
                   <Text>{item.title}</Text>
                 </View>
               ))}
@@ -192,10 +182,10 @@ const styles = StyleSheet.create({
 
   metaRow: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
     marginHorizontal: 10,
-    paddingVertical: 16,
-    // paddingHorizontal: 10,
+    paddingVertical: 15,
+    paddingHorizontal: 10,
     backgroundColor: "#ebebebff",
     borderRadius: 8,
   },
@@ -231,24 +221,22 @@ const styles = StyleSheet.create({
   },
 
   contactBtn: {
-    width: "60%",
-    alignSelf: "center",
     flexDirection: "row",
     margin: 16,
     padding: 14,
     borderRadius: 8,
+    paddingHorizontal: 30,
     backgroundColor: "#27AE60",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
   },
   contactText: {
-    fontSize: 16,
     color: "#fff",
     fontWeight: "600",
   },
 
-  // center: { flex: 1, alignItems: "center", justifyContent: "center" },
+  center: { flex: 1, alignItems: "center", justifyContent: "center" },
 });
 
-export default MoreResidentialDetails;
+export default MoreAgriculturalDetails;

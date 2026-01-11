@@ -17,6 +17,10 @@ export const API_ROUTES = {
   },
   SEARCH :{
     CATEGORY_SEARCH :"/api/properties/search",
-    RESIDENTIAL_CATEGORY_SEARCH :  "/api/properties/residential"
+    RESIDENTIAL_CATEGORY_SEARCH :  "/api/properties/residential",
+    COMMERCIAL_CATEGORY_SEARCH :  "/api/properties/commercial",
+    LAND_CATEGORY_SEARCH :  "/api/properties/land",
+    AGRICULTURAL_CATEGORY_SEARCH :  "/api/properties/agricultural",
+
   }
 };

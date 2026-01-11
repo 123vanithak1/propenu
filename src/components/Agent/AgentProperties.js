@@ -2,23 +2,36 @@ import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import { apiService } from "../../services/apiService";
 import AgentCard from "./AgentCard";
+import { useQuery } from "@tanstack/react-query";
 
+export const fetchAgents = async () => {
+  const res = await apiService.agent();
+  return res.data.items;
+};
 const AgentProperties = () => {
-  const [details, setDetails] = useState([]);
+  
 
-  useEffect(() => {
-    const fetchAgentData = async () => {
-      try {
-        const response = await apiService.agent();
-        if (response.status === 200) {
-          setDetails(response.data.items);
-        }
-      } catch (error) {
-        console.log("Error occured in agent api", error);
-      }
-    };
-    fetchAgentData();
-  }, []);
+   const { data, isLoading, isError, error } = useQuery(
+    ["agents"],      
+    fetchAgents      
+  );
+
+  if (isError) console.log("Agent api error :", error)
+
+  // const [details, setDetails] = useState([]);
+  // useEffect(() => {
+  //   const fetchAgentData = async () => {
+  //     try {
+  //       const response = await apiService.agent();
+  //       if (response.status === 200) {
+  //         setDetails(response.data.items);
+  //       }
+  //     } catch (error) {
+  //       console.log("Error occured in agent api", error);
+  //     }
+  //   };
+  //   fetchAgentData();
+  // }, []);
 
   return (
     <View style={styles.container}>
@@ -27,7 +40,7 @@ const AgentProperties = () => {
         Trusted professionals guiding your property journey
       </Text>
       <FlatList
-        data={details}
+        data={data}
         keyExtractor={(item) => item._id}
         horizontal
         showsHorizontalScrollIndicator={false}

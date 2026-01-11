@@ -419,4 +419,97 @@ export const apiService = {
       throw error;
     }
   },
+   commercial_category_search: async (id) => {
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.SEARCH.COMMERCIAL_CATEGORY_SEARCH}/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      // 🔥 NDJSON handling
+      const text = await response.text();
+
+      if (!text) return [];
+
+      const items = text
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => JSON.parse(line));
+
+      return items;
+    } catch (error) {
+      console.error("Category Search error:", error);
+      throw error;
+    }
+  },
+   land_category_search: async (id) => {
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.SEARCH.LAND_CATEGORY_SEARCH}/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      // 🔥 NDJSON handling
+      const text = await response.text();
+
+      if (!text) return [];
+
+      const items = text
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => JSON.parse(line));
+
+      return items;
+    } catch (error) {
+      console.error("Category Search error:", error);
+      throw error;
+    }
+  },
+   agricultural_category_search: async (id) => {
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.SEARCH.AGRICULTURAL_CATEGORY_SEARCH}/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      // 🔥 NDJSON handling
+      const text = await response.text();
+
+      if (!text) return [];
+
+      const items = text
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => JSON.parse(line));
+
+      return items;
+    } catch (error) {
+      console.error("Category Search error:", error);
+      throw error;
+    }
+  },
 };

@@ -61,7 +61,9 @@ const HomeScreen = ({ navigation }) => {
           <BellIcon width={18} height={18} />
         </View>
       </View>
-      <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: "white", marginBottom: 20 }}
+      >
         {/* */}
         <View style={styles.imageContainer}>
           <Image

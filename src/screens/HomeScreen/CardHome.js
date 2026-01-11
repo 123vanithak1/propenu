@@ -8,15 +8,8 @@ const CardHome = ({ title, icon, id }) => {
   const { width, height, isLandscape } = useDimensions();
 
   const handlePress = async () => {
-    console.log("checking id and title :", title, id);
-    try {
-      const result = await apiService.category_search({ category: title });
-      console.log("result ", result);
-
-      navigation.navigate("PropertyList", { id, items: result });
-    } catch (error) {
-      console.log("Error occured when search by category", error);
-    }
+    console.log("Sending... ", id);
+    navigation.navigate("PropertyList", { id, title: title });
   };
 
   return (

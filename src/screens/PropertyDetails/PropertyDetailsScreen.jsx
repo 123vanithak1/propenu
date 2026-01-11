@@ -59,13 +59,13 @@ const PropertyDetailsScreen = ({ route }) => {
     }
   };
 
-  if (!property) {
-    return (
-      <SafeAreaView style={styles.center}>
-        <Text>No property found</Text>
-      </SafeAreaView>
-    );
-  }
+  // if (!property) {
+  //   return (
+  //     <SafeAreaView style={styles.center}>
+  //       <Text>No property found</Text>
+  //     </SafeAreaView>
+  //   );
+  // }
 
   const formatMonthYear = (dateString) => {
     if (!dateString) return "";
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
   },
   stickyNav: {
     position: "absolute",
-    top: 40,
+    top: 32,
     left: 0,
     right: 0,
     height: 56,
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
     fontWeight: 500,
   },
   mapBox: {
-    height: 180,
+    height: 220,
     marginHorizontal: 10,
     marginVertical: 10,
     borderWidth: 1,

@@ -3,7 +3,6 @@ import { View } from "react-native";
 import { useState, useRef } from "react";
 
 export default function NearByLocations({ nearbyPlaces }) {
-
   const mapPoints = nearbyPlaces
     .filter((p) => Array.isArray(p.coordinates) && p.coordinates.length === 2)
     .map((p) => ({
@@ -12,8 +11,6 @@ export default function NearByLocations({ nearbyPlaces }) {
       label: p.name,
     }));
   const webRef = useRef(null);
-
-
 
   return (
     <View style={{ flex: 1 }}>

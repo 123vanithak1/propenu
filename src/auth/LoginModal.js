@@ -23,11 +23,11 @@ export default function LoginModal({ visible, onClose, onOtpSuccess }) {
   const validate = () => {
     let newErrors = {};
 
-    if (!username.trim()) {
-      newErrors.username = "Username is required";
-    } else if (username.length < 3) {
-      newErrors.username = "Minimum 3 characters";
-    }
+    // if (!username.trim()) {
+    //   newErrors.username = "Username is required";
+    // } else if (username.length < 3) {
+    //   newErrors.username = "Minimum 3 characters";
+    // }
 
     if (!email.trim()) {
       newErrors.email = "Email is required";
@@ -44,14 +44,14 @@ export default function LoginModal({ visible, onClose, onOtpSuccess }) {
 
     try {
       const res = await apiService.login({
-        name: username,
+        // name: username,
         email,
       });
 
       if (res?.status === 200) {
         onOtpSuccess({
           email,
-          username,
+          // username,
         });
       }
     } catch (err) {
@@ -71,7 +71,8 @@ export default function LoginModal({ visible, onClose, onOtpSuccess }) {
         //  onPress={onClose}
       >
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
         >
           <Pressable
             style={[
@@ -85,7 +86,7 @@ export default function LoginModal({ visible, onClose, onOtpSuccess }) {
             </Pressable>
             <Text style={styles.title}>Login</Text>
 
-            <TextInput
+            {/* <TextInput
               style={[
                 styles.input,
                 errors.username && styles.errorInput,
@@ -98,7 +99,7 @@ export default function LoginModal({ visible, onClose, onOtpSuccess }) {
             />
             {errors.username && (
               <Text style={styles.errorText}>{errors.username}</Text>
-            )}
+            )} */}
 
             <TextInput
               style={[
