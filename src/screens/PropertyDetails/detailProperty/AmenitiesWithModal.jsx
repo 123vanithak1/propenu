@@ -49,7 +49,7 @@ const AmenitiesWithModal = ({ amenities }) => {
       <View style={styles.priceRow}>
         <Text style={styles.galleryText}>Amenities</Text>
 
-        {amenities.length > 3 && (
+        {amenities?.length > 3 && (
           <Pressable
             onPress={() => setShowAllAmenities(true)}
             style={styles.viewMoreBtn}
@@ -60,7 +60,7 @@ const AmenitiesWithModal = ({ amenities }) => {
       </View>
 
       <View style={styles.amenitiesGrid}>
-        {amenities.slice(0, 3).map((item) => (
+        {amenities?.slice(0, 3).map((item) => (
           <View key={item.key} style={styles.amenityCard}>
             <Text style={styles.amenityText}>{item.title}</Text>
           </View>

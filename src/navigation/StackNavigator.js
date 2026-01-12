@@ -9,6 +9,7 @@ import DrawerNavigator from "./DrawerNavigator";
 import Entypo from "@expo/vector-icons/Entypo";
 import PropertyListScreen from "../screens/PropertyListScreen/PropertyListScreen";
 import MoreResidentialDetails from "../screens/PropertyListScreen/MoreDetails/MoreResidentialDetails";
+import CategoryFilterScreen from "../screens/SearchFilter/CategoryFilterScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -60,6 +61,11 @@ export default function StackNavigator({navigation}) {
         <Stack.Screen
         name="MorePropertyDetails"
         component={MoreResidentialDetails}
+        options={{ headerShown: false }}
+      />
+        <Stack.Screen
+        name="CategoryFilter"
+        component={CategoryFilterScreen}
         options={{ headerShown: false }}
       />
 

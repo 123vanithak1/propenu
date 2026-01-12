@@ -12,14 +12,14 @@ const SearchBar = ({ placeholder, value }) => {
         placeholder={placeholder}
         placeholderTextColor="gray"
       />
-      <Voice_Mic width={20} height={20} />
+      {/* <Voice_Mic width={20} height={20} /> */}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   search: {
-    width: "85%",
+    width: "95%",
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
@@ -31,9 +31,9 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   input: {
-    width: "90%",
+    width: "100%",
     borderWidth: 0,
-   paddingLeft:10,
+    paddingLeft: 10,
     paddingVertical: 5,
     borderColor: "red",
   },

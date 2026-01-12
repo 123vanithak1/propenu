@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, createSelector } from "@reduxjs/toolkit";
 import { apiService } from "../../services/apiService";
 /**
  * 🔹 Use a config file or constants file in React Native
@@ -55,16 +55,18 @@ export const selectLocalitiesByCity = (state) =>
   selectSelectedCity(state)?.localities ?? EMPTY_ARRAY;
 
 // Combined helper
-export const selectCityWithLocalities = (state) => {
-  const city = selectSelectedCity(state);
-  if (!city) return null;
+export const selectCityWithLocalities = createSelector(
+  [selectSelectedCity],
+  (city) => {
+    if (!city) return null;
 
-  return {
-    city: city.city,
-    state: city.state,
-    localities: city.localities,
-  };
-};
+    return {
+      city: city.city,
+      state: city.state,
+      localities: city.localities,
+    };
+  }
+);
 
 /* ---------------- EXPORTS ---------------- */
 export const { setCityId, clearCity } = citySlice.actions;

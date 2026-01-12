@@ -30,7 +30,6 @@ export default function TabNavigator() {
   };
 
   const onSelect = (item) => {
-    console.log("item :", item);
     selectCity(item);
     setIsOpen(false);
   };

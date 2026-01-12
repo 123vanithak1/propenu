@@ -219,7 +219,7 @@ const PropertyDetailsScreen = ({ route }) => {
             >
               <LocationIcon width={14} height={14} color={"#545454"} />
               <Text numberOfLines={1} style={styles.location}>
-                {property.address}
+                {property?.address}
               </Text>
             </View>
           </View>
@@ -229,30 +229,30 @@ const PropertyDetailsScreen = ({ route }) => {
           <View style={styles.sectionRow}>
             <View style={styles.center}>
               <Text style={styles.sectionData}>
-                2 - {property.bhkSummary.length + 1} BHK
+                2 - {property?.bhkSummary?.length + 1} BHK
               </Text>
               <Text style={styles.sectionTitle}>Configuration</Text>
             </View>
             <View style={styles.center}>
               <Text style={styles.sectionData}>
-                {property.amenities.length}
+                {property?.amenities?.length}
               </Text>
               <Text style={styles.sectionTitle}>Amenities</Text>
             </View>
             <View style={styles.center}>
-              <Text style={styles.sectionData}>{property.projectArea}</Text>
+              <Text style={styles.sectionData}>{property?.projectArea}</Text>
               <Text style={styles.sectionTitle}>Total Area</Text>
             </View>
           </View>
           <View style={styles.sectionRow}>
             <View style={styles.center}>
               <Text style={styles.sectionData}>
-                {formatMonthYear(property.possessionDate)}
+                {formatMonthYear(property?.possessionDate)}
               </Text>
               <Text style={styles.sectionTitle}>Ready To Move</Text>
             </View>
             <View style={styles.center}>
-              <Text style={styles.sectionData}>{property.totalUnits}</Text>
+              <Text style={styles.sectionData}>{property?.totalUnits}</Text>
               <Text style={styles.sectionTitle}>Units</Text>
             </View>
             <View style={styles.center}>
@@ -295,7 +295,7 @@ const PropertyDetailsScreen = ({ route }) => {
             (sectionPositions.current.amenities = e.nativeEvent.layout.y)
           }
         >
-          <AmenitiesWithModal amenities={property.amenities} />
+          <AmenitiesWithModal amenities={property?.amenities} />
         </View>
         <View
           onLayout={(e) =>
@@ -307,7 +307,7 @@ const PropertyDetailsScreen = ({ route }) => {
               <Text style={styles.aboutUs}>Location & Landmarks</Text>
 
               <FlatList
-                data={property.nearbyPlaces}
+                data={property?.nearbyPlaces}
                 horizontal
                 keyExtractor={(item) => item.order.toString()}
                 renderItem={({ item }) => (
@@ -324,7 +324,7 @@ const PropertyDetailsScreen = ({ route }) => {
                 {Platform.OS === "web" ? (
                   <Text>Map is available on mobile only</Text>
                 ) : (
-                  <NearByLocations nearbyPlaces={property.nearbyPlaces} />
+                  <NearByLocations nearbyPlaces={property?.nearbyPlaces} />
                 )}
               </View>
             </View>
@@ -346,7 +346,7 @@ const PropertyDetailsScreen = ({ route }) => {
                 {/* <Text style={styles.overlayText}>Why Choose Us</Text> */}
               </View>
 
-              <Text style={styles.about}>{item.aboutDescription}</Text>
+              <Text style={styles.about}>{item?.aboutDescription}</Text>
             </View>
           ))}
         </View>

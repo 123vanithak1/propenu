@@ -5,6 +5,7 @@ import {
   Text,
   ScrollView,
   StyleSheet,
+  Pressable,
 } from "react-native";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import SearchBar from "../../components/ui/SearchBar";
@@ -52,15 +53,30 @@ const HomeScreen = ({ navigation }) => {
       icon: <Agriculture width={24} height={24} />,
     },
   ];
+  const handlePress = () => {
+    console.log("Navigating to filters......");
+    navigation.navigate("CategoryFilter");
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <View style={styles.searchWrapper}>
-        <SearchBar placeholder='Search "Hyderabad" ' value="" />
-        <View style={styles.bellIcon}>
+        {/* Search bar (full width) */}
+        <Pressable onPress={handlePress} style={styles.searchPressable}>
+          <View pointerEvents="none" style={{ flex: 1 }}>
+            <SearchBar placeholder='Search "Hyderabad"' value="" />
+          </View>
+        </Pressable>
+
+        {/* Bell icon */}
+        <Pressable
+          onPress={() => console.log("Notifications...")}
+          style={styles.bellIcon}
+        >
           <BellIcon width={18} height={18} />
-        </View>
+        </Pressable>
       </View>
+
       <ScrollView
         style={{ flex: 1, backgroundColor: "white", marginBottom: 20 }}
       >
@@ -104,18 +120,22 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   searchWrapper: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 4,
-    marginBottom: 10,
-    marginHorizontal: 10,
-  },
-  bellIcon: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    padding: 5,
     alignItems: "center",
-    justifyContent: "center",
+    width: "100%",
+    paddingHorizontal: 12,
+    marginBottom: 7,
+  },
+
+  searchPressable: {
+    flex: 1,
+  },
+
+  bellIcon: {
+    marginLeft: 7,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    borderWidth: 1,
     borderColor: "#ADADAD",
   },
   imageContainer: {

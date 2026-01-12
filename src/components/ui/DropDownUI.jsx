@@ -24,7 +24,7 @@ const Dropdownui = ({
   return (
     <View style={styles.container}>
       {/* Label */}
-      <Text style={styles.label}>{label}</Text>
+      {label ? <Text style={styles.label}>{label}</Text> : null}
 
       {/* Button */}
       <Pressable
@@ -36,10 +36,7 @@ const Dropdownui = ({
         ]}
       >
         <Text
-          style={[
-            styles.buttonText,
-            !selectedOption && styles.placeholder,
-          ]}
+          style={[styles.buttonText, !selectedOption && styles.placeholder]}
         >
           {selectedOption ? selectedOption.label : placeholder}
         </Text>
@@ -53,10 +50,7 @@ const Dropdownui = ({
 
       {/* Dropdown Modal */}
       <Modal transparent visible={isOpen} animationType="fade">
-        <Pressable
-          style={styles.overlay}
-          onPress={() => setIsOpen(false)}
-        >
+        <Pressable style={styles.overlay} onPress={() => setIsOpen(false)}>
           <View style={styles.dropdown}>
             <FlatList
               data={options}
@@ -70,10 +64,7 @@ const Dropdownui = ({
                       onChange(item.value);
                       setIsOpen(false);
                     }}
-                    style={[
-                      styles.option,
-                      isSelected && styles.selectedOption,
-                    ]}
+                    style={[styles.option, isSelected && styles.selectedOption]}
                   >
                     <Text
                       style={[
@@ -85,11 +76,7 @@ const Dropdownui = ({
                     </Text>
 
                     {isSelected && (
-                      <AntDesign
-                        name="check"
-                        size={16}
-                        color="#059669"
-                      />
+                      <AntDesign name="check" size={16} color="#059669" />
                     )}
                   </Pressable>
                 );
@@ -127,7 +114,7 @@ const styles = StyleSheet.create({
     borderColor: "#D1D5DB",
     borderRadius: 10,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 5,
     backgroundColor: "#FFFFFF",
   },
 
@@ -140,7 +127,7 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#111827",
   },
 
