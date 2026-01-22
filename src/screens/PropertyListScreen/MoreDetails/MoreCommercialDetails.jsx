@@ -5,6 +5,9 @@ import {
   Image,
   StyleSheet,
   ScrollView,
+  FlatList,
+  Platform,
+  ActivityIndicator
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import AutoImageSlider from "../../../components/ui/AutoImageSlider";
@@ -15,8 +18,16 @@ import formatINR from "../../../utils/FormatINR";
 import useDimensions from "../../../components/CustomHooks/UseDimension";
 import Entypo from "@expo/vector-icons/Entypo";
 import { getItem } from "../../../utils/Storage";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { AreaIcon, BedIcon, PhoneIcon, ImageListIcon} from "../../../../assets/svg/Logo";
+import AmenitiesWithModal from "../../PropertyDetails/detailProperty/AmenitiesWithModal";
+import NearByLocations from "../../PropertyDetails/detailProperty/NearByLocation";
+import {
+  AreaIcon,
+  BedIcon,
+  PhoneIcon,
+  ReadyToMoveIcon,
+  ImageListIcon,
+  LocationIcon
+} from "../../../../assets/svg/Logo";
 import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
 
 const MoreCommercialDetails = ({ route }) => {
@@ -44,20 +55,37 @@ const MoreCommercialDetails = ({ route }) => {
     }
   };
 
-  const handleContactOwner = async () => {
-    const userData = await getItem("user");
-    if (!userData || !userData.user) {
+  const handleContactOwner = async()=> {
+    const storedUser = await getItem("user");
+  
+    if (!storedUser) {
       ToastInfo("User not authenticated");
-    } else ToastSuccess("We Will contact you shortly");
+      return;
+    }
+  
+    const userData = JSON.parse(storedUser);
+  
+    if (!userData?.name) {
+      ToastInfo("User not authenticated");
+    } else ToastSuccess("We will contact you shortly");
   };
 
   useEffect(() => {
     fetchData();
   }, []);
+  
+    if (loading) {
+      return (
+        <SafeAreaView style={styles.loadingContainer}>
+          <ActivityIndicator size="large" />
+          <Text style={{ marginTop: 10 }}>Loading... </Text>
+        </SafeAreaView>
+      );
+    }
 
-  const MetaItem = ({ Icon, label, value }) => (
+  const MetaItem = ({ Icon, label, value, iconProps = {} }) => (
     <View style={styles.metaItem}>
-      {Icon}
+      {/* <Icon size={20} color="#8BEAB2" {...iconProps} /> */}
       <Text style={styles.metaLabel}>{label}</Text>
       <Text style={styles.metaValue}>{value}</Text>
     </View>
@@ -95,64 +123,100 @@ const MoreCommercialDetails = ({ route }) => {
 
         {/* META INFO */}
         <View style={styles.metaRow}>
-          <MetaItem
-            Icon={<AreaIcon width={24} height={24} />}
-            label="Area"
-            value={`${details?.builtUpArea} sqft`}
-          />
-          <MetaItem
-            Icon={<BedIcon width={24} height={24} />}
-            label="BHK"
-            value={`${details?.bhk}`}
-          />
-          {details?.bathrooms !== undefined && (
+          <View style={styles.rowcontainer}>
             <MetaItem
-              Icon={<MaterialIcons name="bathtub" size={23} color="#8BEAB2" />}
-              label="Bath"
-              value={`${details.bathrooms}`}
+              // Icon={AreaIcon}
+              label="Area"
+              value={`${details?.builtUpArea ?? "—"} sqft`}
             />
-          )}
-          <MetaItem
-            Icon={<MaterialIcons name="balcony" size={23} color="#8BEAB2" />}
-            label="Balcony"
-            value={`${details?.balconies}`}
-          />
+            <MetaItem
+              // Icon={MaterialCommunityIcons}
+              iconProps={{ name: "chair-rolling" }}
+              label="Furnishing"
+              value={details?.furnishedStatus || "Unfurnished"}
+            />
+          </View>
+          <View style={styles.rowcontainer}>
+            <MetaItem
+              // Icon={ReadyToMoveIcon}
+              label="Carpet Area"
+              value={details?.carpetArea || "Not Mentioned"}
+            />
+
+            <MetaItem
+              // Icon={FireIcon}
+              label="Parking"
+              value="Available"
+            />
+          </View>
+          <View style={styles.rowcontainer}>
+            <MetaItem
+              // Icon={FireIcon}
+              label="Sale Type"
+              value={details?.transactionType || "New sale"}
+            />
+            <MetaItem
+              // Icon={ReadyToMoveIcon}
+              label="Floors"
+              value={`${details?.floorNumber || "-"} / ${details?.totalFloors || "-"}`}
+            />
+          </View>
         </View>
 
         {/* DETAILS */}
         <Section title="More Details">
-          <DetailRow label="Furnishing" value={details?.furnishing} />
-          <DetailRow label="Facing" value={details?.facing} />
           <DetailRow
-            label="Floor"
-            value={`${details?.floorNumber}/${details?.totalFloors}`}
-          />
-          <DetailRow label="Kitchen Type" value={details?.kitchenType} />
-          <DetailRow
-            label="Transaction Type"
-            value={details?.transactionType}
+            label="Property Type"
+            value={details?.propertyType}
           />
           <DetailRow
             label="Property Ownership"
             value={details?.listingSource}
           />
-          <DetailRow label="Flooring" value={details?.flooringType} />
+          <DetailRow
+            label="Pantry Type"
+            value={details?.pantry?.type}
+          />
+          <DetailRow
+            label="Power Backup"
+            value="Available"
+          />
+          <DetailRow
+            label="Security"
+            value="Available"
+          />
+          
         </Section>
 
-        {/* AMENITIES */}
-        <Section title="Amenities">
-          {details?.amenities?.length ? (
-            <View style={styles.amenities}>
-              {details?.amenities.map((item) => (
-                <View key={item.key} style={styles.amenityItem}>
-                  <Text>{item.title}</Text>
+              <AmenitiesWithModal amenities={details?.amenities} />
+
+        {details?.nearbyPlaces && (
+          <View style={styles.gallery}>
+            <Text style={styles.title}>Location & Landmarks</Text>
+
+            <FlatList
+              data={details?.nearbyPlaces}
+              horizontal
+              keyExtractor={(item) => item.order.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.placeRow}>
+                  <LocationIcon color="#FFAC1D" width={16} height={16} />
+                  <Text style={styles.placeName}>
+                    {item.name} : {item.distanceText}
+                  </Text>
                 </View>
-              ))}
+              )}
+              showsHorizontalScrollIndicator={false}
+            />
+            <View style={styles.mapBox}>
+              {Platform.OS === "web" ? (
+                <Text>Map is available on mobile only</Text>
+              ) : (
+                <NearByLocations nearbyPlaces={details?.nearbyPlaces} />
+              )}
             </View>
-          ) : (
-            <Text>No amenities available</Text>
-          )}
-        </Section>
+          </View>
+        )}
 
         {/* ADDRESS */}
         <Section title="Address">
@@ -166,7 +230,7 @@ const MoreCommercialDetails = ({ route }) => {
 
         {/* CONTACT OWNER */}
         <Pressable style={styles.contactBtn} onPress={handleContactOwner}>
-          <PhoneIcon width={18} height={18} color="white"/>
+          <PhoneIcon width={18} height={18} color="white" />
           <Text style={styles.contactText}>Contact</Text>
         </Pressable>
       </ScrollView>
@@ -175,24 +239,54 @@ const MoreCommercialDetails = ({ route }) => {
 };
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
+    loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
   header: { padding: 16 },
   price: { fontSize: 16, fontWeight: "700", color: "#27AE60", marginTop: 7 },
   title: { fontSize: 16, fontWeight: "600", marginTop: 4 },
 
   metaRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     marginHorizontal: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 10,
     backgroundColor: "#ebebebff",
     borderRadius: 8,
+    paddingVertical: 15,
+
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 
-  metaItem: { alignItems: "center" },
+  rowcontainer: {
+    gap: 13,
+    paddingHorizontal: 18,
+  },
+  placeRow: {
+    flexDirection: "row",
+    paddingHorizontal: 5,
+    alignItems: "center",
+    gap: 4,
+    // justifyContent: "space-between",
+    // paddingVertical: 8,
+    // borderBottomWidth: 0.5,
+    // borderColor: "#eee",
+    marginRight: 17,
+    marginVertical: 8,
+  },
+
+  placeName: {
+    fontSize: 13,
+    color: "#333",
+    flexShrink: 1,
+    fontWeight: 500,
+  },
+  metaItem: {
+    //  alignItems: "center"
+  },
   metaLabel: { fontSize: 12, color: "#777" },
-  metaValue: { fontSize: 14, fontWeight: "600" },
+  metaValue: { fontSize: 14, fontWeight: "500" },
 
   section: { padding: 16 },
   sectionTitle: { fontSize: 16, fontWeight: "700", marginBottom: 8 },
@@ -218,6 +312,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 6,
     borderRadius: 6,
+  },
+    gallery: {
+    marginHorizontal: 12,
+  },
+
+  mapBox: {
+    height: 220,
+    marginHorizontal: 2,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: "#d1d5db",
   },
 
   contactBtn: {

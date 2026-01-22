@@ -27,6 +27,9 @@ const AutoImageSlider = ({
     return () => clearInterval(interval);
   }, [activeIndex, images.length]);
 
+
+  
+
   return (
     <View>
       <ScrollView

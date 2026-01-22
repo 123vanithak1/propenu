@@ -14,6 +14,13 @@ import SettingsScreen from "../screens/Account/SettingsScreen";
 import LoginModal from "../auth/LoginModal";
 import CreateLogin from "../auth/CreateLogin";
 import OTPLoginModal from "../auth/OTPLoginScreen";
+import MoreCommercialDetails from "../screens/PropertyListScreen/MoreDetails/MoreCommercialDetails";
+import MoreLandDetails from "../screens/PropertyListScreen/MoreDetails/MoreLandDetails";
+import MoreAgriculturalDetails from "../screens/PropertyListScreen/MoreDetails/MoreAgriculturalDetails";
+
+
+
+
 const Stack = createNativeStackNavigator();
 
 export default function StackNavigator({ navigation }) {
@@ -105,8 +112,23 @@ export default function StackNavigator({ navigation }) {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="MorePropertyDetails"
+        name="MoreResidentialDetails"
         component={MoreResidentialDetails}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MoreCommercialDetails"
+        component={MoreCommercialDetails}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MoreLandDetails"
+        component={MoreLandDetails}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MoreAgriculturalDetails"
+        component={MoreAgriculturalDetails}
         options={{ headerShown: false }}
       />
       <Stack.Screen

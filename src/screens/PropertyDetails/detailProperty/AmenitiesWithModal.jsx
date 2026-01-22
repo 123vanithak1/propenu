@@ -60,8 +60,13 @@ const AmenitiesWithModal = ({ amenities }) => {
       </View>
 
       <View style={styles.amenitiesGrid}>
-        {amenities?.slice(0, 3).map((item) => (
-          <View key={item.key} style={styles.amenityCard}>
+        {amenities?.length === 0 && (
+          <Text style={styles.amenityText}>
+            Amenities information not available
+          </Text>
+        )}
+        {amenities?.slice(0, 3).map((item, index) => (
+          <View key={`${item.key}-${index}`} style={styles.amenityCard}>
             <Text style={styles.amenityText}>{item.title}</Text>
           </View>
         ))}
@@ -84,13 +89,17 @@ const AmenitiesWithModal = ({ amenities }) => {
           <Text style={styles.modalTitle}>Amenities</Text>
           <FlatList
             data={amenities}
-            keyExtractor={(item) => item.key}
+            keyExtractor={(item, index) => `${item}-${index}`}
             renderItem={({ item }) => {
               const IconComponent = AMENITY_ICON_MAP[item.key];
 
               return (
                 <View style={styles.amenityCardModal}>
-                  {IconComponent ?  <IconComponent width={24} height={24} />  : <PartyIcon />}
+                  {IconComponent ? (
+                    <IconComponent width={24} height={24} />
+                  ) : (
+                    <PartyIcon />
+                  )}
                   <Text style={styles.amenityText}>{item.title}</Text>
                 </View>
               );
@@ -128,7 +137,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFCF6",
     paddingHorizontal: 16,
     marginTop: 10,
-    paddingVertical:10,
+    paddingVertical: 10,
     marginHorizontal: 12,
     borderRadius: 10,
   },

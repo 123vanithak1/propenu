@@ -20,19 +20,28 @@ const ResidentialCard = ({ item }) => {
 
   const handleNavigate = async () => {
     console.log("Checking property id : ", item?.id);
-    navigation.navigate("MorePropertyDetails", {
+    navigation.navigate("MoreResidentialDetails", {
       id: item?.id,
     });
   };
 
   const handleContact = async () => {
-    const userData = await getItem("user");
-    if (!userData || !userData.user) {
+    const storedUser = await getItem("user");
+
+    if (!storedUser) {
+      ToastInfo("User not authenticated");
+      return;
+    }
+
+    const userData = JSON.parse(storedUser);
+
+    if (!userData?.name) {
       ToastInfo("User not authenticated");
     } else {
-      ToastSuccess("We will contact you shortly");
+      ToastSuccess("Owner will contact you shortly");
     }
   };
+  const horizontalSpace = 2 * 2 + 10 * 4; //marginHorizontal is 2, padding is 10 here and parent component is 10, total : 44
 
   return (
     <Pressable style={styles.card} onPress={handleNavigate}>
@@ -41,7 +50,7 @@ const ResidentialCard = ({ item }) => {
         <AutoImageSlider
           images={item?.gallery?.map((img) => ({ uri: img.url }))}
           height={200}
-          width={width * 0.9}
+          width={width - horizontalSpace}
         />
 
         {/* Top-right like icon */}
@@ -85,7 +94,9 @@ const ResidentialCard = ({ item }) => {
       <View style={styles.priceBox}>
         <View>
           <Text style={styles.price}>{formatINR(item?.price)}</Text>
-          <Text style={styles.priceSub}>₹ {item?.pricePerSqft}/sqft</Text>
+          {item?.pricePerSqft ? (
+            <Text style={styles.priceSub}>₹ {item?.pricePerSqft} / sqft</Text>
+          ) : null}
         </View>
 
         <Pressable style={styles.button} onPress={handleContact}>

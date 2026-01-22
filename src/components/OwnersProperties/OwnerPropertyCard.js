@@ -39,14 +39,22 @@ const OwnerPropertyCard = ({ details }) => {
     return `₹ ${price.toLocaleString("en-IN")}`;
   };
 
-  const handleContact = async () => {
-    const userData = await getItem("user");
-    if (!userData || !userData.user) {
-      ToastInfo("User not authenticated");
-    } else {
-      ToastSuccess("We will contact you shortly");
-    }
-  };
+ const handleContact = async () => {
+   const storedUser = await getItem("user");
+ 
+   if (!storedUser) {
+     ToastInfo("User not authenticated");
+     return;
+   }
+ 
+   const userData = JSON.parse(storedUser);
+ 
+   if (!userData?.name) {
+     ToastInfo("User not authenticated");
+   } else {
+     ToastSuccess("Owner will contact you shortly");
+   }
+ };
 
   const MetaItem = ({ label, value, Icon }) => (
     <View style={styles.metaItemRow}>

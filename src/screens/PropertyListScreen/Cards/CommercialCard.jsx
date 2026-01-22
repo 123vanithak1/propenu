@@ -6,6 +6,7 @@ import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
 import useDimensions from "../../../components/CustomHooks/UseDimension";
 import formatINR from "../../../utils/FormatINR";
 import { apiService } from "../../../services/apiService";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import {
   AreaIcon,
   BedIcon,
@@ -20,19 +21,28 @@ const CommercialCard = ({ item }) => {
 
   const handlePress = async () => {
     console.log("Checking property id : ", item.id);
-    navigation.navigate("MorePropertyDetails", {
+    navigation.navigate("MoreCommercialDetails", {
       id: item.id,
     });
   };
 
-  const handleContact = async () => {
-    const userData = await getItem("user");
-    if (!userData || !userData.user) {
-      ToastInfo("User not authenticated");
-    } else {
-      ToastSuccess("We will contact you shortly");
-    }
-  };
+const handleContact = async () => {
+  const storedUser = await getItem("user");
+
+  if (!storedUser) {
+    ToastInfo("User not authenticated");
+    return;
+  }
+
+  const userData = JSON.parse(storedUser);
+
+  if (!userData?.name) {
+    ToastInfo("User not authenticated");
+  } else {
+    ToastSuccess("Owner will contact you shortly");
+  }
+};
+  const horizontalSpace = 2 * 2 + 10 * 4; //marginHorizontal is 2, padding is 10 here and parent component is 10, total : 44
 
   return (
     <Pressable style={styles.card} onPress={handlePress}>
@@ -40,21 +50,27 @@ const CommercialCard = ({ item }) => {
       <AutoImageSlider
         images={item.gallery.map((img) => ({ uri: img.url }))}
         height={180}
-        width={width * 0.9}
+        width={width - horizontalSpace }
       />
 
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.row}>
           <Text style={styles.title} numberOfLines={1}>
-            {item.buildingName}
+            {item.title}
           </Text>
-          <Text style={styles.price}>{formatINR(item.price)}</Text>
+          {/* <Text style={styles.price}>{formatINR(item.price)}</Text> */}
         </View>
 
-        <Text style={styles.subTitle} numberOfLines={2}>
+        {/* <Text style={styles.subTitle} numberOfLines={2}>
           {item.title}
-        </Text>
+        </Text> */}
+
+        <View style={styles.metaRow}>
+          <Text style={styles.badge}>RERA Approved</Text>
+          <Text style={styles.badge}>Premium</Text>
+          <Text style={styles.badge}>Zero Brokerage</Text>
+        </View>
 
         {/* Meta */}
         <View style={styles.metaRow}>
@@ -64,23 +80,25 @@ const CommercialCard = ({ item }) => {
             value={`${item.builtUpArea ?? "—"} sqft`}
           />
           <MetaItem
-            Icon={BedIcon}
+            Icon={MaterialCommunityIcons}
+            iconProps={{ name: "chair-rolling" }}
             label="Furnishing"
             value={item.furnishing || "Unfurnished"}
           />
           <MetaItem
             Icon={ReadyToMoveIcon}
-            label="Parking"
-            value={`${item?.parkingDetails?.twoWheeler || 0} + ${
-              item?.parkingDetails?.fourWheeler || 0
-            }`}
+            label="Floors"
+            value={`${item?.floorNumber || "-"} / ${item?.totalFloors || "-"}`}
           />
         </View>
       </View>
 
       {/* Footer */}
       <View style={styles.priceBox}>
-        <Text style={styles.priceSub}>Owner</Text>
+        <View>
+          <Text style={styles.price}>{formatINR(item?.price)}</Text>
+         {item?.pricePerSqft ?   <Text style={styles.priceSub}>₹ {item?.pricePerSqft } / sqft</Text> :null }
+        </View>
 
         <Pressable style={styles.button} onPress={handleContact}>
           <PhoneIcon width={18} height={18} color="white" />
@@ -90,10 +108,9 @@ const CommercialCard = ({ item }) => {
     </Pressable>
   );
 };
-
-const MetaItem = ({ label, value, Icon }) => (
+const MetaItem = ({ label, value, Icon, iconProps = {} }) => (
   <View style={styles.metaItemRow}>
-    <Icon width={20} height={20} />
+    <Icon size={20} color="#8BEAB2" {...iconProps} />
     <View style={{ gap: 3 }}>
       <Text style={styles.metaLabel}>{label}</Text>
       <Text style={styles.metaValue}>{value}</Text>
@@ -195,5 +212,19 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontWeight: "600",
+  },
+  badgeContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 12,
+  },
+
+  badge: {
+    fontSize: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    color: "#27AE60",
+    fontWeight: "400",
   },
 });

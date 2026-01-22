@@ -44,7 +44,6 @@ const MoreResidentialDetails = ({ route }) => {
         ToastInfo("Property details not found");
         return;
       }
-      console.log("Data :", res);
       setDetails(data);
     } catch (error) {
       console.log("Error when getting more details :", error);
@@ -53,11 +52,19 @@ const MoreResidentialDetails = ({ route }) => {
     }
   };
 
-  const handleContactOwner = async () => {
-    const userData = await getItem("user");
-    if (!userData || !userData.user) {
+  const handleContactOwner = async()=> {
+    const storedUser = await getItem("user");
+  
+    if (!storedUser) {
       ToastInfo("User not authenticated");
-    } else ToastSuccess("We Will contact you shortly");
+      return;
+    }
+  
+    const userData = JSON.parse(storedUser);
+  
+    if (!userData?.name) {
+      ToastInfo("User not authenticated");
+    } else ToastSuccess("We will contact you shortly");
   };
 
   useEffect(() => {
@@ -113,7 +120,6 @@ const MoreResidentialDetails = ({ route }) => {
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Text style={styles.price}>{formatINR(details?.price)}</Text>
             <Text style={styles.pricePer}>
-              {" "}
               / ₹ {details?.pricePerSqft} per sq.ft.
             </Text>
           </View>
@@ -341,8 +347,8 @@ const styles = StyleSheet.create({
     gap: 4,
     // justifyContent: "space-between",
     // paddingVertical: 8,
-    borderBottomWidth: 0.5,
-    borderColor: "#eee",
+    // borderBottomWidth: 0.5,
+    // borderColor: "#eee",
     marginRight: 17,
     marginVertical: 8,
   },
