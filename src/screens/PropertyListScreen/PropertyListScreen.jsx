@@ -54,13 +54,14 @@ const PropertyListScreen = ({ route }) => {
           return <Text>No card found</Text>;
       }
     },
-    [id]
+    [id],
   );
 
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" />
+        <Text style={{ marginTop: 10 }}>Loading... </Text>
       </SafeAreaView>
     );
   }

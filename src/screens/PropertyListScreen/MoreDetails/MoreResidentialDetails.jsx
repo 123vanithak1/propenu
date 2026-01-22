@@ -5,6 +5,9 @@ import {
   Image,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
+  Platform,
+  FlatList,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import AutoImageSlider from "../../../components/ui/AutoImageSlider";
@@ -14,12 +17,14 @@ import formatINR from "../../../utils/FormatINR";
 import useDimensions from "../../../components/CustomHooks/UseDimension";
 import Entypo from "@expo/vector-icons/Entypo";
 import { getItem } from "../../../utils/Storage";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import NearByLocations from "../../PropertyDetails/detailProperty/NearByLocation";
+import AmenitiesWithModal from "../../PropertyDetails/detailProperty/AmenitiesWithModal";
 import {
   AreaIcon,
   BedIcon,
   PhoneIcon,
   ImageListIcon,
+  LocationIcon,
 } from "../../../../assets/svg/Logo";
 import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
 
@@ -27,7 +32,6 @@ const MoreResidentialDetails = ({ route }) => {
   const { width, height } = useDimensions();
   const { id } = route.params;
 
-  //   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [details, setDetails] = useState(null);
 
@@ -40,6 +44,7 @@ const MoreResidentialDetails = ({ route }) => {
         ToastInfo("Property details not found");
         return;
       }
+      console.log("Data :", res);
       setDetails(data);
     } catch (error) {
       console.log("Error when getting more details :", error);
@@ -59,11 +64,20 @@ const MoreResidentialDetails = ({ route }) => {
     fetchData();
   }, []);
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" />
+        <Text style={{ marginTop: 10 }}>Loading... </Text>
+      </SafeAreaView>
+    );
+  }
+
   const MetaItem = ({ Icon, label, value }) => (
     <View style={styles.metaItem}>
-      {Icon}
-      <Text style={styles.metaLabel}>{label}</Text>
-      <Text style={styles.metaValue}>{value}</Text>
+      {/* {Icon} */}
+      <Text style={styles.metaLabel}>{value}</Text>
+      <Text style={styles.metaValue}>{label}</Text>
     </View>
   );
 
@@ -76,8 +90,10 @@ const MoreResidentialDetails = ({ route }) => {
 
   const DetailRow = ({ label, value }) => (
     <View style={styles.detailRow}>
-      <Text>{label}</Text>
-      <Text style={styles.detailValue}>{value}</Text>
+      <Text numberOfLines={1} style={styles.detailValue}>
+        {label} :{" "}
+      </Text>
+      <Text numberOfLines={1}>{value}</Text>
     </View>
   );
 
@@ -94,54 +110,92 @@ const MoreResidentialDetails = ({ route }) => {
         {/* PRICE + TITLE */}
         <View style={styles.header}>
           <Text style={styles.title}>{details?.title}</Text>
-          <Text style={styles.price}>{formatINR(details?.price)}</Text>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={styles.price}>{formatINR(details?.price)}</Text>
+            <Text style={styles.pricePer}>
+              {" "}
+              / ₹ {details?.pricePerSqft} per sq.ft.
+            </Text>
+          </View>
         </View>
 
         {/* META INFO */}
         <View style={styles.metaRow}>
-          {details?.builtUpArea !== undefined && (
-            <MetaItem
-              Icon={<AreaIcon width={24} height={24} />}
-              label="Area"
-              value={`${details?.builtUpArea} sqft`}
-            />
-          )}
-          {details?.bhk !== undefined && (
-            <MetaItem
-              Icon={<BedIcon width={24} height={24} />}
-              label="BHK"
-              value={`${details?.bhk}`}
-            />
-          )}
-          {details?.bathrooms !== undefined && (
-            <MetaItem
-              Icon={<MaterialIcons name="bathtub" size={23} color="#8BEAB2" />}
-              label="Bath"
-              value={`${details.bathrooms}`}
-            />
-          )}
-          {details?.balconies !== undefined && (
-            <MetaItem
-              Icon={<MaterialIcons name="balcony" size={23} color="#8BEAB2" />}
-              label="Balcony"
-              value={`${details?.balconies}`}
-            />
-          )}
+          <View style={styles.infoRow}>
+            {details?.builtUpArea !== undefined && (
+              <MetaItem
+                label="Built Up Area"
+                value={`${details.builtUpArea} sqft`}
+              />
+            )}
+            {details?.furnishing !== undefined && (
+              <MetaItem
+                // Icon={<MaterialIcons name="balcony" size={23} color="#8BEAB2" />}
+                label="Furnishing Status"
+                value={`${details?.furnishing}`}
+              />
+            )}
+            {details?.constructionStatus !== undefined && (
+              <MetaItem
+                // Icon={<MaterialIcons name="balcony" size={23} color="#8BEAB2" />}
+                label="Availability Status"
+                value={`${details?.constructionStatus}`}
+              />
+            )}
+          </View>
+          <View style={styles.infoRow}>
+            {details?.carpetArea !== undefined && (
+              <MetaItem
+                label="Carpet Area"
+                value={`${details.carpetArea} sqft`}
+              />
+            )}
+            {details?.transactionType !== undefined && (
+              <MetaItem
+                // Icon={<MaterialIcons name="balcony" size={23} color="#8BEAB2" />}
+                label="Sale Type"
+                value={`${details?.transactionType}`}
+              />
+            )}
+
+            {details?.bathrooms !== undefined && (
+              <MetaItem
+                // Icon={<MaterialIcons name="bathtub" size={23} color="#8BEAB2" />}
+                label="Bathrooms"
+                value={`${details.bathrooms}`}
+              />
+            )}
+          </View>
+          <View style={styles.infoRow}>
+            {details?.bhk !== undefined && (
+              <MetaItem
+                // Icon={<MaterialIcons name="balcony" size={23} color="#8BEAB2" />}
+                label="Bed Rooms"
+                value={`${details?.bhk}`}
+              />
+            )}
+            {details?.constructionStatus !== undefined && (
+              <MetaItem
+                // Icon={<MaterialIcons name="balcony" size={23} color="#8BEAB2" />}
+                label="Floors"
+                value={`${details?.floorNumber}/${details?.totalFloors}`}
+              />
+            )}
+            {details?.balconies !== undefined && (
+              <MetaItem
+                // Icon={<MaterialIcons name="balcony" size={23} color="#8BEAB2" />}
+                label="Balconies"
+                value={`${details?.balconies}`}
+              />
+            )}
+          </View>
         </View>
 
         {/* DETAILS */}
         <Section title="More Details">
-          <DetailRow label="Furnishing" value={details?.furnishing} />
           <DetailRow label="Facing" value={details?.facing} />
-          <DetailRow
-            label="Floor"
-            value={`${details?.floorNumber}/${details?.totalFloors}`}
-          />
           <DetailRow label="Kitchen Type" value={details?.kitchenType} />
-          <DetailRow
-            label="Transaction Type"
-            value={details?.transactionType}
-          />
+          <DetailRow label="Property Age" value={details?.propertyAge} />
           <DetailRow
             label="Property Ownership"
             value={details?.listingSource}
@@ -149,20 +203,35 @@ const MoreResidentialDetails = ({ route }) => {
           <DetailRow label="Flooring" value={details?.flooringType} />
         </Section>
 
-        {/* AMENITIES */}
-        <Section title="Amenities">
-          {details?.amenities?.length ? (
-            <View style={styles.amenities}>
-              {details?.amenities.map((item, index) => (
-                <View key={index} style={styles.amenityItem}>
-                  <Text>{item.title}</Text>
+        <AmenitiesWithModal amenities={details?.amenities} />
+
+        {details?.nearbyPlaces && (
+          <View style={styles.gallery}>
+            <Text style={styles.aboutUs}>Location & Landmarks</Text>
+
+            <FlatList
+              data={details?.nearbyPlaces}
+              horizontal
+              keyExtractor={(item) => item.order.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.placeRow}>
+                  <LocationIcon color="#FFAC1D" width={16} height={16} />
+                  <Text style={styles.placeName}>
+                    {item.name} : {item.distanceText}
+                  </Text>
                 </View>
-              ))}
+              )}
+              showsHorizontalScrollIndicator={false}
+            />
+            <View style={styles.mapBox}>
+              {Platform.OS === "web" ? (
+                <Text>Map is available on mobile only</Text>
+              ) : (
+                <NearByLocations nearbyPlaces={details?.nearbyPlaces} />
+              )}
             </View>
-          ) : (
-            <Text>No amenities available</Text>
-          )}
-        </Section>
+          </View>
+        )}
 
         {/* ADDRESS */}
         <Section title="Address">
@@ -176,7 +245,7 @@ const MoreResidentialDetails = ({ route }) => {
 
         {/* CONTACT OWNER */}
         <Pressable style={styles.contactBtn} onPress={handleContactOwner}>
-          <PhoneIcon width={18} height={18} />
+          <PhoneIcon width={18} height={18} color="white"/>
           <Text style={styles.contactText}>Contact</Text>
         </Pressable>
       </ScrollView>
@@ -185,24 +254,41 @@ const MoreResidentialDetails = ({ route }) => {
 };
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
-  header: { padding: 16 },
-  price: { fontSize: 16, fontWeight: "700", color: "#27AE60", marginTop: 7 },
+  header: { padding: 16, gap: 6 },
+  price: { fontSize: 16, fontWeight: "700", color: "#27AE60" },
+  pricePer: { fontSize: 16, fontWeight: "500" },
   title: { fontSize: 16, fontWeight: "600", marginTop: 4 },
 
   metaRow: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginHorizontal: 10,
-    paddingVertical: 16,
+    gap: 10,
+    marginHorizontal: 7,
+    paddingVertical: 18,
     // paddingHorizontal: 10,
-    backgroundColor: "#ebebebff",
+    backgroundColor: "rgb(238, 238, 238)",
     borderRadius: 8,
   },
 
-  metaItem: { alignItems: "center" },
-  metaLabel: { fontSize: 12, color: "#777" },
-  metaValue: { fontSize: 14, fontWeight: "600" },
+  infoRow: {
+    // flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  col: {
+    flex: 1,
+    alignItems: "center",
+  },
+
+  // metaItem: { alignItems: "center" },
+  metaLabel: { fontSize: 12 },
+  metaValue: { fontSize: 13, fontWeight: "500" },
 
   section: { padding: 16 },
   sectionTitle: { fontSize: 16, fontWeight: "700", marginBottom: 8 },
@@ -211,7 +297,8 @@ const styles = StyleSheet.create({
 
   detailRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    // justifyContent: "space-between",
+    gap: 5,
     marginBottom: 8,
     paddingHorizontal: 10,
   },
@@ -246,6 +333,40 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#fff",
     fontWeight: "600",
+  },
+  placeRow: {
+    flexDirection: "row",
+    paddingHorizontal: 5,
+    alignItems: "center",
+    gap: 4,
+    // justifyContent: "space-between",
+    // paddingVertical: 8,
+    borderBottomWidth: 0.5,
+    borderColor: "#eee",
+    marginRight: 17,
+    marginVertical: 8,
+  },
+
+  placeName: {
+    fontSize: 13,
+    color: "#333",
+    flexShrink: 1,
+    fontWeight: 500,
+  },
+  gallery: {
+    marginHorizontal: 12,
+  },
+  aboutUs: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginTop: 15,
+  },
+  mapBox: {
+    height: 220,
+    marginHorizontal: 2,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: "#d1d5db",
   },
 
   // center: { flex: 1, alignItems: "center", justifyContent: "center" },

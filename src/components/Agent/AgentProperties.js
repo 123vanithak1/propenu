@@ -9,14 +9,9 @@ export const fetchAgents = async () => {
   return res.data.items;
 };
 const AgentProperties = () => {
-  
+  const { data, isLoading, isError, error } = useQuery(["agents"], fetchAgents);
 
-   const { data, isLoading, isError, error } = useQuery(
-    ["agents"],      
-    fetchAgents      
-  );
-
-  if (isError) console.log("Agent api error :", error)
+  if (isError) console.log("Agent api error :", error);
 
   // const [details, setDetails] = useState([]);
   // useEffect(() => {
@@ -39,13 +34,19 @@ const AgentProperties = () => {
       <Text style={styles.subtitle}>
         Trusted professionals guiding your property journey
       </Text>
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item._id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        renderItem={({ item }) => <AgentCard details={item} />}
-      />
+      {data?.length > 0 ? (
+        <FlatList
+          data={data}
+          keyExtractor={(item) => item._id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => <AgentCard details={item} />}
+        />
+      ) : (
+        <Text style={styles.emptyText}>
+          No agent properties available at the moment
+        </Text>
+      )}
     </View>
   );
 };
@@ -63,6 +64,12 @@ const styles = StyleSheet.create({
     color: "#8f8d87ff",
     marginBottom: 8,
     marginTop: 2,
+  },
+  emptyText: {
+    textAlign: "center",
+    marginVertical: 20,
+    color: "#666",
+    fontSize: 14,
   },
 });
 export default AgentProperties;

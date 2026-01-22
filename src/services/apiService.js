@@ -66,6 +66,47 @@ export const apiService = {
     }
   },
 
+  createAccount :async (payload) => {
+    // console.log("PAYLOAD IN CREATE ACCOUNT :", payload)
+    try {
+      const response = await fetch(`${ENV.BASE_URL}${API_ROUTES.AUTH.CREATE_ACCOUNT}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      return {
+        status: response.status,
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  
+  requestOTP :async (payload) => {
+    // console.log("checking Payload for verify otp when creating the account :", payload)
+    try {
+      const response = await fetch(`${ENV.BASE_URL}${API_ROUTES.AUTH.REQUEST_OTP}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      return {
+        status: response.status,
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  },
+
   featuredProjects: async () => {
     try {
       const response = await fetch(
@@ -238,6 +279,7 @@ export const apiService = {
         },
       });
       const data = await response.json();
+      
       return {
         status: response.status,
         data,
@@ -415,7 +457,7 @@ export const apiService = {
 
       return items;
     } catch (error) {
-      console.error("Category Search error:", error);
+      console.error("residential_category Search error:", error);
       throw error;
     }
   },
@@ -446,7 +488,7 @@ export const apiService = {
 
       return items;
     } catch (error) {
-      console.error("Category Search error:", error);
+      console.error("commercial_category Search error:", error);
       throw error;
     }
   },
@@ -477,7 +519,7 @@ export const apiService = {
 
       return items;
     } catch (error) {
-      console.error("Category Search error:", error);
+      console.error("land_category Search error:", error);
       throw error;
     }
   },
@@ -508,7 +550,7 @@ export const apiService = {
 
       return items;
     } catch (error) {
-      console.error("Category Search error:", error);
+      console.error("agricultural_category Search error:", error);
       throw error;
     }
   },

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -14,8 +14,9 @@ import {
   setProfileField,
   setPropertyType,
 } from "../../../redux/slice/PostPropertySlice";
-
+import { getItem } from "../../../utils/Storage";
 import { setFiles as setFileStoreFiles } from "../../../lib/FileStore";
+import InputField from "../../../components/ui/InputField";
 import {
   RESIDENTIAL_PROPERTY_OPTIONS,
   COMMERCIAL_PROPERTY_OPTIONS,
@@ -35,12 +36,14 @@ export default function BasicDetailsStep() {
 
   const [files, setFiles] = useState([]);
   const [showErrors, setShowErrors] = useState(false);
+  const [isShowPhoneNumber, setIsPhoneNumber] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
   const dispatch = useDispatch();
 
   const listingOptions = [
     { label: "Buy", value: "buy" },
-    { label: "Rent", value: "rent" },
-    { label: "Lease", value: "lease" },
+    { label: "Rent / Lease", value: "rent" },
+    // { label: "Lease", value: "lease" },
   ];
   const property = ["residential", "commercial", "land", "agricultural"];
 
@@ -48,10 +51,10 @@ export default function BasicDetailsStep() {
     propertyType === "residential"
       ? residential
       : propertyType === "commercial"
-      ? commercial
-      : propertyType === "land"
-      ? land
-      : agricultural;
+        ? commercial
+        : propertyType === "land"
+          ? land
+          : agricultural;
 
   const validationResult = validateBasicDetails(
     {
@@ -63,7 +66,7 @@ export default function BasicDetailsStep() {
       description: base.description || "",
     },
     propertyType,
-    files
+    files,
   );
 
   const isFormValid = validationResult.success;
@@ -76,6 +79,31 @@ export default function BasicDetailsStep() {
   const handleSelect = (type) => {
     dispatch(setPropertyType(type));
   };
+
+useEffect(() => {
+  const userData = async () => {
+    try {
+      const data = await getItem("user");
+
+      if (!data) {
+        setIsPhoneNumber(true);
+        return;
+      }
+
+      const parsedData = JSON.parse(data);
+
+      if (!parsedData?.name) {
+        setIsPhoneNumber(true);
+      }
+    } catch (error) {
+      console.log("Error reading user from storage:", error);
+      setIsPhoneNumber(false); 
+    }
+  };
+
+  userData();
+}, []);
+
 
   const pickImages = async () => {
     // Ask permission
@@ -105,9 +133,9 @@ export default function BasicDetailsStep() {
             name: img.fileName || "image.jpg",
             type: img.type,
           })),
-        })
+        }),
       );
-      setFileStoreFiles("postProperty", result.assets );
+      setFileStoreFiles("postProperty", result.assets);
     }
   };
 
@@ -115,12 +143,12 @@ export default function BasicDetailsStep() {
     propertyType === "residential"
       ? RESIDENTIAL_PROPERTY_OPTIONS
       : propertyType === "commercial"
-      ? COMMERCIAL_PROPERTY_OPTIONS
-      : propertyType === "land"
-      ? LAND_PROPERTY_OPTIONS
-      : propertyType === "agricultural"
-      ? AGRICULTURAL_PROPERTY_OPTIONS
-      : [];
+        ? COMMERCIAL_PROPERTY_OPTIONS
+        : propertyType === "land"
+          ? LAND_PROPERTY_OPTIONS
+          : propertyType === "agricultural"
+            ? AGRICULTURAL_PROPERTY_OPTIONS
+            : [];
 
   const selectedCommercialType = commercial.propertyType;
 
@@ -138,6 +166,21 @@ export default function BasicDetailsStep() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.heading}>Add Basic Details</Text>
+      {!isShowPhoneNumber && (
+        <View>
+          <InputField
+            required
+            label="Mobile Number"
+            value={phoneNumber}
+            placeholder="+91 9898989898"
+            keyboardType="phone-pad"
+            maxLength={10}
+            onChange={(value) => {
+              setPhoneNumber(value);
+            }}
+          />
+        </View>
+      )}
       {/* Listing Type */}
       <Text style={styles.label}>Listing Type</Text>
 
@@ -153,7 +196,7 @@ export default function BasicDetailsStep() {
                   setBaseField({
                     key: "listingType",
                     value: option.value,
-                  })
+                  }),
                 )
               }
               style={[styles.optionBtn, isActive && styles.optionBtnActive]}
@@ -213,7 +256,7 @@ export default function BasicDetailsStep() {
                         propertyType,
                         key: "propertyType",
                         value: sub.key,
-                      })
+                      }),
                     )
                   }
                   style={[styles.card, isSelected && styles.cardActive]}
@@ -254,7 +297,7 @@ export default function BasicDetailsStep() {
                         propertyType: "commercial",
                         key: "commercialSubType",
                         value: subType,
-                      })
+                      }),
                     )
                   }
                   style={[
@@ -295,7 +338,7 @@ export default function BasicDetailsStep() {
                         propertyType: "land",
                         key: "landSubType",
                         value: subType,
-                      })
+                      }),
                     )
                   }
                   style={[
@@ -335,7 +378,7 @@ export default function BasicDetailsStep() {
                         propertyType: "agricultural",
                         key: "agriculturalSubType",
                         value: subType,
-                      })
+                      }),
                     )
                   }
                   style={[

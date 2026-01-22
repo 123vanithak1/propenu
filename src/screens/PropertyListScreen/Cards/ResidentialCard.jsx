@@ -89,7 +89,7 @@ const ResidentialCard = ({ item }) => {
         </View>
 
         <Pressable style={styles.button} onPress={handleContact}>
-          <PhoneIcon width={18} height={18} />
+          <PhoneIcon width={18} height={18} color="white" />
           <Text style={styles.buttonText}>Contact</Text>
         </Pressable>
       </View>

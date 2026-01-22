@@ -7,16 +7,16 @@ import useCity from "../CustomHooks/useCity";
 
 const OwnerProperties = () => {
   const [properties, setProperties] = useState([]);
-  const {selectedCity} = useCity()
+  const { selectedCity } = useCity();
 
   const fetchOwnerProperties = async () => {
     const res = await apiService.ownersProperties();
     return res.data.items;
   };
-  
+
   const { data, isError, error, isLoading } = useQuery(
     ["owners"],
-    fetchOwnerProperties
+    fetchOwnerProperties,
   );
   if (isError) console.log(error, "error");
 
@@ -38,14 +38,22 @@ const OwnerProperties = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Popular Owner Properties</Text>
-      <Text style={styles.subTitle}>Building excellence in {selectedCity?.city ?? "Hyderabad"}</Text>
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item._id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        renderItem={({ item }) => <OwnerPropertyCard details={item} />}
-      />
+      <Text style={styles.subTitle}>
+        Building excellence in {selectedCity?.city ?? "Hyderabad"}
+      </Text>
+      {data?.length > 0 ? (
+        <FlatList
+          data={data}
+          keyExtractor={(item) => item._id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => <OwnerPropertyCard details={item} />}
+        />
+      ) : (
+        <Text style={styles.emptyText}>
+          No owner properties available at the moment
+        </Text>
+      )}
     </View>
   );
 };
@@ -60,11 +68,17 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 2,
   },
-   subTitle: {
+  subTitle: {
     fontSize: 12,
     color: "#8f8d87ff",
     marginBottom: 10,
     marginTop: 2,
+  },
+  emptyText: {
+    textAlign: "center",
+    marginVertical: 20,
+    color: "#666",
+    fontSize: 14,
   },
 });
 export default OwnerProperties;

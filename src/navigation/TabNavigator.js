@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 5,
     right: 5,
-    bottom: 12,
+    bottom: 20,
     borderRadius: 30,
     elevation: 0,
     shadowOpacity: 0,

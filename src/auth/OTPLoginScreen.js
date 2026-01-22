@@ -5,13 +5,22 @@ import {
   TextInput,
   StyleSheet,
   Pressable,
-  Modal,
+  Platform,
+  ScrollView,
+  KeyboardAvoidingView,
 } from "react-native";
 import { apiService } from "../services/apiService";
 import useDimensions from "../components/CustomHooks/UseDimension";
 import { setItem } from "../utils/Storage";
+import { SafeAreaView } from "react-native-safe-area-context";
+import * as Keychain from "react-native-keychain";
+import { ToastSuccess } from "../utils/Toast";
+import { BigLogo } from "../../assets/svg/LogoPropenu";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
-const OTPLoginModal = ({ visible, onClose, email, username }) => {
+const OTPLoginModal = ({ route, navigation }) => {
+  const { email, name = "", role = "" } = route.params;
+  console.log("PPPPPPPP", route.params);
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const { width, isLandscape } = useDimensions();
@@ -32,23 +41,39 @@ const OTPLoginModal = ({ visible, onClose, email, username }) => {
 
   const handleVerifyOtp = async () => {
     const otpValue = otp.join("");
+    let otpResult = null;
 
-    if (otpValue.length !== 4) {
-      alert("Please enter 4 digit OTP");
+    if (!/^\d{4}$/.test(otpValue)) {
+      ToastError("Enter a valid 4-digit OTP");
       return;
     }
 
     try {
       setLoading(true);
-      const otpResult = await apiService.verifyOtp({
-        // name: username,
-        email,
-        otp: otpValue,
-      });
-      console.log("otp Result :", otpResult);
+      if (name && role) {
+        otpResult = await apiService.requestOTP({
+          name: name,
+          email: email,
+          role: role,
+          otp: otpValue,
+        });
 
-      if (otpResult?.status !== 200) {
-        throw new Error("OTP verification failed");
+        // console.log("otp Result :", otpValue, otpResult);
+
+        if (otpResult?.status !== 201) {
+          throw new Error("OTP verification failed");
+        }
+      }
+
+      if (!role) {
+        otpResult = await apiService.verifyOtp({
+          email: email,
+          otp: otpValue,
+        });
+        // console.log("otp Result :", otpValue, otpResult);
+        if (otpResult?.status !== 200) {
+          throw new Error("OTP verification failed");
+        }
       }
 
       const token = otpResult?.data?.token;
@@ -61,86 +86,132 @@ const OTPLoginModal = ({ visible, onClose, email, username }) => {
       if (tokenResult?.status !== 200) {
         throw new Error("Token verification failed");
       }
-      await setItem("user", tokenResult?.data);
-      console.log("Login successful", tokenResult);
 
-      onClose();
+      // console.log("token result :", tokenResult)
+      let data = tokenResult?.data;
+
+      // await setItem("user", tokenResult?.data);
+      // Store token securely
+      if (data?.token) {
+        await Keychain.setGenericPassword("token", tokenResult.data.token);
+      }
+
+      // // Store user info in AsyncStorage
+      await setItem(
+        "user",
+        JSON.stringify({
+          id: data?.user.id,
+          name: data?.user.name,
+          email: data?.user?.email,
+          roleName: data?.user?.roleName,
+        }),
+      );
+      ToastSuccess("Login Sucessfully");
+      console.log("Login successful......");
+      navigation.pop(2);
+
+      //  To get the token
+      // const credentials = await Keychain.getGenericPassword();
+      // if (credentials) {
+      //   console.log('Token:', credentials.password);
+      // }
     } catch (error) {
       console.log("OTP verification error:", error);
+      ToastInfo(error.message || "Failed to verify OTP");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      // onRequestClose={onClose}
-    >
-      <View style={styles.overlay}>
-        <View style={styles.modalCard}>
-          <Text style={styles.title}>Confirm OTP</Text>
-          <Text style={styles.subtitle}>OTP sent to {email}</Text>
+    <SafeAreaView style={styles.overlay}>
+      <Pressable
+        style={styles.backOption}
+        onPress={() => navigation.goBack()}
+        hitSlop={10}
+      >
+        <Ionicons name="arrow-back-circle-outline" size={24} color="black" />
+      </Pressable>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.content}>
+            <BigLogo width={180} height={90} />
+            <Text style={styles.title}>Confirm OTP</Text>
+            <Text style={styles.subtitle}>OTP sent to {email}</Text>
 
-          <View style={styles.otpContainer}>
-            {otp.map((digit, index) => (
-              <TextInput
-                key={index}
-                ref={(ref) => (inputs.current[index] = ref)}
-                style={styles.otpInput}
-                value={digit}
-                onChangeText={(value) => handleOtpChange(value, index)}
-                keyboardType="number-pad"
-                maxLength={1}
-              />
-            ))}
+            <View style={styles.otpContainer}>
+              {otp.map((digit, index) => (
+                <TextInput
+                  key={index}
+                  ref={(ref) => (inputs.current[index] = ref)}
+                  style={styles.otpInput}
+                  value={digit}
+                  onChangeText={(value) => handleOtpChange(value, index)}
+                  keyboardType="number-pad"
+                  maxLength={1}
+                />
+              ))}
+            </View>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.loginButton,
+                { width: isLandscape ? width * 0.3 : width * 0.5 },
+                pressed && { opacity: 0.8 },
+              ]}
+              onPress={handleVerifyOtp}
+            >
+              <Text style={styles.loginText}>
+                {loading ? "Verifying..." : "Verify OTP"}
+              </Text>
+            </Pressable>
+
+            {/* <Pressable style={styles.closeBtn} onPress={()=>navigation.navigate("Login")}>
+              <Text style={styles.closeText}>Cancel</Text>
+            </Pressable> */}
           </View>
-
-          <Pressable
-            style={({ pressed }) => [
-              styles.loginButton,
-              { width: isLandscape ? width * 0.3 : width * 0.5 },
-              pressed && { opacity: 0.8 },
-            ]}
-            onPress={handleVerifyOtp}
-          >
-            <Text style={styles.loginText}>
-              {loading ? "Verifying..." : "Verify OTP"}
-            </Text>
-          </Pressable>
-
-          <Pressable onPress={onClose} style={styles.closeBtn}>
-            <Text style={styles.closeText}>Cancel</Text>
-          </Pressable>
-        </View>
-      </View>
-    </Modal>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(243, 255, 245, 0.5)",
+    // justifyContent: "center",
+    // alignItems: "center",
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: "center",
+  },
+
+  backOption: {
+    marginTop: 20,
+    marginLeft: 20,
+  },
+  content: {
+    marginHorizontal: 30,
     alignItems: "center",
   },
-  modalCard: {
-    width: "85%",
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 20,
-    alignItems: "center",
-  },
+
   title: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#0e49a1ff",
+    // color: "#0e49a1ff",
     marginBottom: 6,
   },
   subtitle: {
-    color: "#555",
+    fontSize: 12,
+    color: "gray",
     marginBottom: 20,
     textAlign: "center",
   },
@@ -154,13 +225,15 @@ const styles = StyleSheet.create({
     height: 40,
     borderWidth: 1,
     borderRadius: 8,
+    borderColor: "#ccc",
+    backgroundColor: "white",
     textAlign: "center",
     fontSize: 16,
   },
   loginButton: {
-    backgroundColor: "#2785e9ff",
+    backgroundColor: "#27AE60",
     paddingVertical: 8,
-    borderRadius: 6,
+    borderRadius: 10,
     marginTop: 10,
   },
   loginText: {
@@ -172,7 +245,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   closeText: {
-    color: "#2785e9ff",
+    color: "#27AE60",
     fontWeight: "500",
   },
 });

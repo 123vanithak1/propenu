@@ -11,6 +11,8 @@ const InputField = ({
   required = false,
   disabled = false,
   error,
+  maxLength, // optional
+  autoCapitalize
 }) => {
   /* keyboard based on type */
   const getKeyboardType = () => {
@@ -47,7 +49,9 @@ const InputField = ({
           disabled && styles.disabled,
           error && styles.errorBorder,
         ]}
+        maxLength={maxLength}
         placeholderTextColor="#9ca3af"
+        autoCapitalize={autoCapitalize}
       />
 
       {/* Error */}

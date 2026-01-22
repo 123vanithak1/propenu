@@ -27,17 +27,17 @@ export const LocationIcon = ({ width = 16, height = 16, color="#000",  ...props 
   </Svg>
 );
 
-export const BellIcon = ({ width = 16, height = 16, ...props }) => (
+export const BellIcon = ({ width = 16, height = 16, color="#000" , ...props}) => (
   <Svg width={width} height={height} fill="none" {...props}>
     <Path
-      stroke="#000"
+      stroke={color}
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={1.5}
       d="M2.45 15.2V7.55a5.1 5.1 0 1 1 10.2 0v7.65m-10.2 0h10.2m-10.2 0H.75m11.9 0h1.7M6.7 17.748h1.7"
     />
     <Path
-      stroke="#000"
+      stroke={color}
       strokeWidth={1.5}
       d="M7.55 2.45a.85.85 0 1 0 0-1.7.85.85 0 0 0 0 1.7Z"
     />
@@ -311,7 +311,7 @@ export const PhoneIcon= ({width =20, height = 20,color="#27AE60", ...props }) =>
     {...props}
   >
  <Path
-      fill="#fff"
+      fill={color}
       d="m16.204 12.25-2.54-.29a1.99 1.99 0 0 0-1.64.57l-1.84 1.84a15.05 15.05 0 0 1-6.59-6.59l1.85-1.85c.43-.43.64-1.03.57-1.64l-.29-2.52A2 2 0 0 0 3.734 0h-1.73c-1.13 0-2.07.94-2 2.07.53 8.54 7.36 15.36 15.89 15.89 1.13.07 2.07-.87 2.07-2v-1.73c.01-1.01-.75-1.86-1.76-1.98Z"
     />
   </Svg>

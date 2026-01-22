@@ -4,7 +4,6 @@ import { apiService } from "../../services/apiService";
 import HighLightCard from "./HighLightCard";
 
 const HighLightProjects = () => {
-
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
@@ -22,18 +21,25 @@ const HighLightProjects = () => {
 
     fetchProjects();
   }, []);
-  
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Highlight Projects</Text>
       <Text style={styles.subtitle}>Explore properties across locations</Text>
-      <FlatList
-        data={projects}
-        keyExtractor={(item) => item._id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        renderItem={({ item }) => <HighLightCard details={item} />}
-      />
+
+      {projects.length > 0 ? (
+        <FlatList
+          data={projects}
+          keyExtractor={(item) => item._id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => <HighLightCard details={item} />}
+        />
+      ) : (
+        <Text style={styles.emptyText}>
+          No properties available at the moment
+        </Text>
+      )}
     </View>
   );
 };
@@ -52,6 +58,12 @@ const styles = StyleSheet.create({
     color: "#8f8d87ff",
     marginBottom: 8,
     marginTop: 2,
+  },
+  emptyText: {
+    textAlign: "center",
+    marginVertical: 20,
+    color: "#666",
+    fontSize: 14,
   },
 });
 export default HighLightProjects;

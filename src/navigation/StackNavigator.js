@@ -10,10 +10,13 @@ import Entypo from "@expo/vector-icons/Entypo";
 import PropertyListScreen from "../screens/PropertyListScreen/PropertyListScreen";
 import MoreResidentialDetails from "../screens/PropertyListScreen/MoreDetails/MoreResidentialDetails";
 import CategoryFilterScreen from "../screens/SearchFilter/CategoryFilterScreen";
-
+import SettingsScreen from "../screens/Account/SettingsScreen";
+import LoginModal from "../auth/LoginModal";
+import CreateLogin from "../auth/CreateLogin";
+import OTPLoginModal from "../auth/OTPLoginScreen";
 const Stack = createNativeStackNavigator();
 
-export default function StackNavigator({navigation}) {
+export default function StackNavigator({ navigation }) {
   return (
     <Stack.Navigator
     // screenOptions={({ navigation }) => ({
@@ -48,26 +51,6 @@ export default function StackNavigator({navigation}) {
         component={DrawerNavigator}
         options={{ headerShown: false }}
       />
-      <Stack.Screen
-        name="PropertyDetails"
-        component={PropertyDetailsScreen}
-        options={{ headerShown: false }}
-      />
-        <Stack.Screen
-        name="PropertyList"
-        component={PropertyListScreen}
-        options={{ headerShown: false }}
-      />
-        <Stack.Screen
-        name="MorePropertyDetails"
-        component={MoreResidentialDetails}
-        options={{ headerShown: false }}
-      />
-        <Stack.Screen
-        name="CategoryFilter"
-        component={CategoryFilterScreen}
-        options={{ headerShown: false }}
-      />
 
       <Stack.Screen
         name="PostProperty"
@@ -86,7 +69,7 @@ export default function StackNavigator({navigation}) {
 
           headerRight: () => (
             <Pressable
-              onPress={() => navigation.navigate("Drawer")} 
+              onPress={() => navigation.navigate("Drawer")}
               hitSlop={10}
               style={{ marginRight: 16 }}
             >
@@ -94,6 +77,47 @@ export default function StackNavigator({navigation}) {
             </Pressable>
           ),
         })}
+      />
+
+      <Stack.Screen
+        name="Login"
+        component={LoginModal}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CreateLogin"
+        component={CreateLogin}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="OTPLogin"
+        component={OTPLoginModal}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PropertyDetails"
+        component={PropertyDetailsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PropertyList"
+        component={PropertyListScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MorePropertyDetails"
+        component={MoreResidentialDetails}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CategoryFilter"
+        component={CategoryFilterScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        // options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

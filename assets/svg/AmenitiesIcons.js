@@ -1,5 +1,5 @@
 import React from "react";
-import Svg, { Rect, Mask, Path, G } from "react-native-svg";
+import Svg, { Rect, Mask, Path, G, Defs, ClipPath } from "react-native-svg";
 
 export const FireSafetyIcon = ({ width = 19, height = 21, ...props }) => (
   <Svg

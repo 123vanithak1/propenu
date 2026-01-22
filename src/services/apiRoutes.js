@@ -3,6 +3,8 @@ export const API_ROUTES = {
     LOGIN : "/api/users/auth/request-otp",
     VERIFY_OTP : "/api/users/auth/verify-otp",
     VERIFY_TOKEN : "/api/users/auth/me",
+    CREATE_ACCOUNT : "/api/users/auth/request-otp/create",
+    REQUEST_OTP : "/api/users/auth/verify-otp/create"
   },
   USER: {
     FEATURED_PROJECTS : "/api/properties/featured-project",
@@ -22,5 +24,9 @@ export const API_ROUTES = {
     LAND_CATEGORY_SEARCH :  "/api/properties/land",
     AGRICULTURAL_CATEGORY_SEARCH :  "/api/properties/agricultural",
 
+  },
+
+  SHORTLIST :{
+   SHORTLISTED_PROP : "/api/users/shortlist"
   }
 };

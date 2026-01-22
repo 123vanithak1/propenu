@@ -166,7 +166,7 @@ const MoreCommercialDetails = ({ route }) => {
 
         {/* CONTACT OWNER */}
         <Pressable style={styles.contactBtn} onPress={handleContactOwner}>
-          <PhoneIcon width={18} height={18} />
+          <PhoneIcon width={18} height={18} color="white"/>
           <Text style={styles.contactText}>Contact</Text>
         </Pressable>
       </ScrollView>

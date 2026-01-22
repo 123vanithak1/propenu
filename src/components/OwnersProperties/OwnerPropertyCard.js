@@ -51,7 +51,7 @@ const OwnerPropertyCard = ({ details }) => {
   const MetaItem = ({ label, value, Icon }) => (
     <View style={styles.metaItemRow}>
       {Icon}
-      <View style={{ gap: 3 }}>
+      <View>
         <Text style={styles.metaLabel}>{label}</Text>
         <Text style={styles.metaValue}>{value}</Text>
       </View>
@@ -82,33 +82,35 @@ const OwnerPropertyCard = ({ details }) => {
 
         {/* Meta */}
         <View style={styles.metaRow}>
-          <MetaItem
-            Icon={<AreaIcon width={20} height={20} />}
-            label="Area"
-            value={`${details.superBuiltUpArea ?? "—"} sqft`}
-          />
-          <MetaItem
-            Icon={<ReadyToMoveIcon width={20} height={20} />}
-            label="Parking"
-            value={`${details?.parkingDetails?.twoWheeler || 0} + ${
-              details?.parkingDetails?.fourWheeler || 0
-            }`}
-          />
+          <View style={{ gap: 7 }}>
+            <MetaItem
+              Icon={<AreaIcon width={20} height={20} />}
+              label="Area"
+              value={`${details.superBuiltUpArea ?? "—"} sqft`}
+            />
+            <MetaItem
+              Icon={<BedIcon width={20} height={20} />}
+              label="Furnishing"
+              value={details?.furnishing || "Unfurnished"}
+            />
+          </View>
+          <View style={{ gap: 7 }}>
+            <MetaItem
+              Icon={<ReadyToMoveIcon width={20} height={20} />}
+              label="Availability"
+              value={`Available`}
+            />
+
+            <MetaItem
+              Icon={<FontAwesome5 name="car" size={19} color="#8BEAB2" />}
+              label="Parking"
+              value={`${details?.parkingDetails?.twoWheeler || 0} + ${
+                details?.parkingDetails?.fourWheeler || 0
+              }`}
+            />
+          </View>
         </View>
-        <View style={styles.metaRow}>
-          <MetaItem
-            Icon={<BedIcon width={20} height={20} />}
-            label="Furnishing"
-            value={details?.furnishing || "Unfurnished"}
-          />
-          <MetaItem
-            Icon={<FontAwesome5 name="car" size={19} color="#8BEAB2" />}
-            label="Parking"
-            value={`${details?.parkingDetails?.twoWheeler || 0} + ${
-              details?.parkingDetails?.fourWheeler || 0
-            }`}
-          />
-        </View>
+
         <View style={styles.priceBox}>
           <View>
             <Text style={styles.price}>{formatINR(details?.price)}</Text>

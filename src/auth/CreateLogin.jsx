@@ -19,7 +19,7 @@ import Dropdownui from "../components/ui/DropDownUI";
 import { BigLogo } from "../../assets/svg/LogoPropenu";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-export default function LoginModal({ navigation }) {
+export default function CreateLogin({ navigation }) {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("");
@@ -49,29 +49,33 @@ export default function LoginModal({ navigation }) {
 
   const handleLogin = async () => {
     try {
-      const res = await apiService.login({
-        // name: username,
-        email,
+      const res = await apiService.createAccount({
+        name: username,
+        email:email,
+        role:role
       });
 
       if (res?.status === 200) {
-        navigation.navigate("OTPLogin", { email: email });
-        // onOtpSuccess({
-        //   email,
-        //   // username,
-        // });
+        navigation.navigate("OTPLogin", { email: email, name : username, role:role });
       }
     } catch (err) {
       console.log("Login error:", err);
     }
   };
-  const isFormValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isFormValid =
+    username.trim().length >= 3 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+    role;
 
   return (
     <SafeAreaView style={styles.overlay}>
-      <Pressable style={styles.backOption}   onPress={() => navigation.goBack()} hitSlop={10}>
+      <Pressable
+        style={styles.backOption}
+        onPress={() => navigation.goBack()}
+        hitSlop={10}
+      >
         <Ionicons name="arrow-back-circle-outline" size={24} color="black" />
-      </Pressable >
+      </Pressable>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -83,10 +87,20 @@ export default function LoginModal({ navigation }) {
         >
           <View style={styles.inputFields}>
             <BigLogo width={200} height={90} />
-            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.title}>Create an Account</Text>
             <Text style={styles.subTitle}>
-              Enter your details to access your account
+              Join Propenu to find your perfect property.
             </Text>
+
+            <InputField
+              label="Full Name"
+              placeholder="Enter your full name"
+              value={username}
+              onChange={setUsername}
+            />
+            {/* {errors.username && (
+              <Text style={styles.errorText}>{errors.username}</Text>
+            )} */}
 
             <InputField
               label="Email Address"
@@ -99,6 +113,15 @@ export default function LoginModal({ navigation }) {
             {/* {errors.email && (
               <Text style={styles.errorText}>{errors.email}</Text>
             )} */}
+            <Dropdownui
+              label="Role"
+              value={role}
+              options={Roles.map((t) => ({
+                value: t,
+                label: t,
+              }))}
+              onChange={setRole}
+            />
 
             <Pressable
               style={[
@@ -116,13 +139,13 @@ export default function LoginModal({ navigation }) {
             </Pressable>
             <View style={{ paddingTop: 15, alignItems: "center" }}>
               <Text style={styles.subTitle}>
-                New to Propenu?
+                Already have an account?
                 <Text
                   style={{ color: "#27AE60", fontSize: 12, fontWeight: "500" }}
-                  onPress={() => navigation.navigate("CreateLogin")}
+                  onPress={() => navigation.navigate("Login")}
                 >
                   {" "}
-                  Create an account
+                  Login
                 </Text>
               </Text>
             </View>
@@ -149,7 +172,6 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   title: {
-    marginTop: 10,
     fontSize: 18,
     fontWeight: "600",
     textAlign: "center",
@@ -158,7 +180,7 @@ const styles = StyleSheet.create({
   subTitle: {
     fontSize: 12,
     color: "gray",
-    marginBottom: 15,
+    marginBottom: 10,
     textAlign: "center",
   },
   inputFields: {
@@ -193,7 +215,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#27AE60",
     paddingVertical: 10,
     borderRadius: 10,
-    marginTop: 15,
+    marginTop: 10,
   },
   disabledButton: {
     backgroundColor: "#51b37a",

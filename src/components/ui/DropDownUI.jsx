@@ -112,9 +112,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     borderWidth: 1,
     borderColor: "#D1D5DB",
-    borderRadius: 10,
+    borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 5,
+    paddingVertical: 7,
     backgroundColor: "#FFFFFF",
   },
 
