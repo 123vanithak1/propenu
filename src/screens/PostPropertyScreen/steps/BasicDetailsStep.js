@@ -8,6 +8,7 @@ import {
   Image,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   nextStep,
   setBaseField,
@@ -33,6 +34,7 @@ import * as ImagePicker from "expo-image-picker";
 export default function BasicDetailsStep() {
   const { propertyType, base, residential, commercial, land, agricultural } =
     useSelector((state) => state.postProperty);
+    const insets = useSafeAreaInsets();
 
   const [files, setFiles] = useState([]);
   const [showErrors, setShowErrors] = useState(false);
@@ -164,9 +166,9 @@ useEffect(() => {
     propertyType === "agricultural" ? AGRICULTURAL_PROPERTY_SUBTYPES : [];
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={[styles.container,{paddingBottom: insets.bottom + 10,}]}>
       <Text style={styles.heading}>Add Basic Details</Text>
-      {!isShowPhoneNumber && (
+      {isShowPhoneNumber && (
         <View>
           <InputField
             required
@@ -431,6 +433,7 @@ useEffect(() => {
         style={[
           styles.continueBtn,
           !isFormValid && showErrors && styles.disabledBtn,
+          {}
         ]}
         onPress={() => {
           setShowErrors(true);

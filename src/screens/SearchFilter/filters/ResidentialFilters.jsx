@@ -9,23 +9,19 @@ import {
   ScrollView,
   Keyboard,
 } from "react-native";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import { useDispatch, useSelector } from "react-redux";
-import { Picker } from "@react-native-picker/picker";
-import FilterBar from "./FilterBar";
+import { useNavigation } from "@react-navigation/native";
 import {
   selectCityWithLocalities,
   selectLocalitiesByCity,
 } from "../../../redux/slice/CitySlice";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import Entypo from "@expo/vector-icons/Entypo";
+import useCity from "../../../components/CustomHooks/useCity";
 import {
-  BUDGET_MAX,
-  BUDGET_MIN,
-  BUDGET_STEP,
   budgetOptions,
   CARPET_MAX,
   CARPET_MIN,
@@ -34,38 +30,40 @@ import {
   moreFilterSections,
 } from "../../../data/constants";
 import {
-  setListingType,
-  setCategory,
-  setSearchText,
-  categoryOption,
   setResidentialFilter,
+  resetResidentialFilters,
 } from "../../../redux/slice/FilterSlice";
 import Dropdownui from "../../../components/ui/DropDownUI";
-import { useAppSelector } from "../../../redux/store/store";
+import { ToastError, ToastInfo, ToastSuccess } from "../../../utils/Toast";
+import filterStyles from "./filterStyles";
 
 const ResidentialFilters = () => {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const [locationInput, setLocationInput] = useState("");
+  const [selectedOptions, setSelectedOptions] = useState({});
   const [locations, setLocations] = useState([]);
-  const [open, setOpen] = useState(false);
+  const [isOpenMore, setIsOpenMore] = useState(false);
   const [step, setStep] = useState(1);
   const dispatch = useDispatch();
   const cityData = useSelector(selectCityWithLocalities);
   const localities = useSelector(selectLocalitiesByCity);
   const filtersState = useSelector((state) => state.filters);
 
-  const { category } = useAppSelector((s) => s.filters);
-  console.log("category :", category);
+  const { selectedCity } = useCity();
 
   const { minBudget, maxBudget, residential } = filtersState;
+  console.log("residential filters :", residential);
 
   const { locality, bhk, postedBy } = residential;
 
   const inputRef = useRef(null);
-  const TOTAL_STEPS = 2;
+  const TOTAL_STEPS = 3;
   const localityNames = [
     ...new Set(cityData.localities.map((item) => item.name)),
   ];
+
+  const rightPanelRef = useRef(null);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [carpetRange, setCarpetRange] = useState([CARPET_MIN, CARPET_MAX]);
 
@@ -131,138 +129,200 @@ const ResidentialFilters = () => {
   const handleSubmit = () => {
     const trimmed = locationInput.trim();
     if (!trimmed) return;
+    console.log("Submitting location:", trimmed);
 
     // prevent duplicates
     if (!locations.includes(trimmed)) {
       setLocations([...locations, trimmed]);
+      dispatch(
+        setResidentialFilter({
+          key: "locality",
+          value: trimmed,
+        }),
+      );
     }
-
     setLocationInput("");
+  };
+
+  const handleSwitch = (val) => {
+    setVerifiedOnly(val);
+    // if (val) ToastSuccess("Verified properties enabled");
+    // else ToastSuccess("Verified properties disabled");
   };
 
   const removeLocation = (loc) => {
     setLocations(locations.filter((l) => l !== loc));
   };
 
-  useEffect(() => {
-    // small delay helps on Android
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
-  }, []);
+  const [activeFilter, setActiveFilter] = useState(moreFilterSections[0]?.key);
+
+  const sectionRefs = useRef({});
+
+  const handleSectionClick = (key) => {
+    setActiveFilter(key);
+
+    sectionRefs.current[key]?.measureLayout(rightPanelRef.current, (x, y) => {
+      rightPanelRef.current.scrollTo({ y, animated: true });
+    });
+  };
+
+  const toggleArrayValue = (arr, value) => {
+    const safeArr = Array.isArray(arr) ? arr : [];
+    return safeArr.includes(value)
+      ? safeArr.filter((v) => v !== value)
+      : [...safeArr, value];
+  };
+
+  const toggleOption = (sectionKey, option, selectionType) => {
+    const mappedKey = keyMapping[sectionKey];
+    const currentValue = residential[mappedKey];
+
+    setSelectedOptions((prev) => {
+      const sectionValues = prev[sectionKey] || [];
+
+      if (selectionType === "single") {
+        return {
+          ...prev,
+          [sectionKey]: [option],
+        };
+      }
+      console.log("section key :", sectionKey, option);
+      return {
+        ...prev,
+        [sectionKey]: sectionValues.includes(option)
+          ? sectionValues.filter((v) => v !== option)
+          : [...sectionValues, option],
+      };
+    });
+
+    dispatch(
+      setResidentialFilter({
+        key: mappedKey,
+        value:
+          selectionType === "multiple"
+            ? toggleArrayValue(currentValue || [], option)
+            : option,
+      }),
+    );
+  };
+
+  const handleSearch = async () => {
+    console.log("Searching with residential filters...");
+    navigation.navigate("PropertyList");
+  };
+  const handleClearButton = () => {
+    setLocations([]);
+    setLocationInput("");
+    setBudgetRange([BUDGET_MIN, BUDGET_MAX]);
+    setSelectedOptions({});
+    setVerifiedOnly(false);
+    setCarpetRange([CARPET_MIN, CARPET_MAX]);
+    dispatch(resetResidentialFilters());
+    ToastInfo("All filters have been cleared.");
+  };
+
+  const activeSection = moreFilterSections.find(
+    (section) => section.key === activeFilter,
+  );
+
+  //  To automatic keyboard focus on input
+  // useEffect(() => {
+  //   // small delay helps on Android
+  //   setTimeout(() => {
+  //     inputRef.current?.focus();
+  //   }, 100);
+  // }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <FilterBar />
-
+    <View style={filterStyles.container}>
       {/* STEP 1 */}
-      {step === 1 && (
-        <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
-          <View style={styles.content}>
-            <Text style={styles.label}>City / Locality</Text>
+      {/* {step === 1 && ( */}
+      <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
+        <View style={filterStyles.content}>
+          <Text style={filterStyles.label}>City / Locality</Text>
 
-            {/* SEARCH INPUT */}
-            <View style={styles.inputWrapper}>
-              <EvilIcons
-                name="search"
-                size={24}
-                color="gray"
-                style={styles.searchIcon}
-              />
-              <TextInput
-                ref={inputRef}
-                value={locationInput}
-                onChangeText={setLocationInput}
-                placeholder='Search "Hyderabad"'
-                placeholderTextColor="gray"
-                style={styles.input}
-                returnKeyType="search"
-                onSubmitEditing={handleSubmit}
-              />
-            </View>
-
-            {/* SELECTED LOCATION CHIPS */}
-
-            <View style={styles.selectedLoc}>
-              {locations.map((loc) => (
-                <View key={loc} style={[styles.chip]}>
-                  <Text style={styles.chipText}>{loc}</Text>
-                  <Pressable onPress={() => removeLocation(loc)}>
-                    <Ionicons name="close" size={16} color="#1E8449" />
-                  </Pressable>
-                </View>
-              ))}
-            </View>
-
-            <Text style={styles.localitiesHeading}>
-              {cityData
-                ? `Localities in ${cityData.city}`
-                : "Select city first"}
-            </Text>
-
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-              {[...new Set(localities.map((l) => l.name))].map((name) => (
-                <Pressable
-                  key={name}
-                  style={{
-                    paddingHorizontal: 10,
-                    paddingVertical: 6,
-                    backgroundColor: "#E9F7EF",
-                    borderRadius: 6,
-                  }}
-                  onPress={() => {
-                    if (!locations.includes(name)) {
-                      setLocations([...locations, name]);
-                    }
-                  }}
-                >
-                  <Text style={styles.localitiesText}>{name}</Text>
-                </Pressable>
-              ))}
-            </View>
-
-            {/* <Text style={styles.subTitle}>Property type</Text>
-            <View style={styles.toggleContainer}>
-              {CategoryTypes.map((item) => {
-                const isActive = category === item.label;
-
-                return (
-                  <Pressable
-                    key={item.value}
-                    onPress={() => dispatch(setCategory(item.label))}
-                    style={[styles.toggleBtn, isActive && styles.activeBtn]}
-                  >
-                    <Text
-                      style={[styles.toggleText, isActive && styles.activeText]}
-                    >
-                      {item.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View> */}
+          {/* SEARCH INPUT */}
+          <View style={filterStyles.inputWrapper}>
+            <EvilIcons
+              name="search"
+              size={24}
+              color="gray"
+              style={filterStyles.searchIcon}
+            />
+            <TextInput
+              // ref={inputRef}
+              value={locationInput}
+              onChangeText={setLocationInput}
+              placeholder={`Search in ${selectedCity?.city ?? "City"} `}
+              placeholderTextColor="gray"
+              style={filterStyles.input}
+              returnKeyType="search"
+              onSubmitEditing={handleSubmit}
+            />
           </View>
-        </Pressable>
-      )}
+
+          {/* SELECTED LOCATION CHIPS */}
+
+          <View style={filterStyles.selectedLoc}>
+            {locations.map((loc) => (
+              <View key={loc} style={[filterStyles.chip]}>
+                <Text style={filterStyles.chipText}>{loc}</Text>
+                <Pressable onPress={() => removeLocation(loc)}>
+                  <Ionicons name="close" size={16} color="#1E8449" />
+                </Pressable>
+              </View>
+            ))}
+          </View>
+
+          <Text style={filterStyles.localitiesHeading}>
+            {cityData ? `Localities in ${cityData.city}` : "Select city first"}
+          </Text>
+
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+            {[...new Set(localities.map((l) => l.name))].map((name) => (
+              <Pressable
+                key={name}
+                style={{
+                  paddingHorizontal: 10,
+                  paddingVertical: 6,
+                  backgroundColor: "#E9F7EF",
+                  borderRadius: 6,
+                }}
+                onPress={() => {
+                  if (!locations.includes(name)) {
+                    setLocations([...locations, name]);
+                  }
+                }}
+              >
+                <Text style={filterStyles.localitiesText}>{name}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      </Pressable>
+      {/* // )} */}
 
       {/* STEP 2 */}
-      {step === 2 && (
-        <View style={styles.content}>
-          <View style={styles.row}>
-            {/* Fixed Add button */}
-            <Pressable style={styles.addButton} onPress={() => setStep(1)}>
+      {/* {step === 2 && ( */}
+      {/*<View style={filterStyles.content}>
+           <View style={filterStyles.row}>
+            {/* Fixed Add button
+            <Pressable
+              style={filterStyles.addButton}
+              onPress={() => setStep(1)}
+            >
               <Text style={{ fontSize: 13 }}>Add +</Text>
             </Pressable>
 
-            {/* Scrollable locations */}
+            {/* Scrollable locations
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.locationScroll}
+              contentContainerStyle={filterStyles.locationScroll}
             >
               {locations.map((loc) => (
-                <View key={loc} style={[styles.chip, { marginRight: 6 }]}>
-                  <Text style={styles.chipText}>{loc}</Text>
+                <View key={loc} style={[filterStyles.chip, { marginRight: 6 }]}>
+                  <Text style={filterStyles.chipText}>{loc}</Text>
                   <Pressable
                     onPress={() => removeLocation(loc)}
                     style={{ paddingLeft: 5 }}
@@ -272,354 +332,278 @@ const ResidentialFilters = () => {
                 </View>
               ))}
             </ScrollView>
+          </View> */}
+      <View style={filterStyles.contentBar}>
+        <Text style={filterStyles.subTitle}>Budget</Text>
+        <View style={filterStyles.budget}>
+          <View style={filterStyles.minMaxBudget}>
+            <Dropdownui
+              label="Minimum"
+              value={budgetRange[0]}
+              options={budgetOptions.map((t) => ({
+                label: formatBudget(t),
+                value: t,
+              }))}
+              onChange={(value) => setBudgetRange([value, budgetRange[1]])}
+            />
           </View>
-          <ScrollView style={styles.contentBar}>
-            <Text style={styles.subTitle}>Budget</Text>
-            <View style={styles.budget}>
-              <View style={styles.minMaxBudget}>
-                <Dropdownui
-                  label="Minimum"
-                  value={budgetRange[0]}
-                  options={budgetOptions.map((t) => ({
-                    label: formatBudget(t),
-                    value: t,
-                  }))}
-                  onChange={(value) => setBudgetRange([value, budgetRange[1]])}
-                />
-              </View>
 
-              <View style={styles.minMaxBudget}>
-                <Dropdownui
-                  label="Maximum"
-                  value={budgetRange[1]}
-                  options={budgetOptions.map((t) => ({
-                    label: formatBudget(t),
-                    value: t,
-                  }))}
-                  onChange={(value) => setBudgetRange([budgetRange[0], value])}
-                />
-              </View>
-            </View>
+          <View style={filterStyles.minMaxBudget}>
+            <Dropdownui
+              label="Maximum"
+              value={budgetRange[1]}
+              options={budgetOptions.map((t) => ({
+                label: formatBudget(t),
+                value: t,
+              }))}
+              onChange={(value) => setBudgetRange([budgetRange[0], value])}
+            />
+          </View>
+        </View>
 
-            <Text style={styles.subTitle}>BHK</Text>
-            <View style={styles.toggleContainer}>
-              {bhkOptions.map((opt) => {
-                const value = getBhkNumber(opt);
-                return (
-                  <Pressable
-                    key={opt}
-                    onPress={() => {
-                      dispatch(
-                        setResidentialFilter({
-                          key: "bhk",
-                          value,
-                        })
-                      );
-                    }}
-                    style={[styles.bhkData, bhk === value && styles.activeChip]}
-                  >
-                    <Text style={styles.labelText}>{opt}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-            <Text style={styles.subTitle}>Posted By</Text>
-            <View style={styles.toggleContainer}>
-              {postedByOptions.map((item) => (
-                <Pressable
-                  key={item}
-                  onPress={() => {
-                    dispatch(
-                      setResidentialFilter({
-                        key: "postedBy",
-                        value: item,
-                      })
-                    );
-                  }}
+        <Text style={filterStyles.subTitle}>BHK</Text>
+        <View style={filterStyles.toggleContainer}>
+          {bhkOptions.map((opt) => {
+            const value = getBhkNumber(opt);
+            return (
+              <Pressable
+                key={opt}
+                onPress={() => {
+                  dispatch(
+                    setResidentialFilter({
+                      key: "bhk",
+                      value,
+                    }),
+                  );
+                }}
+                style={[
+                  filterStyles.bhkData,
+                  bhk === value && filterStyles.activeChip,
+                ]}
+              >
+                <Text
                   style={[
-                    styles.bhkData,
-                    postedBy === item && styles.activeChip,
+                    filterStyles.labelText,
+                    bhk === value && filterStyles.activeChipText,
                   ]}
                 >
-                  <Text style={styles.labelText}>{item}</Text>
+                  {opt}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <Text style={filterStyles.subTitle}>Posted By</Text>
+        <View style={filterStyles.toggleContainer}>
+          {postedByOptions.map((item) => (
+            <Pressable
+              key={item}
+              onPress={() => {
+                dispatch(
+                  setResidentialFilter({
+                    key: "postedBy",
+                    value: item,
+                  }),
+                );
+              }}
+              style={[
+                filterStyles.bhkData,
+                postedBy === item && filterStyles.activeChip,
+              ]}
+            >
+              <Text
+                style={[
+                  filterStyles.labelText,
+                  postedBy === item && filterStyles.activeChipText,
+                ]}
+              >
+                {item}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <Pressable
+          style={filterStyles.moreFilterHeader}
+          onPress={() => {
+            setIsOpenMore(!isOpenMore);
+          }}
+        >
+          {/* <View style={filterStyles.badge}>
+                    <Text style={filterStyles.badgeText}>{selectedMoreFiltersCount}</Text>
+                  </View> */}
+
+          <Text style={filterStyles.moreFilterText}>
+            Advanced Filters (Optional)
+          </Text>
+
+          <AntDesign name={isOpenMore ? "up" : "down"} size={12} color="#000" />
+        </Pressable>
+      </View>
+
+      {/* )} */}
+      {/* {step === 3 && ( */}
+
+      {isOpenMore && (
+        <View style={{ flex: 1, backgroundColor: "#fff" }}>
+          <View style={filterStyles.sectionContainer}>
+            {/* LEFT PANEL */}
+            <View style={filterStyles.leftPanel}>
+              {moreFilterSections.map((section) => (
+                <Pressable
+                  key={section.key}
+                  onPress={() => handleSectionClick(section.key)}
+                  style={[
+                    filterStyles.leftItem,
+                    activeFilter === section.key && filterStyles.leftItemActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      filterStyles.leftText,
+                      activeFilter === section.key &&
+                        filterStyles.leftTextActive,
+                    ]}
+                  >
+                    {section.label}
+                  </Text>
                 </Pressable>
               ))}
             </View>
 
-            <Pressable
-              style={styles.moreFilterHeader}
-              onPress={() => setOpen(!open)}
+            {/* RIGHT PANEL */}
+            <ScrollView
+              ref={rightPanelRef}
+              style={filterStyles.rightPanel}
+              contentContainerStyle={{ paddingBottom: 40 }}
+              showsVerticalScrollIndicator={false}
             >
-              {/* <View style={styles.badge}>
-                    <Text style={styles.badgeText}>{selectedMoreFiltersCount}</Text>
-                  </View> */}
+              {activeSection && (
+                <View key={activeSection.key} style={filterStyles.section}>
+                  <Text style={filterStyles.sectionTitle}>
+                    {activeSection.label}
+                  </Text>
 
-              <Text style={styles.moreFilterText}>More Filters</Text>
+                  {activeSection.key === "Verified Properties" ? (
+                    <View style={filterStyles.verifiedRow}>
+                      <Text>Verified</Text>
+                      <Switch
+                        style={{
+                          transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
+                        }}
+                        value={verifiedOnly}
+                        onValueChange={(val) => handleSwitch(val)}
+                        trackColor={{ false: "#bdbdbd", true: "#A9DFBF" }}
+                        thumbColor={verifiedOnly ? "#27AE60" : "#f0eeee"}
+                        ios_backgroundColor="#E0E0E0"
+                      />
+                    </View>
+                  ) : activeSection.key === "Covered Area" ? (
+                    <View style={filterStyles.budgetArea}>
+                      <View style={filterStyles.minMaxBudget}>
+                        <Dropdownui
+                          label="Minimum"
+                          value={carpetRange[0]}
+                          options={carpetOptions.map((t) => ({
+                            label: `${t} Sqft`,
+                            value: t,
+                          }))}
+                          onChange={(value) =>
+                            setCarpetRange([value, carpetRange[1]])
+                          }
+                        />
+                      </View>
 
-              <Text>{open ? "▲" : "▼"}</Text>
-            </Pressable>
-          </ScrollView>
+                      <View style={filterStyles.minMaxBudget}>
+                        <Dropdownui
+                          label="Maximum"
+                          value={carpetRange[1]}
+                          options={carpetOptions.map((t) => ({
+                            label: `${t} Sqft`,
+                            value: t,
+                          }))}
+                          onChange={(value) =>
+                            setCarpetRange([carpetRange[0], value])
+                          }
+                        />
+                      </View>
+                    </View>
+                  ) : (
+                    <View>
+                      {activeSection.options?.map((opt) => {
+                        const isChecked =
+                          selectedOptions[activeSection.key]?.includes(opt);
+
+                        const isSingle =
+                          activeSection.selectionType === "single";
+
+                        return (
+                          <Pressable
+                            key={opt}
+                            style={filterStyles.optionRow}
+                            onPress={() =>
+                              toggleOption(
+                                activeSection.key,
+                                opt,
+                                activeSection.selectionType,
+                              )
+                            }
+                          >
+                            {isSingle ? (
+                              <View
+                                style={[
+                                  filterStyles.radioOuter,
+                                  isChecked && filterStyles.radioOuterSelected,
+                                ]}
+                              >
+                                {isChecked && (
+                                  <View style={filterStyles.radioInner} />
+                                )}
+                              </View>
+                            ) : (
+                              <View
+                                style={[
+                                  filterStyles.checkbox,
+                                  isChecked && filterStyles.checkedBox,
+                                ]}
+                              >
+                                {isChecked && (
+                                  <Entypo name="check" size={12} color="#fff" />
+                                )}
+                              </View>
+                            )}
+
+                            <Text style={filterStyles.optionText}>{opt}</Text>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  )}
+                </View>
+              )}
+            </ScrollView>
+          </View>
         </View>
       )}
+      {/* )} */}
 
       {/* BOTTOM BAR */}
-      <View style={[styles.buttonBar, { paddingBottom: 60 }]}>
-        <Text
-          style={styles.clearText}
-          onPress={() => {
-            setLocations([]);
-            // setLocationInput("");
-            // setStep(1);
-          }}
-        >
-          Clear
-        </Text>
-
-        <Pressable
-          style={styles.nextButton}
-          onPress={() =>
-            setStep((prev) => (prev < TOTAL_STEPS ? prev + 1 : prev))
-          }
-        >
-          <Text style={styles.nextText}>
-            {step === TOTAL_STEPS ? "Search" : "Next"}
+      <View
+        style={[filterStyles.buttonBar, { marginBottom: insets.bottom + 10 }]}
+      >
+        <Pressable style={filterStyles.clearButton} onPress={handleClearButton}>
+          <Text style={filterStyles.clearText}>Clear</Text>
+        </Pressable>
+        <Pressable style={[filterStyles.nextButton]} onPress={handleSearch}>
+          <Text style={filterStyles.nextText}>
+            Search
+            {/* {step === TOTAL_STEPS ? "Search" : "Next"} */}
           </Text>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
 export default ResidentialFilters;
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-
-  content: {
-    padding: 10,
-  },
-
-  label: {
-    fontSize: 15,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  moreFilterHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    backgroundColor: "#fff",
-    marginVertical: 8,
-  },
-  badge: {
-    backgroundColor: "#27AE60",
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
-  },
-  moreFilterText: {
-    flex: 1,
-    fontWeight: "600",
-    fontSize: 14,
-  },
-
-  inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    backgroundColor: "#fff",
-    paddingHorizontal: 10,
-  },
-  budget: {
-    flexDirection: "row",
-    gap: 8,
-    marginHorizontal: 8,
-    marginVertical: 5,
-  },
-  minMaxBudget: {
-    flex: 1,
-  },
-  contentBar: {
-    padding: 5,
-    marginVertical: 5,
-    shadowColor: "gray",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-  },
-  row: {
-    flexDirection: "row",
-    gap: 8,
-    marginVertical: 5,
-    paddingVertical: 10,
-    padding: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-  },
-  locationScroll: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  selectedLoc: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 7,
-    marginVertical: 10,
-  },
-
-  subTitle: {
-    fontSize: 14,
-    fontWeight: 500,
-    paddingLeft: 8,
-  },
-
-  addButton: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#ddd",
-  },
-
-  searchIcon: {
-    marginRight: 5,
-  },
-  localitiesHeading: {
-    fontSize: 14,
-    fontWeight: 500,
-    marginBottom: 10,
-  },
-
-  localitiesText: {
-    fontSize: 12,
-    paddingVertical: 3,
-  },
-
-  input: {
-    flex: 1,
-    paddingVertical: 10,
-    fontSize: 14,
-  },
-
-  chipContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-  },
-
-  chip: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#E9F7EF",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    // marginRight: 10, // spacing between chips
-    // gap: 6,
-  },
-
-  chipText: {
-    color: "#1E8449",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-
-  buttonBar: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    backgroundColor: "white",
-    paddingVertical: 10,
-  },
-
-  clearText: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#27AE60",
-  },
-
-  nextButton: {
-    paddingHorizontal: 50,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: "#27AE60",
-  },
-
-  nextText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "white",
-  },
-  toggleContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    padding: 10,
-    gap: 10,
-  },
-  bhkData: {
-    paddingHorizontal: 13,
-    paddingVertical: 5,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    backgroundColor: "#fff",
-  },
-  optionActive: {
-    borderColor: "#22c55e",
-    backgroundColor: "#dcfce7",
-  },
-  labelText: {
-    fontSize: 12,
-    // color:"gray"
-  },
-
-  activeChip: {
-    backgroundColor: "#E9F7EF",
-    borderColor: "#27AE60",
-  },
-  option: {
-    paddingVertical: 8,
-  },
-  activeOption: {
-    backgroundColor: "#f2f2f2",
-  },
-
-  toggleBtn: {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    // backgroundColor:"green",
-    borderRadius: 6,
-  },
-
-  activeBtn: {
-    backgroundColor: "#27AE60",
-  },
-
-  toggleText: {
-    fontSize: 14,
-    color: "#555",
-    fontWeight: "500",
-  },
-});

@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   card: {
     marginTop: 10,
     marginRight: 15,
-    height: 230,
+    height: 210,
   },
 
   imageWrapper: {
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
 
   imageBackground: {
     width: 250,
-    height: 180,
+    height: 160,
   },
 
   image: {

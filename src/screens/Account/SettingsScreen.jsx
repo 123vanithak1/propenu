@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#545454",
+    color: "#000",
   },
 
   editBtn: {

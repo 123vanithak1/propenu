@@ -4,26 +4,35 @@ import ResidentialFilters from "./filters/ResidentialFilters";
 import CommercialFilters from "./filters/CommercialFilters";
 import LandFilters from "./filters/LandFilters";
 import AgriculturalFilters from "./filters/AgriculturalFilters";
+import CategorySelector from "../../components/ui/CategorySelector";
+import FilterBar from "./filters/FilterBar";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, ScrollView } from "react-native";  
+
+const CATEGORY_COMPONENT_MAP = {
+  Residential: ResidentialFilters,
+  Commercial: CommercialFilters,
+  Land: LandFilters,
+  Agricultural: AgriculturalFilters,
+};
 
 const CategoryFilterScreen = () => {
-   const { category } = useAppSelector((s) => s.filters);
+  const { category } = useAppSelector((s) => s.filters);
+ 
+  const CategoryComponent = CATEGORY_COMPONENT_MAP[category];
 
-  switch (category) {
-    case "Residential":
-      return <ResidentialFilters />;
+  return (
+    <ScrollView style={{ flex: 1, paddingHorizontal: 10, backgroundColor:"#fff" }}>
+      <FilterBar /> 
+      <CategorySelector />
 
-    case "Commercial":
-      return <CommercialFilters />;
+      {!category && 
+      <Text>Please select a category</Text>
+      }
 
-    case "Land":
-      return <LandFilters />;
-
-    case "Agricultural":
-      return <AgriculturalFilters />;
-
-    default:
-      return null;
-  }
+      {category && CategoryComponent && <CategoryComponent />}
+    </ScrollView>
+  );
 };
 
 export default CategoryFilterScreen;

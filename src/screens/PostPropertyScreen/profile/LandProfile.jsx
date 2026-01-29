@@ -24,6 +24,11 @@ import { AMENITIES } from "../constants/amenities";
 import InputWithUnit from "../../../components/ui/InputWithUnit";
 import { ToastError, ToastSuccess } from "../../../utils/Toast";
 
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+
 const AREA_UNITS = ["sqft"];
 const FACING_OPTIONS = [
   "East",
@@ -43,6 +48,7 @@ const LandProfile = () => {
   const { land } = useSelector((state) => state.postProperty);
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   const handleSubmitProperty = () => {
     dispatch(submitPropertyThunk("land"))
@@ -54,7 +60,7 @@ const LandProfile = () => {
           console.log(
             "Property Submission Successful:",
             response.status,
-            response.success
+            response.success,
           );
 
           navigation.navigate("Drawer");
@@ -77,17 +83,17 @@ const LandProfile = () => {
           length: land?.dimensions?.length || "",
           width: land?.dimensions?.width || "",
         },
-      })
+      }),
     );
   }, []);
   useEffect(() => {
     const show = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-      () => setKeyboardOpen(true)
+      () => setKeyboardOpen(true),
     );
     const hide = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
-      () => setKeyboardOpen(false)
+      () => setKeyboardOpen(false),
     );
 
     return () => {
@@ -112,7 +118,7 @@ const LandProfile = () => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
     >
       <ScrollView
-        style={styles.container}
+        style={[styles.container, { paddingBottom: insets.bottom + 16 }]}
         contentContainerStyle={{ paddingBottom: keyboardOpen ? 135 : 40 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -147,7 +153,7 @@ const LandProfile = () => {
                           length: value,
                           width: land.dimensions?.width || "",
                         },
-                      })
+                      }),
                     )
                   }
                 />
@@ -170,7 +176,7 @@ const LandProfile = () => {
                           length: land.dimensions?.length || "",
                           width: value,
                         },
-                      })
+                      }),
                     )
                   }
                 />
@@ -200,7 +206,7 @@ const LandProfile = () => {
                           propertyType: "land",
                           key: "layoutType",
                           value: item.value,
-                        })
+                        }),
                       )
                     }
                     style={[styles.choiceBtn, active && styles.choiceBtnActive]}
@@ -230,7 +236,7 @@ const LandProfile = () => {
                     propertyType: "land",
                     key: "facing",
                     value,
-                  })
+                  }),
                 )
               }
               options={FACING_OPTIONS.map((t) => ({
@@ -248,7 +254,7 @@ const LandProfile = () => {
                     propertyType: "land",
                     key: "approvedByAuthority",
                     value,
-                  })
+                  }),
                 )
               }
               options={LAND_APPROVAL_AUTHORITIES.map((a) => ({
@@ -270,7 +276,7 @@ const LandProfile = () => {
                 propertyType: "land",
                 key: "amenities",
                 value,
-              })
+              }),
             )
           }
         />
@@ -292,7 +298,7 @@ const LandProfile = () => {
                     propertyType: "land",
                     key: "surveyNumber",
                     value,
-                  })
+                  }),
                 )
               }
             />
@@ -306,7 +312,7 @@ const LandProfile = () => {
                     propertyType: "land",
                     key: "landUseZone",
                     value,
-                  })
+                  }),
                 )
               }
             />
@@ -338,7 +344,7 @@ const LandProfile = () => {
                       propertyType: "land",
                       key: item.key,
                       value: !enabled,
-                    })
+                    }),
                   )
                 }
                 style={[styles.featureRow, enabled && styles.featureRowActive]}
@@ -360,7 +366,7 @@ const LandProfile = () => {
                         propertyType: "land",
                         key: item.key,
                         value: val,
-                      })
+                      }),
                     )
                   }
                 />
@@ -388,7 +394,7 @@ const LandProfile = () => {
                       propertyType: "land",
                       key: "price",
                       value: value.replace(/\D/g, ""),
-                    })
+                    }),
                   )
                 }
               />
@@ -405,7 +411,7 @@ const LandProfile = () => {
                       propertyType: "land",
                       key: "pricePerSqft",
                       value: value.replace(/\D/g, ""),
-                    })
+                    }),
                   )
                 }
               />
@@ -425,7 +431,7 @@ const LandProfile = () => {
                       propertyType: "land",
                       key: "plotArea",
                       value,
-                    })
+                    }),
                   )
                 }
                 onUnitChange={(unit) =>
@@ -434,7 +440,7 @@ const LandProfile = () => {
                       propertyType: "land",
                       key: "areaUnit",
                       value: unit,
-                    })
+                    }),
                   )
                 }
               />
@@ -451,7 +457,7 @@ const LandProfile = () => {
                       propertyType: "land",
                       key: "roadWidthFt",
                       value,
-                    })
+                    }),
                   )
                 }
               />
@@ -482,7 +488,7 @@ const LandProfile = () => {
                     propertyType: "land",
                     key: "isPriceNegotiable",
                     value: val,
-                  })
+                  }),
                 )
               }
             />
@@ -500,7 +506,7 @@ const LandProfile = () => {
                 propertyType: "land",
                 key: "description",
                 value,
-              })
+              }),
             )
           }
         />

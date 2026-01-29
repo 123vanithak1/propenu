@@ -5,28 +5,90 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  Pressable,
+  TextInput,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-
+import useCity from "../../components/CustomHooks/useCity";
 import ResidentialCard from "./Cards/ResidentialCard";
 import CommercialCard from "./Cards/CommercialCard";
 import LandCard from "./Cards/LandCard";
 import AgriculturalCard from "./Cards/AgriculturalCard";
-
+import EvilIcons from "@expo/vector-icons/EvilIcons";
 import { apiService } from "../../services/apiService";
+import SearchBar from "../../components/ui/SearchBar";
+import { useAppSelector } from "../../redux/store/store";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
-const PropertyListScreen = ({ route }) => {
-  const { id, title } = route.params;
+const PropertyListScreen = ({ navigation }) => {
+  // const { id, title } = route.params;
+  const insets = useSafeAreaInsets();
+  const { category } = useAppSelector((s) => s.filters);
+  const filtersState = useSelector((state) => state.filters);
+  const { residential, commercial, land, agricultural } = filtersState;
+  console.log("Filters State in PropertyListScreen :", filtersState);
 
   const [details, setDetails] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { selectedCity } = useCity();
+  const [value, setValue] = useState("");
+
+  // const fetchData = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const result = await apiService.category_search({
+  //       category: category,
+  //     });
+  //     setDetails(Array.isArray(result) ? result : []);
+  //   } catch (error) {
+  //     console.log("Error occurred:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const buildSearchParams = (category, filters) => {
+    const params = { category };
+
+    if (filters && Object.keys(filters).length > 0) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (
+          value !== undefined &&
+          value !== null &&
+          value !== "" &&
+          !(Array.isArray(value) && value.length === 0)
+        ) {
+          params[key] = Array.isArray(value) ? value.join(",") : value;
+        }
+      });
+    }
+
+    return params;
+  };
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const result = await apiService.category_search({
-        category: title,
-      });
+
+      // filters can be residential / commercial / land / agricultural
+      const filters =
+        category === "Residential"
+          ? residential
+          : category === "Commercial"
+            ? commercial
+            : category === "Land"
+              ? land
+              : category === "Agricultural"
+                ? agricultural
+                : {};
+
+      const params = buildSearchParams(category, filters);
+      console.log("Search Params :", params);
+
+      const result = await apiService.category_search(params);
       setDetails(Array.isArray(result) ? result : []);
     } catch (error) {
       console.log("Error occurred:", error);
@@ -37,11 +99,11 @@ const PropertyListScreen = ({ route }) => {
 
   useEffect(() => {
     fetchData();
-  }, [title]);
+  }, [category]);
 
   const renderPropertyCard = useCallback(
     ({ item }) => {
-      switch (id) {
+      switch (category.toLowerCase()) {
         case "residential":
           return <ResidentialCard item={item} />;
         case "commercial":
@@ -54,20 +116,38 @@ const PropertyListScreen = ({ route }) => {
           return <Text>No card found</Text>;
       }
     },
-    [id],
+    [category],
   );
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" />
         <Text style={{ marginTop: 10 }}>Loading... </Text>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+      <Pressable onPress={() => navigation.navigate("CategoryFilter")}>
+        <View pointerEvents="none" style={styles.search}>
+          <EvilIcons
+            style={{ width: 20 }}
+            name="search"
+            size={24}
+            color="gray"
+          />
+          <TextInput
+            style={styles.input}
+            value={value}
+            placeholder={`Search in ${selectedCity?.city ?? "City"} `}
+            placeholderTextColor="gray"
+            onChange={setValue}
+          />
+        </View>
+      </Pressable>
+
       {details.length === 0 && (
         <View style={styles.loadingContainer}>
           <Text style={styles.empty}>No properties available.</Text>
@@ -81,7 +161,7 @@ const PropertyListScreen = ({ route }) => {
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -96,6 +176,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 10,
+    //  backgroundColor: "rgba(243, 255, 245, 0.5)",
     backgroundColor: "#fff",
   },
   loading: {
@@ -109,5 +190,25 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingBottom: 20,
+  },
+  search: {
+    // flex: 1,
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 0.5,
+    borderColor: "#ADADAD",
+    borderRadius: 10,
+    // paddingVertical: 2,
+    paddingHorizontal: 5,
+    backgroundColor: "white",
+    marginBottom: 8,
+  },
+  input: {
+    // width: "100%",
+    borderWidth: 0,
+    // paddingLeft: 10,
+    paddingVertical: 7,
+    borderColor: "red",
   },
 });

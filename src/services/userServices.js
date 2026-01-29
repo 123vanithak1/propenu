@@ -70,4 +70,26 @@ export const userServices = {
       throw error;
     }
   },
+  getContactedProperties: async (token) => {
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.SHORTLIST.CONTACTED_PROP}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const data = await response.json();
+      return {
+        status: response.status,
+        data,
+      };
+    } catch (error) {
+      throw error;
+    }
+  },
 };

@@ -27,6 +27,7 @@ import CounterField from "../../../components/ui/CounterField";
 import Dropdownui from "../../../components/ui/DropDownUI";
 import Toggle from "../../../components/ui/ToggleSwitch";
 import TextArea from "../../../components/ui/TextArea";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 const AREA_UNITS = ["sqft", "sqmt", "acre", "guntha", "cent", "hectare"];
 const ROAD_WIDTH_UNITS = ["ft", "meter"];
@@ -97,6 +98,7 @@ const AgriculturalProfile = () => {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const { agricultural } = useSelector((state) => state.postProperty);
   const navigation = useNavigation();
+   const insets = useSafeAreaInsets();
 
   const setField = (key, value) => {
     dispatch(
@@ -137,7 +139,7 @@ const AgriculturalProfile = () => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
     >
       <ScrollView
-        style={styles.container}
+        style={[styles.container,{paddingBottom: insets.bottom + 16,}]}
         contentContainerStyle={{ paddingBottom: keyboardOpen ? 135 : 40 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}

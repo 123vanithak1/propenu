@@ -29,5 +29,6 @@ export const API_ROUTES = {
   SHORTLIST :{
    SHORTLISTED_PROP : "/api/users/shortlist",
    MY_PROPERTIES :"/api/properties/search/my",
+   CONTACTED_PROP:"/api/properties/leads/my-contacts"
   }
 };

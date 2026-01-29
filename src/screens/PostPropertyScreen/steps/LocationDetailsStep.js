@@ -22,6 +22,7 @@ import InputField from "../../../components/ui/InputField";
 import TextArea from "../../../components/ui/TextArea";
 import MapScreen from "../../../components/location/MapScreen";
 import NearbyLocationSearch from "../../../components/location/NearbyLocationSearch";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { search } from "india-pincode-search";
 
@@ -33,6 +34,7 @@ const LocationDetailsStep = () => {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const validationResult = validateLocationDetails(base);
   const isFormValid = validationResult.success;
+     const insets = useSafeAreaInsets();
 
   const fieldErrors =
     showErrors && !validationResult.success
@@ -107,8 +109,6 @@ const LocationDetailsStep = () => {
     };
   }, []);
 
-  /* ---------------- UI ---------------- */
-
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -116,7 +116,7 @@ const LocationDetailsStep = () => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
     >
       <ScrollView
-        style={styles.container}
+        style={[styles.container,{paddingBottom: insets.bottom + 16,}]}
         contentContainerStyle={{ paddingBottom: keyboardOpen ? 100 : 0 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}

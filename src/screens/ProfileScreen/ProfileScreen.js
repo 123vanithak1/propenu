@@ -5,36 +5,17 @@ import LoginModal from "../../auth/LoginModal";
 import OTPLoginModal from "../../auth/OTPLoginScreen";
 
 const ProfileScreen = ({ navigation }) => {
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showOtpModal, setShowOtpModal] = useState(false);
-  const [loginData, setLoginData] = useState({
-    email: "",
-    username: "",
-  });
 
   return (
     <View style={styles.mainProfile}>
       <View style={styles.profile}>
         <UserProfile width={120} height={140} />
-        <Pressable onPress={() => setShowLoginModal(true)}>
+        <Pressable onPress={() => navigation.navigate("Login") }>
           <Text style={styles.loginText}>Login / Register</Text>
         </Pressable>
-        <LoginModal
-          visible={showLoginModal}
-          onClose={() => setShowLoginModal(false)}
-          onOtpSuccess={({ email, username }) => {
-            setLoginData({ email, username });
-            setShowLoginModal(false);
-            setShowOtpModal(true);
-          }}
-        />
+       
 
-        <OTPLoginModal
-          visible={showOtpModal}
-          email={loginData.email}
-          username={loginData.username}
-          onClose={() => setShowOtpModal(false)}
-        />
+      
 
         <Text style={styles.loginText2}>
           Login and access millions of advertiser details on single click

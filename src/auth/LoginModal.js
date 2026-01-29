@@ -121,7 +121,6 @@ export default function LoginModal({ navigation }) {
                   style={{ color: "#27AE60", fontSize: 12, fontWeight: "500" }}
                   onPress={() => navigation.navigate("CreateLogin")}
                 >
-                  {" "}
                   Create an account
                 </Text>
               </Text>

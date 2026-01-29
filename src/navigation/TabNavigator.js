@@ -1,7 +1,7 @@
 // src/navigation/TabNavigator.js
 import React, { useEffect, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Pressable, Text, StyleSheet, View } from "react-native";
+import { Pressable, Text, StyleSheet, View, ScrollView } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -18,24 +18,28 @@ import {
   TabBarDomain,
 } from "../../assets/svg/Logo";
 import useCity from "../components/CustomHooks/useCity";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {
   const [isOpen, setIsOpen] = useState(false);
   const { selectedCity, locations, selectCity } = useCity();
+  const [openState, setOpenState] = useState(null);
+    const insets = useSafeAreaInsets();
 
   const handleCity = () => {
     setIsOpen(!isOpen);
   };
 
   const onSelect = (item) => {
+    console.log("Selected city: ", item);
     selectCity(item);
-    setIsOpen(false);
+    setIsOpen(false); 
   };
 
   const popularCities = locations.filter(
-    (loc) => loc.category?.toLowerCase() === "popular"
+    (loc) => loc.category?.toLowerCase() === "popular",
   );
   const groupedByState = locations.reduce((acc, loc) => {
     if (!acc[loc.state]) {
@@ -56,45 +60,65 @@ export default function TabNavigator() {
         <LocationIcon width={20} height={20} />
         <Text> {selectedCity?.city ?? "Select City"}</Text>
         {isOpen ? (
-          <AntDesign name="up" size={12} color="black" />
+          <AntDesign name="up" size={10} color="black" />
         ) : (
-          <AntDesign name="down" size={12} color="black" />
+          <AntDesign name="down" size={10} color="black" />
         )}
         {isOpen && (
-          <View style={styles.selectCitySpace}>
-            <Text style={styles.stateTitle}>Popular Cities</Text>
-            {popularCities.map((item) => (
-              <Pressable
-                key={item._id || item.city}
-                onPress={() => {
-                  onSelect(item);
-                  close?.();
-                }}
-                style={styles.cityItem}
-              >
-                <Text style={styles.cityText}>{item.city}</Text>
-              </Pressable>
-            ))}
-            {Object.entries(groupedByState).map(([stateName, cities]) => (
-              <View key={stateName} style={styles.stateBlock}>
-                {/* State heading */}
-                <Text style={styles.stateTitle}>{stateName}</Text>
+          <Pressable style={styles.dropdownWrapper}>
+            <View style={styles.selectCitySpace}>
+              <Text style={styles.stateTitle}>Popular Cities</Text>
 
-                {/* Cities under this state */}
-                {cities.map((c) => (
-                  <Pressable
-                    key={c._id}
-                    onPress={() => {
-                      onSelect(c);
-                    }}
-                    style={styles.cityItem}
-                  >
-                    <Text style={styles.cityText}>{c.city}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            ))}
-          </View>
+              {popularCities.map((item) => (
+                <Pressable
+                  key={item._id || item.city}
+                  onPress={() => {
+                    onSelect(item);
+                  }}
+                  style={styles.cityItem}
+                >
+                  <Text style={styles.cityText}>{item.city}</Text>
+                </Pressable>
+              ))}
+
+              {Object.entries(groupedByState).map(([stateName, cities]) => {
+                const isStateOpen = openState === stateName;
+
+                return (
+                  <View key={stateName} style={styles.stateBlock}>
+                    {/* STATE HEADER */}
+                    <Pressable
+                      onPress={() =>
+                        setOpenState(isStateOpen ? null : stateName)
+                      }
+                      style={styles.stateHeader}
+                    >
+                      <Text style={styles.stateTitle}>{stateName}</Text>
+                      <AntDesign
+                        name={isStateOpen ? "minus" : "plus"}
+                        size={10}
+                      />
+                    </Pressable>
+
+                    {/* CITIES */}
+                    {isStateOpen &&
+                      cities.map((c) => (
+                        <Pressable
+                          key={c._id}
+                          onPress={() => {
+                            onSelect(c);
+                            setIsOpen(false); 
+                          }}
+                          style={styles.cityItem}
+                        >
+                          <Text style={styles.cityText}>{c.city}</Text>
+                        </Pressable>
+                      ))}
+                  </View>
+                );
+              })}
+            </View>
+          </Pressable>
         )}
       </Pressable>
     </View>
@@ -125,48 +149,59 @@ export default function TabNavigator() {
     return <IconComponent width={24} height={24} color={color} />;
   };
   return (
-    <Tab.Navigator
-      screenOptions={({ navigation, route }) => ({
-        headerTitle: () => null,
+ 
+      <Tab.Navigator
+        screenOptions={({ navigation, route }) => ({
+          headerTitle: () => null,
 
-        // 🔴 REMOVE HEADER SHADOW / ELEVATION
-        headerStyle: {
-          elevation: 0, // Android
-          shadowOpacity: 0, // iOS
-          borderBottomWidth: 0,
-        },
+          //  REMOVE HEADER SHADOW / ELEVATION
+          headerStyle: {
+            elevation: 0, // Android
+            shadowOpacity: 0, // iOS
+            borderBottomWidth: 0,
+          },
 
-        headerLeft: () => renderMenuButton(navigation),
-        headerLeftContainerStyle: styles.headerLeft,
+          headerLeft: () => renderMenuButton(navigation),
+          headerLeftContainerStyle: styles.headerLeft,
 
-        headerRight: () => (
-          <View style={styles.headerRight}>
-            {renderPostPropertyButton(navigation)}
-          </View>
-        ),
+          headerRight: () => (
+            <View style={styles.headerRight}>
+              {renderPostPropertyButton(navigation)}
+            </View>
+          ),
 
-        tabBarShowLabel: false,
+          tabBarShowLabel: false,
 
-        // 🔴 REMOVE TAB BAR SHADOW / ELEVATION
-        tabBarStyle: styles.tabBar,
+           tabBarStyle: [
+          styles.tabBar,
+          {
+           bottom: insets.bottom +5,
+          },
+        ],
+   
 
-        tabBarItemStyle: styles.tabItem,
+          //  REMOVE TAB BAR SHADOW / ELEVATION
+          // tabBarStyle: styles.tabBar,
 
-        tabBarIcon: ({ focused }) => (
-          <View
-            style={[styles.tabIconContainer, focused && styles.tabIconActive]}
-          >
-            {getTabIcon(route.name, focused, "#27AE60")}
-            {focused && <Text style={styles.tabActiveLabel}>{route.name}</Text>}
-          </View>
-        ),
-      })}
-    >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Insights" component={InsightScreen} />
-      <Tab.Screen name="ShortListed" component={ShortListedScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
-    </Tab.Navigator>
+          tabBarItemStyle: styles.tabItem,
+
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={[styles.tabIconContainer, focused && styles.tabIconActive]}
+            >
+              {getTabIcon(route.name, focused, "#27AE60")}
+              {focused && (
+                <Text style={styles.tabActiveLabel}>{route.name}</Text>
+              )}
+            </View>
+          ),
+        })}
+      >
+        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Insights" component={InsightScreen} />
+        <Tab.Screen name="ShortListed" component={ShortListedScreen} />
+        <Tab.Screen name="Profile" component={ProfileScreen} />
+      </Tab.Navigator>
   );
 }
 
@@ -174,22 +209,41 @@ const styles = StyleSheet.create({
   headerLeft: {
     paddingLeft: 15,
   },
-  selectCitySpace: {
+
+  dropdownWrapper: {
     position: "absolute",
     top: 35,
-    backgroundColor: "white",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
+    zIndex: 3,
+    elevation: 3,
   },
+
+  selectCitySpace: {
+    width: 220,
+    backgroundColor: "white",
+    borderRadius: 10,
+    paddingVertical: 15,
+    paddingHorizontal: 16,
+  },
+
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
+
   locationBar: {
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
+    zIndex: 3,
+    elevation: 3, // 👈 ANDROID FIX
   },
   select: {
     flexDirection: "row",
-    gap: 5,
+    gap: 6,
     alignItems: "center",
   },
 
@@ -215,13 +269,24 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "500",
   },
+  stateHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    // paddingVertical: 5,
+  },
+
+  arrow: {
+    fontSize: 14,
+    paddingLeft: 10,
+  },
 
   stateBlock: {
     width: "100%",
     marginTop: 12,
   },
   stateTitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "600",
     color: "#000",
     marginBottom: 2,
@@ -233,8 +298,8 @@ const styles = StyleSheet.create({
     // alignItems: "center",
   },
   cityText: {
-    fontSize: 14,
-    color: "#50545aff",
+    fontSize: 12,
+    color: "#000",
   },
 
   freeBadge: {
@@ -276,18 +341,18 @@ const styles = StyleSheet.create({
     numberOfLines: 1,
   },
   tabBar: {
-    height: 60,
+    height: 50,
     backgroundColor: "#fff",
     position: "absolute",
     left: 5,
     right: 5,
-    bottom: 20,
+    // bottom: 20,
     borderRadius: 30,
-    elevation: 0,
-    shadowOpacity: 0,
-    shadowColor: "transparent",
+    // elevation: 0,
+    // shadowOpacity: 0,
+    // shadowColor: "transparent",
     borderTopWidth: 0,
-    // paddingBottom: 2,
-    paddingTop: 10,
+    paddingBottom: 10,
+    paddingTop: 6,
   },
 });

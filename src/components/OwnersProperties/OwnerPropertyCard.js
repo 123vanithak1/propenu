@@ -39,22 +39,22 @@ const OwnerPropertyCard = ({ details }) => {
     return `₹ ${price.toLocaleString("en-IN")}`;
   };
 
- const handleContact = async () => {
-   const storedUser = await getItem("user");
- 
-   if (!storedUser) {
-     ToastInfo("User not authenticated");
-     return;
-   }
- 
-   const userData = JSON.parse(storedUser);
- 
-   if (!userData?.name) {
-     ToastInfo("User not authenticated");
-   } else {
-     ToastSuccess("Owner will contact you shortly");
-   }
- };
+  const handleContact = async () => {
+    const storedUser = await getItem("user");
+
+    if (!storedUser) {
+      ToastInfo("User not authenticated");
+      return;
+    }
+
+    const userData = JSON.parse(storedUser);
+
+    if (!userData?.name) {
+      ToastInfo("User not authenticated");
+    } else {
+      ToastSuccess("Owner will contact you shortly");
+    }
+  };
 
   const MetaItem = ({ label, value, Icon }) => (
     <View style={styles.metaItemRow}>
@@ -65,15 +65,21 @@ const OwnerPropertyCard = ({ details }) => {
       </View>
     </View>
   );
-
   return (
     <View style={[styles.card, { width: cardWidth }]}>
       <View style={styles.imageWrapper}>
-        <AutoImageSlider
-          images={details?.gallery?.map((img) => ({ uri: img.url }))}
-          height={200}
-          width={cardWidth - 20}
-        />
+        {details?.gallery?.length === 0 ? (
+          <Image
+            source={HomePageImage}
+            style={{ height: 200, width: cardWidth - 20, borderRadius: 10 }}
+          />
+        ) : (
+          <AutoImageSlider
+            images={details?.gallery?.map((img) => ({ uri: img.url }))}
+            height={200}
+            width={cardWidth - 20}
+          />
+        )}
 
         {/* Top-right like icon */}
         <View style={styles.likeIcon}>

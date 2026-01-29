@@ -25,6 +25,7 @@ import InputField from "../../../components/ui/InputField";
 import TextArea from "../../../components/ui/TextArea";
 import DateInputField from "../../../components/ui/DateInputField";
 import { ToastSuccess, ToastError } from "../../../utils/Toast";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const FLOORING_TYPES = [
   "vitrified",
@@ -57,6 +58,9 @@ const ResidentialProfile = () => {
   const { residential } = useSelector((state) => state.postProperty);
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
+   const insets = useSafeAreaInsets();
+
+
   useEffect(() => {
     const price =
       Number(residential.price) || Number(residential.expectedPrice);
@@ -107,7 +111,7 @@ const ResidentialProfile = () => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
     >
       <ScrollView
-        style={styles.container}
+        style={[styles.container,{paddingBottom: insets.bottom + 16,}]}
         contentContainerStyle={{ paddingBottom: keyboardOpen ? 135 : 40 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}

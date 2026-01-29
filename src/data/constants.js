@@ -5,9 +5,8 @@ export const BUDGET_MAX = 5000; // 50 Cr (in Lac)
 export const BUDGET_STEP = 5;
 
 export const budgetOptions = [
-  5, 10, 20, 30, 50, 75,
-  100, 150, 200, 300, 400,
-  500, 750, 1000, 2000, 3000, 4000, 5000,
+  5, 10, 20, 30, 50, 75, 100, 150, 200, 300, 400, 500, 750, 1000, 2000, 3000,
+  4000, 5000,
 ];
 
 export const formatBudget = (value) => {
@@ -23,8 +22,7 @@ export const CARPET_MIN = 300;
 export const CARPET_MAX = 10000;
 
 export const carpetOptions = [
-  300, 500, 750, 1000, 1500,
-  2000, 3000, 5000, 7500, 10000,
+  300, 500, 750, 1000, 1500, 2000, 3000, 5000, 7500, 10000,
 ];
 
 /* ===================== RESIDENTIAL ===================== */
@@ -160,7 +158,7 @@ export const commercialMoreFilterSections = [
     options: ["ready-to-move", "under-construction"],
     selectionType: "single",
   },
-  { key: "Built-up Area", label: "Built-up Area" },
+  // { key: "Built-up Area", label: "Built-up Area" },
   { key: "Carpet Area", label: "Carpet Area" },
   {
     key: "Floor Number",
@@ -225,6 +223,7 @@ export const landMoreFilterSections = [
       "Industrial Land",
       "Farm Land",
     ],
+    selectionType: "single",
   },
   {
     key: "Land Sub Type",
@@ -236,12 +235,98 @@ export const landMoreFilterSections = [
       "DTCP Approved Plot",
       "HMDA Approved Plot",
     ],
+    selectionType: "multiple",
   },
-  { key: "Plot Area", label: "Plot Area" },
-  { key: "Dimensions", label: "Dimensions" },
-];
+  {
+    key: "Plot Area",
+    label: "Plot Area",
+  },
+  // {
+  //   key: "Dimensions",
+  //   label: "Dimensions",
+  // },
+  {
+    key: "Road Width",
+    label: "Road Width (ft)",
+    options: ["20+", "30+", "40+", "60+"],
+    selectionType: "single",
+  },
+  {
+    key: "Facing",
+    label: "Facing",
+    options: ["East", "West", "North", "South", "North-East", "North-West"],
+    selectionType: "multiple",
+  },
+  {
+    key: "Corner Plot",
+    label: "Corner Plot",
+    options: ["Yes"],
+    selectionType: "single",
+  },
+  {
+    key: "Ready To Construct",
+    label: "Ready To Construct",
+    options: ["Yes"],
+    selectionType: "single",
+  },
+  {
+    key: "Water Connection",
+    label: "Water Connection",
+    options: ["Available"],
+    selectionType: "single",
+  },
+  {
+    key: "Electricity Connection",
+    label: "Electricity Connection",
+    options: ["Available"],
+    selectionType: "single",
+  },
+  {
+    key: "Approved By",
+    label: "Approved By Authority",
+    options: ["DTCP", "HMDA", "BDA", "RERA"],
+    selectionType: "multiple",
+  },
+  {
+    key: "Land Use Zone",
+    label: "Land Use Zone",
+    options: ["Residential", "Commercial", "Industrial", "Agricultural"],
+    selectionType: "multiple",
+  },
+  {
+    key: "Banks Approved",
+    label: "Banks Approved",
+    options: ["SBI", "HDFC", "ICICI", "Axis"],
+    selectionType: "multiple",
+  },
+  { key: "Verified Properties", label: "Verified Properties" },
+  {
+    key: "Price Negotiable",
+    label: "Price Negotiable",
+    options: ["Yes"],
+    selectionType: "single",
+  },
+  {
+    key: "Posted Since",
+    label: "Posted Since",
+    options: [
+      "All",
+      "Yesterday",
+      "Last Week",
+      "Last 2 Weeks",
+      "Last Month",
+      "Last 3 Months",
+    ],
+    selectionType: "single",
+  },
+  // {
+  //   key: "Posted By",
+  //   label: "Posted By",
+  //   options: ["Owners", "Agents", "Builders"],
+  //   selectionType: "single",
+  // },
 
-/* ===================== AGRICULTURAL ===================== */
+];
 
 export const agriculturalMoreFilterSections = [
   {
@@ -254,6 +339,7 @@ export const agriculturalMoreFilterSections = [
       "Plantation Land",
       "Horticulture Land",
     ],
+    selectionType: "multiple",
   },
   {
     key: "Agricultural Sub Type",
@@ -265,11 +351,102 @@ export const agriculturalMoreFilterSections = [
       "Palm Plantation",
       "Mixed Crop Land",
     ],
+    selectionType: "multiple",
   },
-  { key: "Total Area", label: "Total Area" },
+  {
+    key: "Total Area",
+    label: "Total Area",
+    selectionType: "single",
+  },
   {
     key: "Area Unit",
     label: "Area Unit",
     options: ["Acre", "Guntha", "Cent", "Hectare"],
+    selectionType: "single",
   },
+  { key: "Verified Properties", label: "Verified Properties" },
+  {
+    key: "Soil Type",
+    label: "Soil Type",
+    options: ["Red Soil", "Black Soil", "Alluvial Soil", "Sandy Soil"],
+    selectionType: "multiple",
+  },
+  {
+    key: "Irrigation Type",
+    label: "Irrigation Type",
+    options: ["Canal", "Borewell", "Drip", "Rain-fed"],
+    selectionType: "multiple",
+  },
+  {
+    key: "Number of Borewells",
+    label: "Number of Borewells",
+    options: ["1+", "2+", "3+", "4+"],
+    selectionType: "multiple",
+  },
+  {
+    key: "Water Source",
+    label: "Water Source",
+    options: ["River", "Canal", "Borewell", "Tank"],
+    selectionType: "multiple",
+  },
+  // {
+  //   key: "Electricity Connection",
+  //   label: "Electricity Connection",
+  //   options: ["Available"],
+  //   selectionType: "single",
+  // },
+  {
+    key: "Current Crop",
+    label: "Current Crop",
+    options: ["Paddy", "Cotton", "Sugarcane", "Groundnut", "Vegetables"],
+    selectionType: "multiple",
+  },
+  {
+    key: "Plantation Age",
+    label: "Plantation Age (Years)",
+    options: ["1+", "3+", "5+", "10+"],
+    selectionType: "single",
+  },
+  {
+    key: "Road Width",
+    label: "Road Width",
+    options: ["20+", "30+", "40+"],
+    selectionType: "single",
+  },
+  {
+    key: "Access Road Type",
+    label: "Access Road Type",
+    options: ["Mud Road", "BT Road", "CC Road"],
+    selectionType: "single",
+  },
+  // {
+  //   key: "Boundary Wall",
+  //   label: "Boundary Wall",
+  //   options: ["Yes"],
+  //   selectionType: "single",
+  // },
+  {
+    key: "State Restrictions",
+    label: "State Purchase Restrictions",
+    options: ["Applicable", "Not Applicable"],
+    selectionType: "single",
+  },
+  // {
+  //   key: "Price Negotiable",
+  //   label: "Price Negotiable",
+  //   options: ["Yes"],
+  //   selectionType: "single",
+  // },
+  {
+    key: "Posted Since",
+    label: "Posted Since",
+    options: ["All", "Yesterday", "Last Week", "Last Month", "Last 3 Months"],
+    selectionType: "single",
+  },
+  // {
+  //   key: "Posted By",
+  //   label: "Posted By",
+  //   options: ["Owners", "Agents"],
+  //   selectionType: "single",
+  // },
 ];

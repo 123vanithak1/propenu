@@ -24,6 +24,7 @@ import TextArea from "../../../components/ui/TextArea";
 import AmenitiesSelect from "./AmenitiesSelect";
 import { AMENITIES } from "../constants/amenities";
 import { ToastError, ToastSuccess } from "../../../utils/Toast";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const WALL_FINISH_STATUS = [
   "no-partitions",
@@ -59,6 +60,8 @@ const CommercialProfile = () => {
   const { commercial } = useSelector((state) => state.postProperty);
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
+
+   const insets = useSafeAreaInsets();
   /** Auto calculate price per sqft */
   useEffect(() => {
     const price = Number(commercial.price || commercial.expectedPrice);
@@ -134,7 +137,7 @@ const CommercialProfile = () => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
     >
       <ScrollView
-        style={styles.container}
+        style={[styles.container,{paddingBottom: insets.bottom + 16,}]}
         contentContainerStyle={{ paddingBottom: keyboardOpen ? 135 : 40 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}

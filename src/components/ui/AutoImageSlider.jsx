@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, ScrollView, Image, StyleSheet, Dimensions } from "react-native";
+import HomePageImage from "../../../assets/HomePageImage.png";
 
 const { width } = Dimensions.get("window");
 
@@ -27,9 +28,6 @@ const AutoImageSlider = ({
     return () => clearInterval(interval);
   }, [activeIndex, images.length]);
 
-
-  
-
   return (
     <View>
       <ScrollView
@@ -42,13 +40,14 @@ const AutoImageSlider = ({
           setActiveIndex(index);
         }}
       >
-        {images.map((img, index) => (
+        {images.length === 0 ? (<Image source={HomePageImage} style={[styles.image, { height, width }]} />) : 
+        (images.map((img, index) => (
           <Image
             key={index}
             source={img}
             style={[styles.image, { height, width }]}
           />
-        ))}
+        )))}
       </ScrollView>
 
       {/* Dots */}

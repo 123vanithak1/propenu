@@ -397,10 +397,8 @@ export const apiService = {
   //  Returning NDJSON (newline-delimited JSON) NOT normal JSON
   category_search: async (params) => {
     try {
-      const query = new URLSearchParams({
-        category: params.category,
-      }).toString();
-
+      const query = new URLSearchParams(params).toString();
+      
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.SEARCH.CATEGORY_SEARCH}?${query}`,
         {

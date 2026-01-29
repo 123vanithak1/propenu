@@ -63,10 +63,17 @@ const ResidentialCard = ({ item }) => {
         <Text style={styles.title} numberOfLines={1}>
           {item?.title}
         </Text>
+        {item?.buildingName && (
+          <Text style={styles.subTitle} numberOfLines={1}>
+            {item?.buildingName}
+          </Text>
+        )}
 
-        <Text style={styles.subTitle} numberOfLines={1}>
-          {item?.buildingName}
-        </Text>
+        <View style={styles.metaRow}>
+          <Text style={styles.badge}>RERA Approved</Text>
+          <Text style={styles.badge}>Premium</Text>
+          <Text style={styles.badge}>Zero Brokerage</Text>
+        </View>
 
         {/* Meta */}
         <View style={styles.metaRow}>
@@ -171,6 +178,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
     gap: 7,
+  },
+  badge: {
+    fontSize: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    color: "#27AE60",
+    fontWeight: "400",
   },
   metaItem: {
     // alignItems: "center",

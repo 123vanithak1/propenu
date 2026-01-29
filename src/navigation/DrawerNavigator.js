@@ -10,11 +10,9 @@ import {
   StatusBar,
   Platform,
 } from "react-native";
-import useDimensions from "../components/CustomHooks/UseDimension";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getItem, clearStorage } from "../utils/Storage";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import {
   Logo,
   BellIcon,
@@ -77,9 +75,20 @@ const CustomDrawerContent = ({ navigation, state }) => {
     }
   };
 
-  const handleNavigate = () => {
-    if (userData) navigation.navigate("Settings");
-    else navigation.navigate("Login");
+  const handleNavigate = (route) => {
+    console.log("Navigating to:", route);
+    if (userData) {
+      if (route === "ContactedProperties") {
+        navigation.navigate("ContactedProperties");
+      } else if (
+        route === "Settings" ||
+        route === "MyProperties" ||
+        route === "PostProperty" ||
+        route === "Membership"
+      ) {
+        navigation.navigate("Settings");
+      }
+    } else navigation.navigate("Login");
   };
 
   const handleLogout = async () => {
@@ -95,24 +104,28 @@ const CustomDrawerContent = ({ navigation, state }) => {
   return (
     <SafeAreaView style={styles.drawerContent}>
       {userData ? (
-        <View
-          style={[
-            styles.drawerHeader,
-            // { height: height * 0.15 }
-          ]}
-        >
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-            <FontAwesome name="user-circle" size={28} color="black" />
-            <View>
-              <Text style={styles.userName}>
-                Welcome back, {capitalize(userData?.name)} 👋
-              </Text>
-              <Text style={styles.userName}>
-                {capitalize(userData?.roleName)}
-              </Text>
+        <Pressable onPress={() => navigation.navigate("Settings")}>
+          <View
+            style={[
+              styles.drawerHeader,
+              // { height: height * 0.15 }
+            ]}
+          >
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+            >
+              <FontAwesome name="user-circle" size={28} color="black" />
+              <View>
+                <Text style={styles.userName}>
+                  Welcome back, {capitalize(userData?.name)} 👋
+                </Text>
+                <Text style={styles.userName}>
+                  {capitalize(userData?.roleName)}
+                </Text>
+              </View>
             </View>
           </View>
-        </View>
+        </Pressable>
       ) : (
         <View style={styles.loginContainer}>
           <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
@@ -144,8 +157,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
             return (
               <Pressable
                 key={item.route}
-                onPress={handleNavigate}
-                // onPress={() => navigation.navigate(item.route)}
+                onPress={() => handleNavigate(item.route)}
                 style={[styles.menuItem, isActive && styles.activeItem]}
               >
                 <Icon size={22} color={isActive ? "#27A361" : "#181818"} />

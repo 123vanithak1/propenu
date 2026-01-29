@@ -20,6 +20,7 @@ import OwnerProperties from "../../components/OwnersProperties/OwnerProperties";
 import Button from "../../components/Button";
 import AgentProperties from "../../components/Agent/AgentProperties";
 import ServiceHub from "../../components/ServiceHub/ServiceHub";
+import useCity from "../../components/CustomHooks/useCity";
 import {
   BellIcon,
   Commercial,
@@ -30,6 +31,7 @@ import {
 
 const HomeScreen = ({ navigation }) => {
   const { width, height, isLandscape } = useDimensions();
+  const { selectedCity } = useCity();
 
   const HOME_CARDS = [
     {
@@ -64,13 +66,13 @@ const HomeScreen = ({ navigation }) => {
         {/* Search bar (full width) */}
         <Pressable onPress={handlePress} style={styles.searchPressable}>
           <View pointerEvents="none" style={{ flex: 1 }}>
-            <SearchBar placeholder='Search "Hyderabad"' value="" />
+            <SearchBar  placeholder={`Search in ${selectedCity?.city ?? "City"} `} value="" />
           </View>
         </Pressable>
-
+    
         {/* Bell icon */}
         <Pressable
-          onPress={() => console.log("Notifications...")}
+          onPress={() => console.log("Pressed on Notifications...")}
           style={styles.bellIcon}
         >
           <BellIcon width={18} height={18} />
