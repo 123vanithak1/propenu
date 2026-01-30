@@ -178,7 +178,6 @@ export default function TabNavigator() {
            bottom: insets.bottom +5,
           },
         ],
-   
 
           //  REMOVE TAB BAR SHADOW / ELEVATION
           // tabBarStyle: styles.tabBar,
@@ -241,6 +240,7 @@ const styles = StyleSheet.create({
     zIndex: 3,
     elevation: 3, // 👈 ANDROID FIX
   },
+
   select: {
     flexDirection: "row",
     gap: 6,

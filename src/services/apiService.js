@@ -3,6 +3,7 @@ import { API_ROUTES } from "./apiRoutes";
 
 export const apiService = {
   login: async (payload) => {
+    console.log(payload)
     try {
       const response = await fetch(`${ENV.BASE_URL}${API_ROUTES.AUTH.LOGIN}`, {
         method: "POST",

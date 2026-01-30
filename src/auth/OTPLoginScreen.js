@@ -19,7 +19,8 @@ import { BigLogo } from "../../assets/svg/LogoPropenu";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 const OTPLoginModal = ({ route, navigation }) => {
-  const { email, name = "", role = "" } = route.params;
+  const { phone, name = "", role = "" } = route.params;
+
   console.log("PPPPPPPP", route.params);
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [loading, setLoading] = useState(false);
@@ -53,7 +54,7 @@ const OTPLoginModal = ({ route, navigation }) => {
       if (name && role) {
         otpResult = await apiService.requestOTP({
           name: name,
-          email: email,
+          phone: phone,
           role: role,
           otp: otpValue,
         });
@@ -67,10 +68,10 @@ const OTPLoginModal = ({ route, navigation }) => {
 
       if (!role) {
         otpResult = await apiService.verifyOtp({
-          email: email,
+          phone: phone,
           otp: otpValue,
         });
-        // console.log("otp Result :", otpValue, otpResult);
+        console.log("otp Result :", phone, otpValue, otpResult);
         if (otpResult?.status !== 200) {
           throw new Error("OTP verification failed");
         }
@@ -96,17 +97,17 @@ const OTPLoginModal = ({ route, navigation }) => {
         await Keychain.setGenericPassword("token", tokenResult.data.token);
       }
 
-      // // Store user info in AsyncStorage
+      // Store user info in AsyncStorage
       await setItem(
         "user",
         JSON.stringify({
           id: data?.user.id,
           name: data?.user.name,
-          email: data?.user?.email,
+          phone: data?.user?.phone,
           roleName: data?.user?.roleName,
         }),
       );
-      ToastSuccess("Login Sucessfully");
+      ToastSuccess("OTP verified successfully");
       console.log("Login successful......");
       navigation.pop(2);
 
@@ -144,7 +145,7 @@ const OTPLoginModal = ({ route, navigation }) => {
           <View style={styles.content}>
             <BigLogo width={180} height={90} />
             <Text style={styles.title}>Confirm OTP</Text>
-            <Text style={styles.subtitle}>OTP sent to {email}</Text>
+            <Text style={styles.subtitle}>OTP sent to {phone}</Text>
 
             <View style={styles.otpContainer}>
               {otp.map((digit, index) => (

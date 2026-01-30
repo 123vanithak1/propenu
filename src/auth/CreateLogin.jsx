@@ -15,18 +15,31 @@ import OTPLoginModal from "./OTPLoginScreen";
 import Entypo from "@expo/vector-icons/Entypo";
 import { SafeAreaView } from "react-native-safe-area-context";
 import InputField from "../components/ui/InputField";
+import CountryPicker from "react-native-country-picker-modal";
 import Dropdownui from "../components/ui/DropDownUI";
 import { BigLogo } from "../../assets/svg/LogoPropenu";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { ToastSuccess } from "../utils/Toast";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 export default function CreateLogin({ navigation }) {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState("User");
   const [errors, setErrors] = useState({});
   const { width, height, isLandscape } = useDimension();
 
-  const Roles = ["User", "Builder", "Agent"];
+  const [countryCode, setCountryCode] = useState("IN");
+  const [callingCode, setCallingCode] = useState("91");
+  const [phone, setPhone] = useState("");
+  const [withCountryNameButton, setWithCountryNameButton] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const Roles = [
+    { value: "User", key: "user", icon:"user-o" },
+    { value: "Builder", key: "builder", icon:"building-o"},
+    { value: "Agent", key: "agent" , icon:"vcard-o" },
+  ];
 
   const validate = () => {
     let newErrors = {};
@@ -47,25 +60,36 @@ export default function CreateLogin({ navigation }) {
     return Object.keys(newErrors).length === 0;
   };
 
+  const onSelect = (country) => {
+    setIsOpen(!isOpen);
+    console.log("country :", country);
+    setCountryCode(country.cca2);
+    setCallingCode(country.callingCode[0]);
+  };
   const handleLogin = async () => {
     try {
       const res = await apiService.createAccount({
         name: username,
-        email:email,
-        role:role
+        // email: email,
+        phone: phone,
+        role: role,
       });
+      console.log("response  :", res);
 
       if (res?.status === 200) {
-        navigation.navigate("OTPLogin", { email: email, name : username, role:role });
+        ToastSuccess("OTP sent successfully");
+        navigation.navigate("OTPLogin", {
+          phone: phone,
+          name: username,
+          role: role,
+        });
       }
     } catch (err) {
       console.log("Login error:", err);
     }
   };
-  const isFormValid =
-    username.trim().length >= 3 &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
-    role;
+  console.log("details :", username, phone, role);
+  const isFormValid = username.trim().length >= 3 && phone.length == 10 && role;
 
   return (
     <SafeAreaView style={styles.overlay}>
@@ -102,18 +126,40 @@ export default function CreateLogin({ navigation }) {
               <Text style={styles.errorText}>{errors.username}</Text>
             )} */}
 
-            <InputField
-              label="Email Address"
-              placeholder="Enter Email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={email}
-              onChange={setEmail}
-            />
+            <Text style={[styles.whatsappText]}>Enter Whatsapp Number</Text>
+            <View style={styles.phoneRow}>
+              <View style={styles.sheet}>
+                <CountryPicker
+                  // disableNativeModal
+                  countryCode={countryCode}
+                  withFilter
+                  withCallingCode
+                  withFlag
+                  onSelect={onSelect}
+                  modalProps={{
+                    statusBarTranslucent: true,
+                  }}
+                  // containerButtonStyle
+                />
+              </View>
+              {/* <AntDesign name={isOpen ? "down" : "up"} size={10} color="#000" /> */}
+
+              <Text style={styles.codeText}>+{callingCode}</Text>
+
+              <TextInput
+                placeholder="Phone Number"
+                keyboardType="phone-pad"
+                value={phone}
+                onChangeText={setPhone}
+                style={styles.phoneinput}
+                maxLength={10}
+                placeholderTextColor="#9ca3af"
+              />
+            </View>
             {/* {errors.email && (
               <Text style={styles.errorText}>{errors.email}</Text>
             )} */}
-            <Dropdownui
+            {/* <Dropdownui
               label="Role"
               value={role}
               options={Roles.map((t) => ({
@@ -121,7 +167,34 @@ export default function CreateLogin({ navigation }) {
                 label: t,
               }))}
               onChange={setRole}
-            />
+            /> */}
+            <Text style={[styles.whatsappText]}>Roles</Text>
+            <View style={styles.roles}>
+              {Roles.map((option) => {
+                const isActive = role === option.value;
+
+                return (
+                  <Pressable
+                    key={option.value}
+                    style={[
+                      styles.optionBtn,
+                      isActive && styles.optionBtnActive,
+                    ]}
+                    onPress={() => setRole(option.value)}
+                  >
+                    <FontAwesome name={option.icon} size={16} color= {isActive ? "#27AE60"  : "#374151" }/>
+                    <Text
+                      style={[
+                        styles.optionText,
+                        isActive && styles.optionTextActive,
+                      ]}
+                    >
+                      {option.value}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
 
             <Pressable
               style={[
@@ -131,20 +204,16 @@ export default function CreateLogin({ navigation }) {
               disabled={!isFormValid}
               onPress={handleLogin}
             >
-              <Text
-                style={[styles.loginText, !isFormValid && styles.disabledText]}
-              >
-                Get OTP
-              </Text>
+              <FontAwesome name="whatsapp" size={20} color="white" />
+              <Text style={[styles.loginText]}>Get OTP</Text>
             </Pressable>
             <View style={{ paddingTop: 15, alignItems: "center" }}>
               <Text style={styles.subTitle}>
-                Already have an account?
+                Already have an account?{" "}
                 <Text
                   style={{ color: "#27AE60", fontSize: 12, fontWeight: "500" }}
                   onPress={() => navigation.navigate("Login")}
                 >
-                  {" "}
                   Login
                 </Text>
               </Text>
@@ -193,6 +262,69 @@ const styles = StyleSheet.create({
     padding: 10,
     // marginBottom: 10,
   },
+  phoneRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    borderColor: "#ccc",
+    backgroundColor: "white",
+    marginBottom: 10,
+  },
+  whatsappText: {
+    fontSize: 14,
+    color: "#374151",
+    marginBottom: 6,
+    fontWeight: "500",
+    alignSelf: "flex-start",
+  },
+  roles: {
+    flexDirection: "row",
+    alignSelf: "flex-start",
+    justifyContent: "space-around",
+    gap: 15,
+    marginBottom: 10,
+  },
+  sheet: {
+    // borderWidth:1,
+    padding: 0,
+  },
+  codeText: {
+    fontSize: 16,
+    marginLeft: 5,
+  },
+  optionBtn: {
+    flexDirection:"row",
+    alignItems:"center",
+    gap:6,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    backgroundColor: "white",
+  },
+  optionBtnActive: {
+    borderColor: "#22C55E",
+    backgroundColor: "#DCFCE7",
+  },
+  optionText: {
+    fontSize: 14,
+    color: "#374151",
+  },
+  optionTextActive: {
+    color: "#16A34A",
+    fontWeight: "600",
+  },
+  phoneinput: {
+    flex: 1,
+    // height: 50,
+  },
+  roleName: {
+    paddingHorizontal: 5,
+    paddingVertical: 5,
+  },
   cancelButton: {
     position: "absolute",
     top: 12,
@@ -210,7 +342,10 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
   },
   loginButton: {
-    width: 200,
+    width: "60%",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 10,
     alignSelf: "center",
     backgroundColor: "#27AE60",
     paddingVertical: 10,
@@ -218,7 +353,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   disabledButton: {
-    backgroundColor: "#51b37a",
+    backgroundColor: "#6aca92",
   },
 
   disabledText: {

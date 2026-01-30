@@ -67,7 +67,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
       const data = await getItem("user");
       if (data) {
         const parsedData = JSON.parse(data);
-        console.log("userdata :", parsedData);
+        console.log("userdata :", data, parsedData);
         setUserData(parsedData);
       }
     } catch (error) {

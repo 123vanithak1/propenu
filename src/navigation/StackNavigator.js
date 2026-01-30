@@ -27,7 +27,7 @@ import { useNavigation } from "@react-navigation/native";
 const Stack = createNativeStackNavigator();
 
 export default function StackNavigator() {
-    const navigation = useNavigation();
+  const navigation = useNavigation();
   const [isOpen, setIsOpen] = useState(false);
   const { selectedCity, locations, selectCity } = useCity();
   const [openState, setOpenState] = useState(null);
@@ -42,7 +42,6 @@ export default function StackNavigator() {
     selectCity(item);
     setIsOpen(false);
   };
-
   const popularCities = locations.filter(
     (loc) => loc.category?.toLowerCase() === "popular",
   );
@@ -54,14 +53,15 @@ export default function StackNavigator() {
     acc[loc.state].push(loc);
     return acc;
   }, {});
+  console.log("popular :", popularCities);
 
-  const renderMenuButton = () => (
+  const renderMenuButton = (navigation) => (
     <View style={styles.locationBar}>
-    <Pressable onPress={navigation.openDrawer} hitSlop={10}>
+      <Pressable onPress={navigation.openDrawer} hitSlop={10}>
         <MaterialIcons name="menu" size={26} color="#000" />
       </Pressable>
 
-      {/* <Pressable style={styles.select} onPress={handleCity}>
+      <Pressable style={styles.select} onPress={handleCity}>
         <LocationIcon width={20} height={20} />
         <Text> {selectedCity?.city ?? "Select City"}</Text>
         {isOpen ? (
@@ -91,7 +91,7 @@ export default function StackNavigator() {
 
                 return (
                   <View key={stateName} style={styles.stateBlock}>
-                    {/* STATE HEADER
+                    {/* STATE HEADER */}
                     <Pressable
                       onPress={() =>
                         setOpenState(isStateOpen ? null : stateName)
@@ -105,7 +105,7 @@ export default function StackNavigator() {
                       />
                     </Pressable>
 
-                    // CITIES 
+                    {/* CITIES */}
                     {isStateOpen &&
                       cities.map((c) => (
                         <Pressable
@@ -125,7 +125,7 @@ export default function StackNavigator() {
             </View>
           </Pressable>
         )}
-      </Pressable> */}
+      </Pressable>
     </View>
   );
 
@@ -150,7 +150,7 @@ export default function StackNavigator() {
           shadowColor: "transparent",
           shadowOpacity: 0,
           borderBottomWidth: 0,
-          backgroundColor: "#fff", 
+          backgroundColor: "#fff",
         },
 
         headerLeft: () => renderMenuButton(navigation),
@@ -175,8 +175,8 @@ export default function StackNavigator() {
         options={{
           headerBackVisible: true,
           headerStyle: {
-            elevation: 0, // ✅ Android
-            shadowColor: "transparent", // older iOS safety
+            elevation: 0, 
+            shadowColor: "transparent", 
             borderBottomWidth: 0,
           },
           headerLeft: () => null,
@@ -274,8 +274,8 @@ const styles = StyleSheet.create({
   dropdownWrapper: {
     position: "absolute",
     top: 35,
-    zIndex: 3,
-    elevation: 3,
+    zIndex: 1,
+    elevation: 10,
   },
 
   selectCitySpace: {

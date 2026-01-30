@@ -8,6 +8,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Modal,
 } from "react-native";
 import { apiService } from "../services/apiService";
 import useDimension from "../components/CustomHooks/UseDimension";
@@ -18,6 +19,10 @@ import InputField from "../components/ui/InputField";
 import Dropdownui from "../components/ui/DropDownUI";
 import { BigLogo } from "../../assets/svg/LogoPropenu";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import CountryPicker from "react-native-country-picker-modal";
+import { ToastError, ToastSuccess } from "../utils/Toast";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 export default function LoginModal({ navigation }) {
   const [email, setEmail] = useState("");
@@ -25,6 +30,12 @@ export default function LoginModal({ navigation }) {
   const [role, setRole] = useState("");
   const [errors, setErrors] = useState({});
   const { width, height, isLandscape } = useDimension();
+
+  const [countryCode, setCountryCode] = useState("IN");
+  const [callingCode, setCallingCode] = useState("91");
+  const [phone, setPhone] = useState("");
+  const [withCountryNameButton, setWithCountryNameButton] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const Roles = ["User", "Builder", "Agent"];
 
@@ -47,15 +58,30 @@ export default function LoginModal({ navigation }) {
     return Object.keys(newErrors).length === 0;
   };
 
+  const onSelect = (country) => {
+    setIsOpen(!isOpen);
+    setCountryCode(country.cca2);
+    setCallingCode(country.callingCode[0]);
+  };
+
   const handleLogin = async () => {
     try {
+      if (phone.length !== 10) {
+        ToastError("Enter 10 digit Phone number");
+        return;
+      }
+
+      const fullNumber = `+${callingCode}${phone}`;
+      console.log("Phone:", fullNumber);
+
       const res = await apiService.login({
         // name: username,
-        email,
+        phone : fullNumber,
       });
 
       if (res?.status === 200) {
-        navigation.navigate("OTPLogin", { email: email });
+        ToastSuccess("OTP sent successfully");
+        navigation.navigate("OTPLogin", { phone: fullNumber });
         // onOtpSuccess({
         //   email,
         //   // username,
@@ -65,13 +91,16 @@ export default function LoginModal({ navigation }) {
       console.log("Login error:", err);
     }
   };
-  const isFormValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   return (
     <SafeAreaView style={styles.overlay}>
-      <Pressable style={styles.backOption}   onPress={() => navigation.goBack()} hitSlop={10}>
+      <Pressable
+        style={styles.backOption}
+        onPress={() => navigation.goBack()}
+        hitSlop={10}
+      >
         <Ionicons name="arrow-back-circle-outline" size={24} color="black" />
-      </Pressable >
+      </Pressable>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -88,31 +117,52 @@ export default function LoginModal({ navigation }) {
               Enter your details to access your account
             </Text>
 
-            <InputField
+            {/* <InputField
               label="Email Address"
               placeholder="Enter Email"
               keyboardType="email-address"
               autoCapitalize="none"
               value={email}
               onChange={setEmail}
-            />
+            /> */}
             {/* {errors.email && (
               <Text style={styles.errorText}>{errors.email}</Text>
             )} */}
 
+            <Text style={[styles.whatsappText]}>Enter Whatsapp Number</Text>
+            <View style={styles.phoneRow}>
+              <View style={styles.sheet}>
+                <CountryPicker
+                  // disableNativeModal
+                  countryCode={countryCode}
+                  withFilter
+                  withCallingCode
+                  withFlag
+                  onSelect={onSelect}
+                />
+              </View>
+              {/* <AntDesign name={isOpen ? "down" : "up"} size={10} color="#000" /> */}
+
+              <Text style={styles.codeText}>+{callingCode}</Text>
+
+              <TextInput
+                placeholder="Phone Number"
+                keyboardType="phone-pad"
+                value={phone}
+                onChangeText={setPhone}
+                style={styles.phoneinput}
+                maxLength={10}
+                placeholderTextColor="#9ca3af"
+              />
+            </View>
+
             <Pressable
-              style={[
-                styles.loginButton,
-                !isFormValid && styles.disabledButton,
-              ]}
-              disabled={!isFormValid}
+              style={[styles.loginButton]}
+              // disabled={!isFormValid}
               onPress={handleLogin}
             >
-              <Text
-                style={[styles.loginText, !isFormValid && styles.disabledText]}
-              >
-                Get OTP
-              </Text>
+              <FontAwesome name="whatsapp" size={20} color="white" />
+              <Text style={[styles.loginText]}>Get OTP</Text>
             </Pressable>
             <View style={{ paddingTop: 15, alignItems: "center" }}>
               <Text style={styles.subTitle}>
@@ -121,6 +171,7 @@ export default function LoginModal({ navigation }) {
                   style={{ color: "#27AE60", fontSize: 12, fontWeight: "500" }}
                   onPress={() => navigation.navigate("CreateLogin")}
                 >
+                  {" "}
                   Create an account
                 </Text>
               </Text>
@@ -170,11 +221,35 @@ const styles = StyleSheet.create({
     padding: 10,
     // marginBottom: 10,
   },
+  phoneRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    borderColor: "#ccc",
+    backgroundColor: "white",
+  },
+  codeText: {
+    fontSize: 16,
+    marginHorizontal: 5,
+  },
+  phoneinput: {
+    flex: 1,
+    // height: 50,
+  },
   cancelButton: {
     position: "absolute",
     top: 12,
     right: 12,
     zIndex: 10,
+  },
+  whatsappText: {
+    fontSize: 14,
+    color: "#374151",
+    marginBottom: 6,
+    fontWeight: "500",
+    alignSelf: "flex-start",
   },
   errorInput: {
     borderWidth: 1,
@@ -187,15 +262,19 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
   },
   loginButton: {
-    width: 200,
+    width: "65%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     alignSelf: "center",
+    gap: 10,
     backgroundColor: "#27AE60",
     paddingVertical: 10,
     borderRadius: 10,
-    marginTop: 15,
+    marginTop: 20,
   },
   disabledButton: {
-    backgroundColor: "#51b37a",
+    backgroundColor: "#6db48b",
   },
 
   disabledText: {
