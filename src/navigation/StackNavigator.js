@@ -61,7 +61,7 @@ export default function StackNavigator() {
         <MaterialIcons name="menu" size={26} color="#000" />
       </Pressable>
 
-      <Pressable style={styles.select} onPress={handleCity}>
+      {/* <Pressable style={styles.select} onPress={handleCity}>
         <LocationIcon width={20} height={20} />
         <Text> {selectedCity?.city ?? "Select City"}</Text>
         {isOpen ? (
@@ -91,7 +91,7 @@ export default function StackNavigator() {
 
                 return (
                   <View key={stateName} style={styles.stateBlock}>
-                    {/* STATE HEADER */}
+            
                     <Pressable
                       onPress={() =>
                         setOpenState(isStateOpen ? null : stateName)
@@ -105,7 +105,6 @@ export default function StackNavigator() {
                       />
                     </Pressable>
 
-                    {/* CITIES */}
                     {isStateOpen &&
                       cities.map((c) => (
                         <Pressable
@@ -125,7 +124,7 @@ export default function StackNavigator() {
             </View>
           </Pressable>
         )}
-      </Pressable>
+      </Pressable> */}
     </View>
   );
 
