@@ -13,7 +13,10 @@ const ServiceHub = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Explore Our Services</Text>
-      <Text style={styles.subtitle}> Building excellence in {selectedCity?.city ?? "Hyderabad"}</Text>
+      <Text style={styles.subtitle}>
+        {" "}
+        Building excellence in {selectedCity?.city ?? "Hyderabad"}
+      </Text>
 
       <View style={styles.subContainer}>
         <View style={styles.homeLoans}>
@@ -73,14 +76,14 @@ export default ServiceHub;
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    margin: 10,
-    marginBottom: 60,
+    // margin: 10,
+    marginBottom: 20,
   },
   title: {
     fontSize: 16,
     fontWeight: "600",
   },
-    subtitle: {
+  subtitle: {
     fontSize: 12,
     color: "#8f8d87ff",
     marginBottom: 5,

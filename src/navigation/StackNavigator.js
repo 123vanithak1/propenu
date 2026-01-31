@@ -1,12 +1,9 @@
-import React, { useState, useEffect } from "react";
 import { Pressable, View, Text, StyleSheet } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import PostProperty from "../screens/PostPropertyScreen/PostProperty";
 import PropertyDetailsScreen from "../screens/PropertyDetails/PropertyDetailsScreen";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import DrawerNavigator from "./DrawerNavigator";
-import Entypo from "@expo/vector-icons/Entypo";
+// import DrawerNavigator from "./DrawerNavigator";
 import PropertyListScreen from "../screens/PropertyListScreen/PropertyListScreen";
 import MoreResidentialDetails from "../screens/PropertyListScreen/MoreDetails/MoreResidentialDetails";
 import CategoryFilterScreen from "../screens/SearchFilter/CategoryFilterScreen";
@@ -18,42 +15,25 @@ import MoreCommercialDetails from "../screens/PropertyListScreen/MoreDetails/Mor
 import MoreLandDetails from "../screens/PropertyListScreen/MoreDetails/MoreLandDetails";
 import MoreAgriculturalDetails from "../screens/PropertyListScreen/MoreDetails/MoreAgriculturalDetails";
 import ContactedProperties from "../screens/Account/ContactedProperties";
-import useCity from "../components/CustomHooks/useCity";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LocationIcon } from "../../assets/svg/Logo";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useNavigation } from "@react-navigation/native";
+import { useSelector, useDispatch } from "react-redux";
+import { toggleDropdown, setCity } from "../redux/slice/DropDownSlice";
+import HomeScreen from "../screens/HomeScreen/HomeScreen";
+import ShortListedScreen from "../screens/ShortListedScreen/ShortListedScreen";
+import MyProperties from "../screens/Account/MyProperties";
+import Membership from "../screens/Account/Membership";
 
 const Stack = createNativeStackNavigator();
 
 export default function StackNavigator() {
-  const navigation = useNavigation();
-  const [isOpen, setIsOpen] = useState(false);
-  const { selectedCity, locations, selectCity } = useCity();
-  const [openState, setOpenState] = useState(null);
-  const insets = useSafeAreaInsets();
+  const dispatch = useDispatch();
+  const isOpen = useSelector((state) => state.dropdown.isOpen);
+  const selectedCity = useSelector((state) => state.dropdown.selectedCity);
 
   const handleCity = () => {
-    setIsOpen(!isOpen);
+    dispatch(toggleDropdown());
   };
-
-  const onSelect = (item) => {
-    console.log("Selected city: ", item);
-    selectCity(item);
-    setIsOpen(false);
-  };
-  const popularCities = locations.filter(
-    (loc) => loc.category?.toLowerCase() === "popular",
-  );
-  const groupedByState = locations.reduce((acc, loc) => {
-    if (!acc[loc.state]) {
-      acc[loc.state] = [];
-    }
-
-    acc[loc.state].push(loc);
-    return acc;
-  }, {});
-  console.log("popular :", popularCities);
 
   const renderMenuButton = (navigation) => (
     <View style={styles.locationBar}>
@@ -61,70 +41,11 @@ export default function StackNavigator() {
         <MaterialIcons name="menu" size={26} color="#000" />
       </Pressable>
 
-      {/* <Pressable style={styles.select} onPress={handleCity}>
+      <Pressable style={styles.select} onPress={handleCity}>
         <LocationIcon width={20} height={20} />
         <Text> {selectedCity?.city ?? "Select City"}</Text>
-        {isOpen ? (
-          <AntDesign name="up" size={10} color="black" />
-        ) : (
-          <AntDesign name="down" size={10} color="black" />
-        )}
-        {isOpen && (
-          <Pressable style={styles.dropdownWrapper}>
-            <View style={styles.selectCitySpace}>
-              <Text style={styles.stateTitle}>Popular Cities</Text>
-
-              {popularCities.map((item) => (
-                <Pressable
-                  key={item._id || item.city}
-                  onPress={() => {
-                    onSelect(item);
-                  }}
-                  style={styles.cityItem}
-                >
-                  <Text style={styles.cityText}>{item.city}</Text>
-                </Pressable>
-              ))}
-
-              {Object.entries(groupedByState).map(([stateName, cities]) => {
-                const isStateOpen = openState === stateName;
-
-                return (
-                  <View key={stateName} style={styles.stateBlock}>
-            
-                    <Pressable
-                      onPress={() =>
-                        setOpenState(isStateOpen ? null : stateName)
-                      }
-                      style={styles.stateHeader}
-                    >
-                      <Text style={styles.stateTitle}>{stateName}</Text>
-                      <AntDesign
-                        name={isStateOpen ? "minus" : "plus"}
-                        size={10}
-                      />
-                    </Pressable>
-
-                    {isStateOpen &&
-                      cities.map((c) => (
-                        <Pressable
-                          key={c._id}
-                          onPress={() => {
-                            onSelect(c);
-                            setIsOpen(false);
-                          }}
-                          style={styles.cityItem}
-                        >
-                          <Text style={styles.cityText}>{c.city}</Text>
-                        </Pressable>
-                      ))}
-                  </View>
-                );
-              })}
-            </View>
-          </Pressable>
-        )}
-      </Pressable> */}
+        <AntDesign name={isOpen ? "up" : "down"} size={10} />
+      </Pressable>
     </View>
   );
 
@@ -137,6 +58,7 @@ export default function StackNavigator() {
       <Text style={styles.freeBadge}>Free</Text>
     </Pressable>
   );
+
   return (
     <Stack.Navigator
       screenOptions={({ navigation }) => ({
@@ -163,19 +85,33 @@ export default function StackNavigator() {
       })}
     >
       <Stack.Screen
-        name="Drawer"
-        component={DrawerNavigator}
-        options={{ headerShown: false }}
+        name="Home"
+        component={HomeScreen}
+        options={{ headerShown: true }}
       />
-
+      <Stack.Screen
+        name="ShortListedProperties"
+        component={ShortListedScreen}
+        options={{ headerShown: true }}
+      />
+      <Stack.Screen
+        name="MyProperties"
+        component={MyProperties}
+        options={{ headerShown: true }}
+      />
+      <Stack.Screen
+        name="Membership"
+        component={Membership}
+        options={{ headerShown: true }}
+      />
       <Stack.Screen
         name="PostProperty"
         component={PostProperty}
         options={{
           headerBackVisible: true,
           headerStyle: {
-            elevation: 0, 
-            shadowColor: "transparent", 
+            elevation: 0,
+            shadowColor: "transparent",
             borderBottomWidth: 0,
           },
           headerLeft: () => null,

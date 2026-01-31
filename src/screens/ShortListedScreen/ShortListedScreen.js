@@ -36,7 +36,7 @@ const ShortListedScreen = () => {
       {likedProperties?.length > 0 ? (
         <Text>Your shortlisted properties will appear here</Text>
       ) : (
-        <Text>No properties selected</Text>
+        <Text>Not shortlisted any property</Text>
       )}
     </View>
   );

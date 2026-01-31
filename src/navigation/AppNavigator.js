@@ -3,7 +3,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "react-native";
 import Toast from "react-native-toast-message";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
+import DrawerNavigator from "./DrawerNavigator";
 import StackNavigator from "./StackNavigator";
 import { toastConfig } from "../utils/ToastConfig";
 
@@ -21,7 +21,7 @@ export default function AppNavigator() {
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-        <StackNavigator />
+        <DrawerNavigator />
         <Toast config={toastConfig} />
       </SafeAreaProvider>
     </QueryClientProvider>

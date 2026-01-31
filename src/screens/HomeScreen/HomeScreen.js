@@ -21,6 +21,7 @@ import Button from "../../components/Button";
 import AgentProperties from "../../components/Agent/AgentProperties";
 import ServiceHub from "../../components/ServiceHub/ServiceHub";
 import useCity from "../../components/CustomHooks/useCity";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   BellIcon,
   Commercial,
@@ -31,6 +32,7 @@ import {
 
 const HomeScreen = ({ navigation }) => {
   const { width, height, isLandscape } = useDimensions();
+   const insets = useSafeAreaInsets();
   const { selectedCity } = useCity();
 
   const HOME_CARDS = [
@@ -61,7 +63,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "white" }}>
+    <View style={{ flex: 1, backgroundColor: "white",  }}>
       <View style={styles.searchWrapper}>
         {/* Search bar (full width) */}
         <Pressable onPress={handlePress} style={styles.searchPressable}>
@@ -125,7 +127,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     paddingHorizontal: 12,
-    marginBottom: 7,
+    // marginBottom: 7,
   },
 
   searchPressable: {

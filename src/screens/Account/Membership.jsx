@@ -3,7 +3,7 @@ import { View, Text } from "react-native";
 import { userServices } from "../../services/userServices";
 import * as Keychain from "react-native-keychain";
 
-const MyProperties = () => {
+const Membership = () => {
 
   const [likedProperties, setLikedProperties] = useState(null);
 
@@ -27,7 +27,7 @@ const MyProperties = () => {
     }
   };
   useEffect(() => {
-    fetchMyProperties();
+    // fetchMyProperties();
   }, []);
 
   return (
@@ -36,10 +36,10 @@ const MyProperties = () => {
       {likedProperties?.length > 0 ? (
         <Text>Your shortlisted properties will appear here</Text>
       ) : (
-        <Text>Not posted anything</Text>
+        <Text>Ready to buy</Text>
       )}
     </View>
   );
 };
 
-export default MyProperties;
+export default Membership;

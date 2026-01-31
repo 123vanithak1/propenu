@@ -1,7 +1,7 @@
 // src/navigation/DrawerNavigator.js
 import React, { useState, useEffect } from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import TabNavigator from "./TabNavigator";
+import StackNavigator from "./StackNavigator";
 import {
   View,
   Text,
@@ -24,13 +24,9 @@ import {
   PhoneIcon,
 } from "../../assets/svg/Logo";
 import { useNavigation, useRoute } from "@react-navigation/native";
-
+import { AntDesign } from "@expo/vector-icons";
+import { ToastSuccess } from "../utils/Toast";
 const menuItems = [
-  {
-    label: "Account & Settings",
-    route: "Settings",
-    icon: TabBarProfile,
-  },
   {
     label: "My Properties",
     route: "MyProperties",
@@ -38,7 +34,7 @@ const menuItems = [
   },
   {
     label: "Shortlisted Properties",
-    route: "PostProperty",
+    route: "ShortListedProperties",
     icon: TabBarFavourite,
   },
   {
@@ -51,13 +47,17 @@ const menuItems = [
     route: "Membership",
     icon: BellIcon,
   },
+  {
+    label: "Account & Settings",
+    route: "Settings",
+    icon: TabBarProfile,
+  },
 ];
 
 const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = ({ navigation, state }) => {
   const [userData, setUserData] = useState(null);
-  const route = useRoute();
 
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
@@ -76,35 +76,41 @@ const CustomDrawerContent = ({ navigation, state }) => {
   };
 
   const handleNavigate = (route) => {
-    console.log("Navigating to:", route);
+    console.log("Route in left menu : ", route);
     if (userData) {
-      if (route === "ContactedProperties") {
-        navigation.navigate("ContactedProperties");
-      } else if (
-        route === "Settings" ||
-        route === "MyProperties" ||
-        route === "PostProperty" ||
-        route === "Membership"
-      ) {
-        navigation.navigate("Settings");
-      }
-    } else navigation.navigate("Login");
+      navigation.navigate("HomeStack", { screen: route });
+    } else {
+      navigation.navigate("HomeStack", { screen: "Login" });
+    }
   };
 
   const handleLogout = async () => {
-    await clearStorage();
-    setUserData(null);
-    console.log("Logout clicked");
+    if (userData) {
+      await clearStorage();
+      setUserData(null);
+      ToastSuccess("Logged out successfully");
+      navigation.navigate("HomeStack", { screen: "Home" });
+    } else {
+      ToastSuccess("You are already logged out");
+    }
   };
 
   useEffect(() => {
     getUserInfo();
   }, []);
 
+  useEffect(() => {
+  console.log("userData UPDATED:", userData);
+  }, [userData]);
+
   return (
     <SafeAreaView style={styles.drawerContent}>
       {userData ? (
-        <Pressable onPress={() => navigation.navigate("Settings")}>
+        <Pressable
+          onPress={() =>
+            navigation.navigate("HomeStack", { screen: "Settings" })
+          }
+        >
           <View
             style={[
               styles.drawerHeader,
@@ -131,12 +137,14 @@ const CustomDrawerContent = ({ navigation, state }) => {
           <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
             <FontAwesome name="user-circle" size={30} color="#585858" />
             <Text style={[styles.userName]}>
-              Sign in to get more {"\n"}personalised feed!
+              Sign in to get more{"\n"}personalised feed!
             </Text>
           </View>
 
           <Pressable
-            onPress={() => navigation.navigate("Login")}
+            onPress={() =>
+              navigation.navigate("HomeStack", { screen: "Login" })
+            }
             style={[styles.loginButton]}
           >
             <Text style={{ color: "white", fontSize: 14, fontWeight: "600" }}>
@@ -150,36 +158,32 @@ const CustomDrawerContent = ({ navigation, state }) => {
       <View style={styles.dataContainer}>
         {/* {userData?.roleName === "user" ? ( */}
         <View>
-          {menuItems.map((item) => {
+          {menuItems.map((item, index) => {
             const Icon = item.icon;
-            const isActive = route.name === item.route;
+            // const isActive = route.name === item.route;
 
             return (
               <Pressable
-                key={item.route}
+                key={index}
                 onPress={() => handleNavigate(item.route)}
-                style={[styles.menuItem, isActive && styles.activeItem]}
+                style={[styles.menuItem]}
               >
-                <Icon size={22} color={isActive ? "#27A361" : "#181818"} />
+                <Icon size={22} color="#181818" />
 
-                <Text style={[styles.label, isActive && styles.activeLabel]}>
-                  {item.label}
-                </Text>
-
-                {isActive && <View style={styles.dot} />}
+                <Text style={[styles.label]}>{item.label}</Text>
               </Pressable>
             );
           })}
 
           {/* <View style={styles.hrline} /> */}
           {/* LOGOUT BUTTON */}
-          {/* <Pressable
+          <Pressable
             onPress={handleLogout}
             style={[styles.menuItem, styles.logoutItem]}
           >
             <AntDesign name="logout" size={19} color="#E53935" />
             <Text style={[styles.label, styles.logoutLabel]}>Logout</Text>
-          </Pressable> */}
+          </Pressable>
         </View>
         {/* ) : null} */}
       </View>
@@ -201,10 +205,15 @@ export default function DrawerNavigator() {
       drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
       <Drawer.Screen
+        name="HomeStack"
+        component={StackNavigator}
+        options={{ headerShown: false }}
+      />
+      {/* <Drawer.Screen
         name="MainTabs"
         component={TabNavigator}
         options={{ headerShown: false }}
-      />
+      /> */}
     </Drawer.Navigator>
   );
 }
