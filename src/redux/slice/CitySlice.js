@@ -1,9 +1,6 @@
 import { createAsyncThunk, createSlice, createSelector } from "@reduxjs/toolkit";
 import { apiService } from "../../services/apiService";
-/**
- * 🔹 Use a config file or constants file in React Native
- * Example: src/config/api.js
- */
+
 
 /* ---------------- ASYNC THUNK ---------------- */
 export const fetchLocations = createAsyncThunk(

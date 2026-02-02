@@ -3,6 +3,7 @@ import React from "react";
 import HomePageImage from "../../../assets/HomePageImage.png";
 import LikedIconContainer from "../LikedIconContainer";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
+import { useNavigation } from "@react-navigation/native";
 import {
   AreaIcon,
   BedIcon,
@@ -15,15 +16,17 @@ import { getItem } from "../../utils/Storage";
 import AutoImageSlider from "../ui/AutoImageSlider";
 import useDimensions from "../CustomHooks/UseDimension";
 import { ToastInfo, ToastSuccess } from "../../utils/Toast";
+import defaultImage from "../../../assets/defaultImage.png"
 
 const OwnerPropertyCard = ({ details }) => {
-  // console.log("details :", details);
+  // console.log("details :", details._id);
+  const navigation = useNavigation();
   const { width, height } = useDimensions();
   const cardWidth = width * 0.8;
   const imageSource =
     details?.gallery?.length > 0
       ? { uri: details.gallery[0].url }
-      : HomePageImage;
+      : defaultImage;
 
   const formatPrice = (price) => {
     if (!price) return "";
@@ -56,6 +59,11 @@ const OwnerPropertyCard = ({ details }) => {
     }
   };
 
+  const handleClick = () => {
+    console.log("getting id when select :", details._id);
+    navigation.navigate("MoreOwnerProperties", { propertyId: details._id });
+  };
+
   const MetaItem = ({ label, value, Icon }) => (
     <View style={styles.metaItemRow}>
       {Icon}
@@ -66,11 +74,14 @@ const OwnerPropertyCard = ({ details }) => {
     </View>
   );
   return (
-    <View style={[styles.card, { width: cardWidth }]}>
+    <Pressable
+      onPress={handleClick}
+      style={[styles.card, { width: cardWidth }]}
+    >
       <View style={styles.imageWrapper}>
         {details?.gallery?.length === 0 ? (
           <Image
-            source={HomePageImage}
+            source={defaultImage}
             style={{ height: 200, width: cardWidth - 20, borderRadius: 10 }}
           />
         ) : (
@@ -137,7 +148,7 @@ const OwnerPropertyCard = ({ details }) => {
           </Pressable>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 };
 

@@ -32,7 +32,7 @@ import {
 
 const HomeScreen = ({ navigation }) => {
   const { width, height, isLandscape } = useDimensions();
-   const insets = useSafeAreaInsets();
+  const insets = useSafeAreaInsets();
   const { selectedCity } = useCity();
 
   const HOME_CARDS = [
@@ -63,15 +63,18 @@ const HomeScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "white",  }}>
+    <View style={{ flex: 1, backgroundColor: "white" }}>
       <View style={styles.searchWrapper}>
         {/* Search bar (full width) */}
         <Pressable onPress={handlePress} style={styles.searchPressable}>
           <View pointerEvents="none" style={{ flex: 1 }}>
-            <SearchBar  placeholder={`Search in ${selectedCity?.city ?? "City"} `} value="" />
+            <SearchBar
+              placeholder={`Search in ${selectedCity?.city ?? "City"} `}
+              value=""
+            />
           </View>
         </Pressable>
-    
+
         {/* Bell icon */}
         <Pressable
           onPress={() => console.log("Pressed on Notifications...")}
@@ -96,7 +99,7 @@ const HomeScreen = ({ navigation }) => {
           <Text style={{ fontSize: 16, fontWeight: "600" }}>
             Get Started with
           </Text>
-          {/*<Text style={{ fontSize: 12, color: "#6b6965ff" }}>
+          {/* <Text style={{ fontSize: 12, color: "#6b6965ff" }}>
           Explore real estate options 
            in top cities
         </Text> */}
@@ -127,7 +130,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     paddingHorizontal: 12,
-    // marginBottom: 7,
+    marginBottom: 7,
   },
 
   searchPressable: {

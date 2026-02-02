@@ -10,7 +10,7 @@ export default function CityDropdown() {
   const isOpen = useSelector((state) => state.dropdown.isOpen);
   const [openState, setOpenState] = React.useState(null);
 
-  const { locations } = useCity();
+  const { locations, selectedCity, selectCity } = useCity();
 
   if (!isOpen) return null;
 
@@ -42,8 +42,11 @@ export default function CityDropdown() {
               {popularCities.map((item) => (
                 <Pressable
                   key={item._id ?? item.city}
-                  onPress={() => dispatch(setCity(item))}
-                  style={styles.cityItem}
+                  onPress={() => dispatch(setCity(item), selectCity(item))}
+                  style={[
+                    styles.cityItem,
+                    selectedCity?._id === item._id && styles.selectedCityItem,
+                  ]}
                 >
                   <Text style={styles.cityText}>{item.city}</Text>
                 </Pressable>
@@ -69,8 +72,11 @@ export default function CityDropdown() {
                   cities.map((c) => (
                     <Pressable
                       key={c._id}
-                      onPress={() => dispatch(setCity(c))}
-                      style={styles.cityItem}
+                      onPress={() => dispatch(setCity(c), selectCity(c))}
+                      style={[
+                        styles.cityItem,
+                        selectedCity?._id === c._id && styles.selectedCityItem,
+                      ]}
                     >
                       <Text style={styles.cityText}>{c.city}</Text>
                     </Pressable>
@@ -127,5 +133,10 @@ const styles = StyleSheet.create({
 
   cityText: {
     fontSize: 13,
+  },
+
+  selectedCityItem: {
+    backgroundColor: "#fff",
+    borderRadius: 5,
   },
 });

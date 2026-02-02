@@ -23,13 +23,17 @@ import HomeScreen from "../screens/HomeScreen/HomeScreen";
 import ShortListedScreen from "../screens/ShortListedScreen/ShortListedScreen";
 import MyProperties from "../screens/Account/MyProperties";
 import Membership from "../screens/Account/Membership";
+import MoreOwnerPropertyDetail from "../components/OwnersProperties/MoreOwnerPropertyDetails";
+import UpcomingScreen from "../components/ui/UpComingPage";
+import useCity from "../components/CustomHooks/useCity";
 
 const Stack = createNativeStackNavigator();
 
 export default function StackNavigator() {
   const dispatch = useDispatch();
   const isOpen = useSelector((state) => state.dropdown.isOpen);
-  const selectedCity = useSelector((state) => state.dropdown.selectedCity);
+  // const selectedCity = useSelector((state) => state.dropdown.selectedCity);
+  const { selectedCity } = useCity();
 
   const handleCity = () => {
     dispatch(toggleDropdown());
@@ -43,7 +47,13 @@ export default function StackNavigator() {
 
       <Pressable style={styles.select} onPress={handleCity}>
         <LocationIcon width={20} height={20} />
-        <Text> {selectedCity?.city ?? "Select City"}</Text>
+        <Text>
+          {selectedCity?.city
+            ? selectedCity.city.length > 13
+              ? selectedCity.city.slice(0, 13) + "..."
+              : selectedCity.city
+            : "Hyderabad"}
+        </Text>
         <AntDesign name={isOpen ? "up" : "down"} size={10} />
       </Pressable>
     </View>
@@ -104,19 +114,26 @@ export default function StackNavigator() {
         component={Membership}
         options={{ headerShown: true }}
       />
+
       <Stack.Screen
         name="PostProperty"
         component={PostProperty}
-        options={{
-          headerBackVisible: true,
+        options={({ navigation }) => ({
+          headerBackVisible: false, // Make this true for back option
           headerStyle: {
             elevation: 0,
             shadowColor: "transparent",
             borderBottomWidth: 0,
           },
-          headerLeft: () => null,
+
+          headerLeft: () => (
+            <Pressable onPress={() => navigation.openDrawer()} hitSlop={10}>
+              <MaterialIcons name="menu" size={26} color="#000" />
+            </Pressable>
+          ),
+
           headerTitle: () => (
-            <View>
+            <View style={{ marginLeft: 20 }}>
               <Text style={{ fontSize: 16, fontWeight: "600" }}>
                 Post Your Property
               </Text>
@@ -125,17 +142,9 @@ export default function StackNavigator() {
               </Text>
             </View>
           ),
+
           headerRight: () => null,
-          // headerRight: ({ navigation }) => (
-          //   <Pressable
-          //     onPress={() => navigation.navigate("Drawer")}
-          //     hitSlop={10}
-          //     style={{ marginRight: 16 }}
-          //   >
-          //     <Entypo name="cross" size={24} color="#363636ff" />
-          //   </Pressable>
-          // ),
-        }}
+        })}
       />
 
       <Stack.Screen
@@ -162,6 +171,11 @@ export default function StackNavigator() {
         name="PropertyList"
         component={PropertyListScreen}
         options={{ headerShown: true }}
+      />
+      <Stack.Screen
+        name="MoreOwnerProperties"
+        component={MoreOwnerPropertyDetail}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="MoreResidentialDetails"
@@ -191,12 +205,17 @@ export default function StackNavigator() {
       <Stack.Screen
         name="Settings"
         component={SettingsScreen}
-        // options={{ headerShown: false }}
+        options={{ headerShown: true }}
       />
       <Stack.Screen
         name="ContactedProperties"
         component={ContactedProperties}
-        // options={{ headerShown: false }}
+        options={{ headerShown: true }}
+      />
+      <Stack.Screen
+        name="upComingScreen"
+        component={UpcomingScreen}
+        options={{ headerShown: true }}
       />
     </Stack.Navigator>
   );

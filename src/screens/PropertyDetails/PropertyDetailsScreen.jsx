@@ -340,7 +340,7 @@ const PropertyDetailsScreen = ({ route }) => {
             <View key={index} style={styles.homepage}>
               <View style={styles.imageWrapper}>
                 <Image
-                  source={{ uri: item.url }}
+                  source={{ uri: item?.url }}
                   style={styles.homePageImage}
                 />
                 {/* <Text style={styles.overlayText}>Why Choose Us</Text> */}

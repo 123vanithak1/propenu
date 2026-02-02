@@ -9,6 +9,7 @@ import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import HomePageImage from "../../../assets/HomePageImage.png";
 import LikedIconContainer from "../LikedIconContainer";
+import defaultImage from "../../../assets/defaultImage.png"
 
 const HighLightCard = ({ details }) => {
   const navigation = useNavigation();
@@ -30,7 +31,7 @@ const HighLightCard = ({ details }) => {
   };
 
   const handleClick = () => {
-    console.log("getting id when select", details._id);
+    console.log("getting id when select", details._id, details.slug);
     navigation.navigate("PropertyDetails", { propertyId: details._id });
   };
 
@@ -38,7 +39,7 @@ const HighLightCard = ({ details }) => {
     <Pressable onPress={handleClick} style={styles.card}>
       <View style={styles.imageWrapper}>
         <ImageBackground
-          source={heroImage ? { uri: heroImage } : HomePageImage}
+          source={heroImage ? { uri: heroImage } : defaultImage}
           style={styles.imageBackground}
           imageStyle={styles.image}
         />

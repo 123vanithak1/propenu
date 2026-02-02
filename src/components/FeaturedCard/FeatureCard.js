@@ -12,9 +12,18 @@ const FeaturedCard = ({ navigation }) => {
     const fetchDetails = async () => {
       try {
         const response = await apiService.featuredProjects();
+
         if (response.status === 200) {
-          const data = response.data.items;
-          setDetails(data);
+          const items = response.data.items || [];
+
+          const filteredData = selectedCity?.city
+            ? items.filter(
+                (item) =>
+                  item.city?.toLowerCase() === selectedCity.city.toLowerCase(),
+              )
+            : items;
+
+          setDetails(filteredData);
         }
       } catch (error) {
         console.log("Featured Card Error:", error);
@@ -22,8 +31,7 @@ const FeaturedCard = ({ navigation }) => {
     };
 
     fetchDetails();
-  }, []);
-
+  }, [selectedCity]);
   return (
     <View style={styles.card}>
       <Text style={styles.title}>Prime Properties</Text>
@@ -41,7 +49,9 @@ const FeaturedCard = ({ navigation }) => {
         />
       ) : (
         <Text style={styles.emptyText}>
-          No properties available at the moment
+          {selectedCity?.city
+            ? `No properties available in ${selectedCity.city}`
+            : "No properties available right now"}
         </Text>
       )}
     </View>

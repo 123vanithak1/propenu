@@ -14,26 +14,33 @@ const OwnerProperties = () => {
     return res.data.items;
   };
 
-  const { data, isError, error, isLoading } = useQuery(
-    ["owners"],
-    fetchOwnerProperties,
-  );
-  if (isError) console.log(error, "error");
+  // const { data, isError, error, isLoading } = useQuery(
+  //   ["owners"],
+  //   fetchOwnerProperties,
+  // );
+  // if (isError) console.log(error, "error");
 
-  // useEffect(() => {
-  //   const fetchOwnerProperties = async () => {
-  //     try {
-  //       const response = await apiService.ownersProperties();
-  //       if (response.status === 200) {
-  //         const data = response.data.items;
-  //         setProperties(data);
-  //       }
-  //     } catch (error) {
-  //       console.log("Owners Properties Error:", error);
-  //     }
-  //   };
-  //   fetchOwnerProperties();
-  // }, []);
+  useEffect(() => {
+    const fetchOwnerProperties = async () => {
+      try {
+        const response = await apiService.ownersProperties();
+        if (response.status === 200) {
+          const data = response.data.items;
+         
+          const filteredData = selectedCity?.city
+            ? data.filter(
+                (item) =>
+                  item.city?.toLowerCase() === selectedCity.city.toLowerCase(),
+              )
+            : data;
+          setProperties(filteredData);
+        }
+      } catch (error) {
+        console.log("Owners Properties Error:", error);
+      }
+    };
+    fetchOwnerProperties();
+  }, [selectedCity]);
 
   return (
     <View style={styles.container}>
@@ -41,9 +48,9 @@ const OwnerProperties = () => {
       <Text style={styles.subTitle}>
         Building excellence in {selectedCity?.city ?? "Hyderabad"}
       </Text>
-      {data?.length > 0 ? (
+      {properties?.length > 0 ? (
         <FlatList
-          data={data}
+          data={properties}
           keyExtractor={(item) => item._id}
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -51,7 +58,9 @@ const OwnerProperties = () => {
         />
       ) : (
         <Text style={styles.emptyText}>
-          No owner properties available at the moment
+          {selectedCity?.city
+            ? `No properties available in ${selectedCity.city}`
+            : "No properties available right now"}
         </Text>
       )}
     </View>

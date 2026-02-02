@@ -88,7 +88,7 @@ export default function CreateLogin({ navigation }) {
       console.log("Login error:", err);
     }
   };
-  console.log("details :", username, phone, role);
+  // console.log("details :", username, phone, role);
   const isFormValid = username.trim().length >= 3 && phone.length == 10 && role;
 
   return (

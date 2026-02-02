@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, Image } from "react-native";
 import {
   HomeCare,
   HomeLoans,
@@ -7,19 +7,35 @@ import {
   TopRightArrow,
 } from "../../../assets/svg/Logo";
 import useCity from "../CustomHooks/useCity";
+import upcomingPage from "../../../assets/upcomingPage.png";
+import { useNavigation } from "@react-navigation/native";
 
 const ServiceHub = () => {
   const { selectedCity } = useCity();
+  const navigation = useNavigation();
+
+  const handleClick = () => {
+    console.log("haiiii");
+    navigation.navigate("upComingScreen");
+  };
+
+  const UpComingPageWithImage = () => {
+    return (
+      <View style={styles.upcomingPage}>
+        <Image source={upcomingPage} style={{ height: 200, width: "100%" }} />
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Explore Our Services</Text>
       <Text style={styles.subtitle}>
-        {" "}
         Building excellence in {selectedCity?.city ?? "Hyderabad"}
       </Text>
 
       <View style={styles.subContainer}>
-        <View style={styles.homeLoans}>
+        <Pressable style={styles.homeLoans} onPress={handleClick}>
           <HomeLoans width={30} height={30} />
           <Text style={[styles.bodyTitle]}>
             Easy Home Loans with Expert Support
@@ -37,10 +53,10 @@ const ServiceHub = () => {
               <ArrowIcon width={24} height={24} />
             </View>
           </Pressable>
-        </View>
+        </Pressable>
 
         <View style={styles.devider}>
-          <View style={styles.homeCare}>
+          <Pressable style={styles.homeCare} onPress={handleClick}>
             <View style={styles.row}>
               <HomeCare width={35} height={35} />
               <TopRightArrow width={30} height={30} style={styles.arrowIcon} />
@@ -50,9 +66,9 @@ const ServiceHub = () => {
             <Text style={styles.bodyText}>
               Quick approvals, low interest, zero hassle End-to-End Support.
             </Text>
-          </View>
+          </Pressable>
 
-          <View style={styles.interior}>
+          <Pressable style={styles.interior} onPress={handleClick}>
             <View style={styles.row}>
               <HomeInterior width={30} height={30} />
               <TopRightArrow
@@ -66,7 +82,7 @@ const ServiceHub = () => {
             <Text style={styles.bodyText}>
               Quick approvals, low interest, zero hassle End-to-End Support.
             </Text>
-          </View>
+          </Pressable>
         </View>
       </View>
     </View>
@@ -76,8 +92,14 @@ export default ServiceHub;
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    // margin: 10,
+    margin: 10,
     marginBottom: 20,
+  },
+
+  upcomingPage: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   title: {
     fontSize: 16,
@@ -132,7 +154,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   bodyTitle: {
-    paddingTop: 5,
+    paddingVertical: 9,
     color: "#000",
     fontSize: 14,
     lineHeight: 20,

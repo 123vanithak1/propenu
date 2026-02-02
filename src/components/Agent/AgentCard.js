@@ -3,6 +3,7 @@ import HomePageImage from "../../../assets/HomePageImage.png";
 import LikedIconContainer from "../LikedIconContainer";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Logo, LocationIcon } from "../../../assets/svg/Logo";
+import FallBackImage from "../../../assets/svg/FallBackImage";
 const AgentCard = ({ details }) => {
   const imageSource = details?.coverImage?.url
     ? { uri: details.coverImage.url }

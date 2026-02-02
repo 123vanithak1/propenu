@@ -4,13 +4,12 @@ import StepIndicator from "./StepsIndicator";
 import StepRenderer from "./MainContent/StepRenderer";
 import { useDispatch, useSelector } from "react-redux";
 
-
 export default function PostProperty({ navigation }) {
   const STEPS = [
     "Basic Details",
     "Location",
     "Property Profile",
-    // "Verify & Publishff",
+    "Verify & Publish",
   ];
   const dispatch = useDispatch();
   const currentStep = useSelector((state) => state.postProperty.currentStep);

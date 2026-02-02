@@ -100,7 +100,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
   }, []);
 
   useEffect(() => {
-  console.log("userData UPDATED:", userData);
+    console.log("userData UPDATED:", userData);
   }, [userData]);
 
   return (

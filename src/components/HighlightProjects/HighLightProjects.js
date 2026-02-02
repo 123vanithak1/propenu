@@ -2,9 +2,11 @@ import { View, Text, FlatList, StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
 import { apiService } from "../../services/apiService";
 import HighLightCard from "./HighLightCard";
+import useCity from "../CustomHooks/useCity";
 
 const HighLightProjects = () => {
   const [projects, setProjects] = useState([]);
+  const { selectedCity } = useCity();
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -12,7 +14,14 @@ const HighLightProjects = () => {
         const response = await apiService.HighlightProjects();
         if (response.status === 200) {
           const data = response.data.items;
-          setProjects(data);
+
+          const filteredData = selectedCity?.city
+            ? data.filter(
+                (item) =>
+                  item.city?.toLowerCase() === selectedCity.city.toLowerCase(),
+              )
+            : data;
+          setProjects(filteredData);
         }
       } catch (error) {
         console.log("Highlight Projects Error:", error);
@@ -20,7 +29,7 @@ const HighLightProjects = () => {
     };
 
     fetchProjects();
-  }, []);
+  }, [selectedCity]);
 
   return (
     <View style={styles.container}>
@@ -37,7 +46,9 @@ const HighLightProjects = () => {
         />
       ) : (
         <Text style={styles.emptyText}>
-          No properties available at the moment
+          {selectedCity?.city
+            ? `No properties available in ${selectedCity.city}`
+            : "No properties available right now"}
         </Text>
       )}
     </View>

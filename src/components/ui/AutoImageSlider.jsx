@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, ScrollView, Image, StyleSheet, Dimensions } from "react-native";
 import HomePageImage from "../../../assets/HomePageImage.png";
+import FallBackImage from "../../../assets/svg/FallBackImage";
+import defaultImage from "../../../assets/defaultImage.png";
 
 const { width } = Dimensions.get("window");
 
@@ -40,14 +42,20 @@ const AutoImageSlider = ({
           setActiveIndex(index);
         }}
       >
-        {images.length === 0 ? (<Image source={HomePageImage} style={[styles.image, { height, width }]} />) : 
-        (images.map((img, index) => (
+        {images.length === 0 ? (
           <Image
-            key={index}
-            source={img}
+            source={defaultImage}
             style={[styles.image, { height, width }]}
           />
-        )))}
+        ) : (
+          images.map((img, index) => (
+            <Image
+              key={index}
+              source={img}
+              style={[styles.image, { height, width }]}
+            />
+          ))
+        )}
       </ScrollView>
 
       {/* Dots */}

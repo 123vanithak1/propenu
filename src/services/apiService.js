@@ -3,7 +3,7 @@ import { API_ROUTES } from "./apiRoutes";
 
 export const apiService = {
   login: async (payload) => {
-    console.log(payload)
+    console.log(payload);
     try {
       const response = await fetch(`${ENV.BASE_URL}${API_ROUTES.AUTH.LOGIN}`, {
         method: "POST",
@@ -31,7 +31,7 @@ export const apiService = {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
-        }
+        },
       );
       const data = await response.json();
       return {
@@ -53,7 +53,7 @@ export const apiService = {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const data = await response.json();
@@ -67,16 +67,19 @@ export const apiService = {
     }
   },
 
-  createAccount :async (payload) => {
+  createAccount: async (payload) => {
     // console.log("PAYLOAD IN CREATE ACCOUNT :", payload)
     try {
-      const response = await fetch(`${ENV.BASE_URL}${API_ROUTES.AUTH.CREATE_ACCOUNT}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.AUTH.CREATE_ACCOUNT}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
         },
-        body: JSON.stringify(payload),
-      });
+      );
       const data = await response.json();
       return {
         status: response.status,
@@ -87,17 +90,19 @@ export const apiService = {
     }
   },
 
-  
-  requestOTP :async (payload) => {
+  requestOTP: async (payload) => {
     // console.log("checking Payload for verify otp when creating the account :", payload)
     try {
-      const response = await fetch(`${ENV.BASE_URL}${API_ROUTES.AUTH.REQUEST_OTP}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.AUTH.REQUEST_OTP}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
         },
-        body: JSON.stringify(payload),
-      });
+      );
       const data = await response.json();
       return {
         status: response.status,
@@ -117,7 +122,7 @@ export const apiService = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       const data = await response.json();
       return {
@@ -138,7 +143,7 @@ export const apiService = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const data = await response.json();
@@ -158,7 +163,7 @@ export const apiService = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       const data = await response.json();
       return {
@@ -178,7 +183,7 @@ export const apiService = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       const data = await response.json();
       return {
@@ -189,6 +194,32 @@ export const apiService = {
       throw error;
     }
   },
+
+  ownerProjectById: async (id) => {
+    console.log(
+      "URL : ",
+      `${ENV.BASE_URL}${API_ROUTES.USER.OWNERS_PROPERTIES}/${id}`,
+    );
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.USER.OWNERS_PROPERTIES}/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const data = await response.json();
+      console.log("REs", response.json());
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   agricultural: async () => {
     try {
       const response = await fetch(
@@ -198,7 +229,7 @@ export const apiService = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       const data = await response.json();
       console.log("Agricultural data from the api:", data);
@@ -238,7 +269,7 @@ export const apiService = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       const data = await response.json();
       return {
@@ -259,7 +290,7 @@ export const apiService = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       const data = await response.json();
       return {
@@ -280,7 +311,7 @@ export const apiService = {
         },
       });
       const data = await response.json();
-      
+
       return {
         status: response.status,
         data,
@@ -299,7 +330,7 @@ export const apiService = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       // const data = await response.json();
       return response;
@@ -315,7 +346,7 @@ export const apiService = {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const data = await response.json();
@@ -338,7 +369,7 @@ export const apiService = {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const data = await response.json();
@@ -380,7 +411,7 @@ export const apiService = {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const data = await response.json();
@@ -399,7 +430,7 @@ export const apiService = {
   category_search: async (params) => {
     try {
       const query = new URLSearchParams(params).toString();
-      
+
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.SEARCH.CATEGORY_SEARCH}?${query}`,
         {
@@ -407,7 +438,7 @@ export const apiService = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (!response.ok) {
         throw new Error(`HTTP error ${response.status}`);
@@ -438,7 +469,7 @@ export const apiService = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (!response.ok) {
         throw new Error(`HTTP error ${response.status}`);
@@ -460,7 +491,7 @@ export const apiService = {
       throw error;
     }
   },
-   commercial_category_search: async (id) => {
+  commercial_category_search: async (id) => {
     try {
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.SEARCH.COMMERCIAL_CATEGORY_SEARCH}/${id}`,
@@ -469,7 +500,7 @@ export const apiService = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (!response.ok) {
         throw new Error(`HTTP error ${response.status}`);
@@ -491,7 +522,7 @@ export const apiService = {
       throw error;
     }
   },
-   land_category_search: async (id) => {
+  land_category_search: async (id) => {
     try {
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.SEARCH.LAND_CATEGORY_SEARCH}/${id}`,
@@ -500,7 +531,7 @@ export const apiService = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (!response.ok) {
         throw new Error(`HTTP error ${response.status}`);
@@ -522,7 +553,7 @@ export const apiService = {
       throw error;
     }
   },
-   agricultural_category_search: async (id) => {
+  agricultural_category_search: async (id) => {
     try {
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.SEARCH.AGRICULTURAL_CATEGORY_SEARCH}/${id}`,
@@ -531,7 +562,7 @@ export const apiService = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (!response.ok) {
         throw new Error(`HTTP error ${response.status}`);

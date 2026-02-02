@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import HomePage from "../../../../assets/HomePage.png";
+import defaultImage from "../../../../assets/defaultImage.png"
 
 /** INR formatter */
 function formatINR(v) {
@@ -129,7 +130,7 @@ const AvailableProperties = ({ bhk }) => {
           <View style={styles.imageBox}>
             <Image
               source={
-                activeUnit?.plan?.url ? { uri: activeUnit.plan.url } : HomePage
+                activeUnit?.plan?.url ? { uri: activeUnit.plan.url } : defaultImage
               }
               style={styles.image}
               //   resizeMode="cover"
