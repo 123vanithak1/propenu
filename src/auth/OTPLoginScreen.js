@@ -17,9 +17,11 @@ import * as Keychain from "react-native-keychain";
 import { ToastSuccess } from "../utils/Toast";
 import { BigLogo } from "../../assets/svg/LogoPropenu";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useAuth } from "../context/AuthContext";
 
 const OTPLoginModal = ({ route, navigation }) => {
   const { phone, name = "", role = "" } = route.params;
+  const { refreshAuth } = useAuth();
 
   console.log("PPPPPPPP", route.params);
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -95,6 +97,8 @@ const OTPLoginModal = ({ route, navigation }) => {
       // Store token securely
       if (data?.token) {
         await Keychain.setGenericPassword("token", tokenResult.data.token);
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        await refreshAuth();
       }
 
       // Store user info in AsyncStorage
@@ -107,6 +111,8 @@ const OTPLoginModal = ({ route, navigation }) => {
           roleName: data?.user?.roleName,
         }),
       );
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await refreshAuth();
       ToastSuccess("OTP verified successfully");
       console.log("Login successful......");
       navigation.pop(2);

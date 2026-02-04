@@ -17,7 +17,7 @@ export default function PostProperty({ navigation }) {
   const isLastStep = currentStep === STEPS.length;
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1,}}>
       <StepIndicator steps={STEPS} currentStep={currentStep - 1} />
       <StepRenderer />
     </View>

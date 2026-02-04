@@ -17,7 +17,6 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FeaturedCard from "../../components/FeaturedCard/FeatureCard";
 import HighLightProjects from "../../components/HighlightProjects/HighLightProjects";
 import OwnerProperties from "../../components/OwnersProperties/OwnerProperties";
-import Button from "../../components/Button";
 import AgentProperties from "../../components/Agent/AgentProperties";
 import ServiceHub from "../../components/ServiceHub/ServiceHub";
 import useCity from "../../components/CustomHooks/useCity";

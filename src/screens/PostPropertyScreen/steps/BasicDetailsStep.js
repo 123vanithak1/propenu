@@ -6,9 +6,15 @@ import {
   StyleSheet,
   ScrollView,
   Image,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import {
   nextStep,
   setBaseField,
@@ -30,26 +36,51 @@ import {
 } from "../../PostPropertyScreen/constants/subTypes";
 import { validateBasicDetails } from "../../../zod/basicDetailsZod";
 import * as ImagePicker from "expo-image-picker";
+import { useAuth } from "../../../context/AuthContext";
+import CounterField from "../../../components/ui/CounterField";
+import Dropdownui from "../../../components/ui/DropDownUI";
+import DateInputField from "../../../components/ui/DateInputField";
+import PricingDetails from "../../../components/ui/PricingDetails";
 
 export default function BasicDetailsStep() {
   const { propertyType, base, residential, commercial, land, agricultural } =
     useSelector((state) => state.postProperty);
-    const insets = useSafeAreaInsets();
+  console.log("Base :",propertyType, base);
+  const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
+  const { isLoggedIn, userDetails, isChecking } = useAuth();
 
   const [files, setFiles] = useState([]);
   const [showErrors, setShowErrors] = useState(false);
   const [isShowPhoneNumber, setIsPhoneNumber] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [showRoomDetails, setShowRoomDetails] = useState(false);
+  const [showFurnishingFacing, setShowFurnishingFacing] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
   const dispatch = useDispatch();
 
   const listingOptions = [
-    { label: "Buy", value: "buy" },
+    { label: "Sale", value: "sale" },
     { label: "Rent / Lease", value: "rent" },
-    // { label: "Lease", value: "lease" },
+  ];
+  const WALL_FINISH_STATUS = [
+    "no-partitions",
+    "brick-walls",
+    "cement-block-walls",
+    "plastered-walls",
   ];
   const property = ["residential", "commercial", "land", "agricultural"];
-
+  const FACING_TYPES = ["North", "South", "East", "West"];
   const categoryState =
+    propertyType === "residential"
+      ? residential
+      : propertyType === "commercial"
+        ? commercial
+        : propertyType === "land"
+          ? land
+          : agricultural;
+
+  const profileData =
     propertyType === "residential"
       ? residential
       : propertyType === "commercial"
@@ -61,16 +92,11 @@ export default function BasicDetailsStep() {
   const validationResult = validateBasicDetails(
     {
       ...base,
-      propertyType: categoryState?.propertyType || base.propertyType,
-      title: base.title || "",
-      price: base.price || "",
-      carpetArea: base.carpetArea || "",
-      description: base.description || "",
+      ...profileData,
+      propertyType: profileData?.propertyType || base.propertyType,
     },
     propertyType,
-    files,
   );
-
   const isFormValid = validationResult.success;
 
   const fieldErrors =
@@ -82,30 +108,49 @@ export default function BasicDetailsStep() {
     dispatch(setPropertyType(type));
   };
 
-useEffect(() => {
-  const userData = async () => {
-    try {
-      const data = await getItem("user");
+  useEffect(() => {
+    const userData = async () => {
+      try {
+        const data = await getItem("user");
 
-      if (!data) {
-        setIsPhoneNumber(true);
-        return;
+        if (!data) {
+          setIsPhoneNumber(true);
+          return;
+        }
+
+        const parsedData = JSON.parse(data);
+
+        if (!parsedData?.name) {
+          setIsPhoneNumber(true);
+        }
+      } catch (error) {
+        console.log("Error reading user from storage:", error);
+        setIsPhoneNumber(false);
       }
+    };
 
-      const parsedData = JSON.parse(data);
-
-      if (!parsedData?.name) {
-        setIsPhoneNumber(true);
+    userData();
+  }, []);
+  useEffect(() => {
+    if (propertyType === "residential") {
+      if (residential.propertyType) setShowRoomDetails(true);
+      if (
+        (residential.bedrooms && residential.bedrooms > 1) ||
+        (residential.bathrooms && residential.bathrooms > 1) ||
+        (residential.balconies && residential.balconies > 0) ||
+        residential.furnishing ||
+        residential.facing
+      ) {
+        setShowFurnishingFacing(true);
       }
-    } catch (error) {
-      console.log("Error reading user from storage:", error);
-      setIsPhoneNumber(false); 
+      if (residential.facing) setShowPricing(true);
+    } else {
+      // Reset when switching away from residential
+      setShowRoomDetails(false);
+      setShowFurnishingFacing(false);
+      setShowPricing(false);
     }
-  };
-
-  userData();
-}, []);
-
+  }, [propertyType, residential]);
 
   const pickImages = async () => {
     // Ask permission
@@ -165,245 +210,672 @@ useEffect(() => {
   const agriculturalSubTypes =
     propertyType === "agricultural" ? AGRICULTURAL_PROPERTY_SUBTYPES : [];
 
+  const OptionButton = ({ label, active, onPress }) => (
+    <Pressable
+      onPress={onPress}
+      style={[styles.optionButton, active && styles.optionActive]}
+    >
+      <Text style={[styles.optionText, active && styles.optionTextActive]}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+  console.log("Res", residential);
+
   return (
-    <ScrollView contentContainerStyle={[styles.container,{paddingBottom: insets.bottom + 10,}]}>
-      <Text style={styles.heading}>Add Basic Details</Text>
-      {isShowPhoneNumber && (
-        <View>
-          <InputField
-            required
-            label="Mobile Number"
-            value={phoneNumber}
-            placeholder="+91 9898989898"
-            keyboardType="phone-pad"
-            maxLength={10}
-            onChange={(value) => {
-              setPhoneNumber(value);
-            }}
-          />
-        </View>
-      )}
-      {/* Listing Type */}
-      <Text style={styles.label}>Listing Type</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+    >
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          { paddingBottom: insets.bottom + 15 },
+        ]}
+      >
+        <Text style={styles.heading}>Add Basic Details</Text>
 
-      <View style={styles.row}>
-        {listingOptions.map((option) => {
-          const isActive = base.listingType === option.value;
+        {/* Listing Type */}
+        <Text style={styles.label}>Listing Type</Text>
 
-          return (
-            <Pressable
-              key={option.value}
-              onPress={() =>
-                dispatch(
-                  setBaseField({
-                    key: "listingType",
-                    value: option.value,
-                  }),
-                )
-              }
-              style={[styles.optionBtn, isActive && styles.optionBtnActive]}
-            >
-              <Text
-                style={[styles.optionText, isActive && styles.optionTextActive]}
+        <View style={styles.listngTypeRow}>
+          {listingOptions.map((option) => {
+            const isActive = base.listingType === option.value;
+
+            return (
+              <Pressable
+                key={option.value}
+                onPress={() =>
+                  dispatch(
+                    setBaseField({
+                      key: "listingType",
+                      value: option.value,
+                    }),
+                  )
+                }
+                style={[styles.optionBtn, isActive && styles.optionBtnActive]}
               >
-                {option.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
-
-      {/* Property Type */}
-      <Text style={styles.label}>Property Type</Text>
-
-      <View style={styles.rowWrap}>
-        {property.map((type) => {
-          const selected = propertyType === type;
-
-          return (
-            <Pressable
-              key={type}
-              onPress={() => handleSelect(type)}
-              style={styles.radioItem}
-            >
-              <View
-                style={[styles.radioOuter, selected && styles.radioOuterActive]}
-              >
-                {selected && <View style={styles.radioInner} />}
-              </View>
-
-              <Text style={styles.radioLabel}>
-                {type === "land" ? "Plot / Land" : type}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
-
-      {/* Property Sub-Type */}
-      {subTypes.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.label}>Property Sub-Type</Text>
-
-          <View style={styles.grid}>
-            {subTypes.map((sub) => {
-              const isSelected = categoryState?.propertyType === sub.key;
-
-              return (
-                <Pressable
-                  key={sub.key}
-                  onPress={() =>
-                    dispatch(
-                      setProfileField({
-                        propertyType,
-                        key: "propertyType",
-                        value: sub.key,
-                      }),
-                    )
-                  }
-                  style={[styles.card, isSelected && styles.cardActive]}
+                <Text
+                  style={[
+                    styles.optionText,
+                    isActive && styles.optionTextActive,
+                  ]}
                 >
-                  <Text style={styles.cardIcon}>{sub.icon}</Text>
-                  <Text
+                  {option.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        {/* Property Type */}
+        <Text style={styles.label}>Select your property type</Text>
+
+        <View style={styles.rowWrap}>
+          {property.map((type) => {
+            const selected = propertyType === type;
+
+            return (
+              <Pressable
+                key={type}
+                onPress={() => handleSelect(type)}
+                style={styles.radioItem}
+              >
+                <View
+                  style={[
+                    styles.radioOuter,
+                    selected && styles.radioOuterActive,
+                  ]}
+                >
+                  {selected && <View style={styles.radioInner} />}
+                </View>
+
+                <Text style={styles.radioLabel}>
+                  {type === "land" ? "Plot / Land" : type}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        {/* Property Sub-Type */}
+        {subTypes.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.label}>Property Sub-Type</Text>
+
+            <View style={styles.grid}>
+              {subTypes.map((sub) => {
+                const isSelected = categoryState?.propertyType === sub.key;
+
+                return (
+                  <Pressable
+                    key={sub.key}
+                    onPress={() => {
+                      if (propertyType) {
+                        dispatch(
+                          setProfileField({
+                            propertyType: propertyType,
+                            key: "propertyType",
+                            value: sub.key,
+                          }),
+                        );
+                        if (propertyType === "residential") {
+                          setShowRoomDetails(true);
+                        }
+                      }
+                    }}
+                    style={[styles.card, isSelected && styles.cardActive]}
+                  >
+                    <Text style={styles.cardIcon}>{sub.icon}</Text>
+                    <Text
+                      style={[
+                        styles.cardText,
+                        isSelected && styles.cardTextActive,
+                      ]}
+                    >
+                      {sub.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        {/* Commercial Sub Types */}
+        {commercialSubTypes.length > 0 && (
+          <View style={styles.specificType}>
+            <Text style={styles.label}>
+              Specific Type for {selectedCommercialType?.replace("-", " ")}
+            </Text>
+
+            <View style={styles.rowWrap}>
+              {commercialSubTypes.map((subType) => {
+                const isSelected = commercial.commercialSubType === subType;
+
+                return (
+                  <Pressable
+                    key={subType}
+                    onPress={() =>
+                      dispatch(
+                        setProfileField({
+                          propertyType: "commercial",
+                          key: "commercialSubType",
+                          value: subType,
+                        }),
+                      )
+                    }
                     style={[
-                      styles.cardText,
-                      isSelected && styles.cardTextActive,
+                      styles.optionBtn,
+                      isSelected && styles.optionBtnActive,
                     ]}
                   >
-                    {sub.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
+                    <Text
+                      style={[
+                        styles.optionText,
+                        isSelected && styles.optionTextActive,
+                      ]}
+                    >
+                      {subType.replace("-", " ").toUpperCase()}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
           </View>
-        </View>
-      )}
+        )}
 
-      {/* Commercial Sub Types */}
-      {commercialSubTypes.length > 0 && (
-        <View style={styles.specificType}>
-          <Text style={styles.label}>
-            Specific Type for {selectedCommercialType?.replace("-", " ")}
-          </Text>
+        {/* Land Sub Types */}
+        {landSubTypes.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.label}>Land Characteristics</Text>
 
-          <View style={styles.rowWrap}>
-            {commercialSubTypes.map((subType) => {
-              const isSelected = commercial.commercialSubType === subType;
+            <View style={styles.rowWrap}>
+              {landSubTypes.map((subType) => {
+                const isSelected = land.landSubType === subType;
 
-              return (
-                <Pressable
-                  key={subType}
-                  onPress={() =>
+                return (
+                  <Pressable
+                    key={subType}
+                    onPress={() =>
+                      dispatch(
+                        setProfileField({
+                          propertyType: "land",
+                          key: "landSubType",
+                          value: subType,
+                        }),
+                      )
+                    }
+                    style={[
+                      styles.optionBtn,
+                      isSelected && styles.optionBtnActive,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.optionText,
+                        isSelected && styles.optionTextActive,
+                      ]}
+                    >
+                      {subType.replace(/-/g, " ").toUpperCase()}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        {agriculturalSubTypes.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.label}>Agricultural Characteristics</Text>
+
+            <View style={styles.rowWrap}>
+              {agriculturalSubTypes.map((subType) => {
+                const isSelected = agricultural.agriculturalSubType === subType;
+
+                return (
+                  <Pressable
+                    key={subType}
+                    onPress={() =>
+                      dispatch(
+                        setProfileField({
+                          propertyType: "agricultural",
+                          key: "agriculturalSubType",
+                          value: subType,
+                        }),
+                      )
+                    }
+                    style={[
+                      styles.optionBtn,
+                      isSelected && styles.optionBtnActive,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.optionText,
+                        isSelected && styles.optionTextActive,
+                      ]}
+                    >
+                      {subType.replace(/-/g, " ").toUpperCase()}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        <View style={styles.section}>
+          {/* Counter Fields */}
+
+          {propertyType === "residential" && showRoomDetails && (
+            <View style={styles.counterGrid}>
+              <View style={styles.counterItem}>
+                <CounterField
+                  label="Bedrooms"
+                  value={residential.bedrooms || residential.bhk || 1}
+                  min={1}
+                  onChange={(value) => {
+                    (dispatch(
+                      setProfileField({
+                        propertyType: "residential",
+                        key: "bedrooms",
+                        value,
+                      }),
+                    ),
+                      setShowFurnishingFacing(true));
+                  }}
+                />
+              </View>
+
+              <View style={styles.counterItem}>
+                <CounterField
+                  label="Bathrooms"
+                  value={residential.bathrooms || 1}
+                  min={1}
+                  onChange={(value) => {
+                    (dispatch(
+                      setProfileField({
+                        propertyType: "residential",
+                        key: "bathrooms",
+                        value,
+                      }),
+                    ),
+                      setShowFurnishingFacing(true));
+                  }}
+                />
+              </View>
+
+              <View style={styles.counterItem}>
+                <CounterField
+                  label="Balconies"
+                  value={residential.balconies || 0}
+                  min={0}
+                  onChange={(value) => {
+                    (dispatch(
+                      setProfileField({
+                        propertyType: "residential",
+                        key: "balconies",
+                        value,
+                      }),
+                    ),
+                      setShowFurnishingFacing(true));
+                  }}
+                />
+              </View>
+            </View>
+          )}
+
+          {showFurnishingFacing && (
+            <>
+              <Text style={styles.furnish}>Furnishing</Text>
+              <View style={styles.row}>
+                {[
+                  { label: "Furnished", value: "fully-furnished" },
+                  { label: "Semi Furnished", value: "semi-furnished" },
+                  { label: "Unfurnished", value: "unfurnished" },
+                ].map((item) => (
+                  <OptionButton
+                    key={item.value}
+                    label={item.label}
+                    active={residential.furnishing === item.value}
+                    onPress={() => {
+                      dispatch(
+                        setProfileField({
+                          propertyType: "residential",
+                          key: "furnishing",
+                          value: item.value,
+                        }),
+                      );
+                    }}
+                  />
+                ))}
+              </View>
+              <View style={styles.facingDropDown}>
+                <Dropdownui
+                  label="Facing"
+                  value={residential.facing || null}
+                  onChange={(value) => {
+                    dispatch(
+                      setProfileField({
+                        propertyType: "residential",
+                        key: "facing",
+                        value,
+                      }),
+                    );
+
+                    setShowPricing(true);
+                  }}
+                  options={FACING_TYPES.map((t) => ({ value: t, label: t }))}
+                  placeholder="Select"
+                />
+              </View>
+            </>
+          )}
+
+          {commercial.commercialSubType && (
+            <View style={styles.counterGrid}>
+              <View style={styles.counterItems2}>
+                <CounterField
+                  label="Cabins"
+                  value={commercial.cabins || 0}
+                  onChange={(value) =>
                     dispatch(
                       setProfileField({
                         propertyType: "commercial",
-                        key: "commercialSubType",
-                        value: subType,
+                        key: "cabins",
+                        value,
                       }),
                     )
                   }
-                  style={[
-                    styles.optionBtn,
-                    isSelected && styles.optionBtnActive,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      isSelected && styles.optionTextActive,
-                    ]}
-                  >
-                    {subType.replace("-", " ").toUpperCase()}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
-      )}
+                />
+              </View>
 
-      {/* Land Sub Types */}
-      {landSubTypes.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.label}>Land Characteristics</Text>
-
-          <View style={styles.rowWrap}>
-            {landSubTypes.map((subType) => {
-              const isSelected = land.landSubType === subType;
-
-              return (
-                <Pressable
-                  key={subType}
-                  onPress={() =>
+              <View style={styles.counterItems2}>
+                <CounterField
+                  label="Seats"
+                  value={commercial.seats || 0}
+                  onChange={(value) =>
                     dispatch(
                       setProfileField({
-                        propertyType: "land",
-                        key: "landSubType",
-                        value: subType,
+                        propertyType: "commercial",
+                        key: "seats",
+                        value,
                       }),
                     )
                   }
-                  style={[
-                    styles.optionBtn,
-                    isSelected && styles.optionBtnActive,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      isSelected && styles.optionTextActive,
-                    ]}
-                  >
-                    {subType.replace(/-/g, " ").toUpperCase()}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
+                />
+              </View>
+            </View>
+          )}
+
+          {/* Furnishing */}
+          {(commercial.cabins > 0 || commercial.seats > 0) && (
+            <>
+              <>
+                <Text style={styles.furnish}>Furnishing</Text>
+                <View style={styles.row}>
+                  {[
+                    { label: "Furnished", value: "fully-furnished" },
+                    { label: "Semi Furnished", value: "semi-furnished" },
+                    { label: "Unfurnished", value: "unfurnished" },
+                  ].map((item) => (
+                    <OptionButton
+                      key={item.value}
+                      label={item.label}
+                      active={commercial.furnishing === item.value}
+                      onPress={() =>
+                        dispatch(
+                          setProfileField({
+                            propertyType: "commercial",
+                            key: "furnishing",
+                            value: item.value,
+                          }),
+                        )
+                      }
+                    />
+                  ))}
+                </View>
+                <View style={styles.facingDropDown}>
+                  <Dropdownui
+                    label="Wall Finish"
+                    value={commercial.wallFinishStatus}
+                    options={WALL_FINISH_STATUS.map((v) => ({
+                      label: v.replace("-", " "),
+                      value: v,
+                    }))}
+                    onChange={(value) =>
+                      dispatch(
+                        setProfileField({
+                          propertyType: "commercial",
+                          key: "wallFinishStatus",
+                          value,
+                        }),
+                      )
+                    }
+                    placeholder="Select"
+                    error={fieldErrors.wallFinishStatus?.[0]}
+                  />
+                </View>
+
+                {commercial.wallFinishStatus && (
+                  <PricingDetails
+                    propertyType="commercial"
+                    data={commercial}
+                    fieldErrors={fieldErrors}
+                  />
+                )}
+              </>
+            </>
+          )}
+
+          {propertyType === "land" && land.landSubType && (
+            <View style={styles.section}>
+              {/* Plot Dimensions */}
+              <View style={styles.plotcard}>
+                <Text style={styles.cardTitle}>Plot Dimensions (Optional)</Text>
+                <Text style={styles.cardSubTitle}>
+                  Enter length and width in feet
+                </Text>
+
+                <View style={styles.counterGrid}>
+                  <View style={styles.counterItems2}>
+                    <InputField
+                      label="Length"
+                      type="number"
+                      placeholder="e.g. 40"
+                      value={land.dimensions?.length ?? ""}
+                      onChange={(value) =>
+                        dispatch(
+                          setProfileField({
+                            propertyType: "land",
+                            key: "dimensions",
+                            value: {
+                              length: value,
+                              width: land.dimensions?.width || "",
+                            },
+                          }),
+                        )
+                      }
+                    />
+                  </View>
+                  <View style={styles.multiplyContainer}>
+                    <Text style={styles.multiply}>×</Text>
+                  </View>
+                  <View style={styles.counterItems2}>
+                    <InputField
+                      label="Width"
+                      type="number"
+                      placeholder="e.g. 60"
+                      value={land.dimensions?.width ?? ""}
+                      onChange={(value) =>
+                        dispatch(
+                          setProfileField({
+                            propertyType: "land",
+                            key: "dimensions",
+                            value: {
+                              length: land.dimensions?.length || "",
+                              width: value,
+                            },
+                          }),
+                        )
+                      }
+                    />
+                  </View>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Price Details */}
+          {propertyType === "residential" && showPricing && (
+            <PricingDetails
+              propertyType="residential"
+              data={residential}
+              fieldErrors={fieldErrors}
+            />
+          )}
+
+          {propertyType === "land" && land.landSubType && (
+            <PricingDetails
+              propertyType="land"
+              data={land}
+              fieldErrors={fieldErrors}
+            />
+          )}
+
+          {propertyType === "agricultural" &&
+            agricultural.agriculturalSubType && (
+              <PricingDetails
+                propertyType="agricultural"
+                data={agricultural}
+                fieldErrors={fieldErrors}
+              />
+            )}
+
+          {/* Availability Status */}
+          {isLoggedIn &&
+            ["residential", "commercial"].includes(propertyType) && (
+              <>
+                <Text style={styles.label}>Availability Status</Text>
+                <View style={styles.side}>
+                  {[
+                    { label: "Ready to Move", value: "ready-to-move" },
+                    {
+                      label: "Under Construction",
+                      value: "under-construction",
+                    },
+                  ].map((item) => (
+                    <OptionButton
+                      key={item.value}
+                      label={item.label}
+                      active={residential.constructionStatus === item.value}
+                      onPress={() =>
+                        dispatch(
+                          setProfileField({
+                            propertyType: "residential",
+                            key: "constructionStatus",
+                            value: item.value,
+                          }),
+                        )
+                      }
+                    />
+                  ))}
+                </View>
+
+                {/* Property Age */}
+                {residential.constructionStatus === "ready-to-move" && (
+                  <View style={styles.section}>
+                    <Text style={styles.label}>Property Age</Text>
+                    <View style={styles.row}>
+                      {[
+                        { label: "0-1 Year", value: "0-1-year" },
+                        { label: "1-5 Years", value: "1-5-years" },
+                        { label: "5-10 Years", value: "5-10-years" },
+                        { label: "10+ Years", value: "10-plus-years" },
+                      ].map((item) => (
+                        <OptionButton
+                          key={item.value}
+                          label={item.label}
+                          active={residential.propertyAge === item.value}
+                          onPress={() =>
+                            dispatch(
+                              setProfileField({
+                                propertyType,
+                                key: "propertyAge",
+                                value: item.value,
+                              }),
+                            )
+                          }
+                        />
+                      ))}
+                    </View>
+                  </View>
+                )}
+
+                {/* Possession Date using datetimepicker */}
+                {residential.constructionStatus === "under-construction" && (
+                  <DateInputField
+                    label="Expected Possession Date"
+                    value={residential.possessionDate}
+                    required
+                    minimumDate={new Date()} // future only
+                    onChange={(value) =>
+                      dispatch(
+                        setProfileField({
+                          propertyType,
+                          key: "possessionDate",
+                          value,
+                        }),
+                      )
+                    }
+                  />
+                )}
+
+                <Text style={[styles.label, { marginTop: 10 }]}>
+                  Transaction Type
+                </Text>
+                <View style={styles.side}>
+                  {[
+                    { label: "New Sale", value: "new-sale" },
+                    { label: "Resale", value: "resale" },
+                  ].map((item) => (
+                    <OptionButton
+                      key={item.value}
+                      label={item.label}
+                      active={residential.transactionType === item.value}
+                      onPress={() =>
+                        dispatch(
+                          setProfileField({
+                            propertyType: "residential",
+                            key: "transactionType",
+                            value: item.value,
+                          }),
+                        )
+                      }
+                    />
+                  ))}
+                </View>
+              </>
+            )}
         </View>
-      )}
 
-      {agriculturalSubTypes.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.label}>Agricultural Characteristics</Text>
+        {!isLoggedIn && (
+          <Pressable onPress={() => navigation.navigate("Login")}>
+            <View pointerEvents="none" style={{ flex: 1 }}>
+              <InputField
+                label="Phone Number"
+                placeholder="+91 Phone Number"
+                value={phoneNumber}
+                onChange={setPhoneNumber}
+              />
+            </View>
+          </Pressable>
+        )}
 
-          <View style={styles.rowWrap}>
-            {agriculturalSubTypes.map((subType) => {
-              const isSelected = agricultural.agriculturalSubType === subType;
-
-              return (
-                <Pressable
-                  key={subType}
-                  onPress={() =>
-                    dispatch(
-                      setProfileField({
-                        propertyType: "agricultural",
-                        key: "agriculturalSubType",
-                        value: subType,
-                      }),
-                    )
-                  }
-                  style={[
-                    styles.optionBtn,
-                    isSelected && styles.optionBtnActive,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      isSelected && styles.optionTextActive,
-                    ]}
-                  >
-                    {subType.replace(/-/g, " ").toUpperCase()}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
-      )}
-
-      <Text style={styles.label}>Property Images</Text>
+        {/* <Text style={styles.label}>Property Images</Text>
       <View style={styles.previewContainer}>
         {files.map((img, index) => (
           <Image
@@ -412,11 +884,11 @@ useEffect(() => {
             style={styles.previewImage}
           />
         ))}
-      </View>
+      </View> */}
 
-      {/* Image Upload */}
+        {/* Image Upload */}
 
-      <Pressable style={styles.uploadBox} onPress={pickImages}>
+        {/* <Pressable style={styles.uploadBox} onPress={pickImages}>
         <Text style={styles.uploadText}>
           {files.length > 0
             ? `${files.length} image(s) selected`
@@ -426,32 +898,33 @@ useEffect(() => {
         {fieldErrors?.images && (
           <Text style={styles.errorText}>{fieldErrors.images[0]}</Text>
         )}
-      </Pressable>
+      </Pressable> */}
 
-      {/* Continue Button */}
-      <Pressable
-        style={[
-          styles.continueBtn,
-          !isFormValid && showErrors && styles.disabledBtn,
-          {}
-        ]}
-        onPress={() => {
-          setShowErrors(true);
-          if (isFormValid) {
-            dispatch(nextStep());
-          }
-        }}
-      >
-        <Text style={styles.continueText}>Continue</Text>
-      </Pressable>
-    </ScrollView>
+        {/* Continue Button */}
+        <Pressable
+          style={[
+            styles.continueBtn,
+            !isFormValid && showErrors && styles.disabledBtn,
+            {},
+          ]}
+          onPress={() => {
+            setShowErrors(true);
+            if (isFormValid) {
+              dispatch(nextStep());
+            }
+          }}
+        >
+          <Text style={styles.continueText}>Continue</Text>
+        </Pressable>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 const styles = StyleSheet.create({
   container: {
     // padding: 16,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingHorizontal: 12,
+    // paddingBottom: 16,
   },
   label: {
     fontSize: 14,
@@ -474,16 +947,17 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  row: {
+  listngTypeRow: {
     flexDirection: "row",
     gap: 12,
     marginBottom: 16,
   },
   rowWrap: {
+    marginTop: 5,
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
-    marginBottom: 16,
+    gap: 5,
+    marginBottom: 8,
   },
   heading: {
     fontSize: 16,
@@ -492,28 +966,31 @@ const styles = StyleSheet.create({
   },
   optionBtn: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 7,
     borderRadius: 8,
     borderWidth: 1,
+    marginRight: 4,
+    marginBottom: 4,
     borderColor: "#D1D5DB",
+    backgroundColor: "#fff",
   },
   optionBtnActive: {
     borderColor: "#22C55E",
     backgroundColor: "#DCFCE7",
   },
   optionText: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#374151",
   },
-  optionTextActive: {
-    color: "#16A34A",
-    fontWeight: "600",
+  facingDropDown: {
+    width: "50%",
+    marginTop: 10,
   },
   radioItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 16,
-    marginBottom: 12,
+    marginRight: 12,
+    marginBottom: 10,
   },
   radioOuter: {
     width: 18,
@@ -539,16 +1016,88 @@ const styles = StyleSheet.create({
     color: "#374151",
     textTransform: "capitalize",
   },
+
   section: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
-  specificType: {
+  counterGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    // gap:5
+    justifyContent: "space-between",
+  },
+  row: {
+    flexDirection: "row",
+    gap: 10,
+    flexWrap: "wrap",
+    // justifyContent: "space-between",
+    // alignItems: "center",
+    // marginBottom: 10,
+  },
+  optionButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 7,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    backgroundColor: "#fff",
+  },
+  optionActive: {
+    borderColor: "#22c55e",
+    backgroundColor: "#dcfce7",
+  },
+
+  optionTextActive: {
+    color: "#16a34a",
+    fontWeight: "600",
+  },
+
+  multiplyContainer: {
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+
+  multiply: {
+    // alignSelf: "center",
+    fontSize: 22,
+    marginBottom: 10,
+    opacity: 0.5,
+  },
+
+  counterItems2: {
+    width: "45%",
+  },
+
+  counterItem: {
+    width: "31%",
+    // marginBottom: 16,
+  },
+  furnish: {
+    fontSize: 14,
+    fontWeight: 500,
+    marginBottom: 8,
+    color: "#374151",
+  },
+  side: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    gap: 10,
+    marginBottom: 10,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
     marginBottom: 5,
   },
+  specificType: {
+    marginTop: 8,
+  },
+
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 12,
+    marginTop: 5,
   },
   card: {
     width: "30%",
@@ -565,10 +1114,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#ECFDF5",
   },
   cardIcon: {
-    fontSize: 24,
+    fontSize: 26,
     marginBottom: 6,
   },
   cardText: {
+    textAlign: "center",
     fontSize: 12,
     color: "#474a52ff",
   },
@@ -576,6 +1126,31 @@ const styles = StyleSheet.create({
     color: "#16A34A",
     fontWeight: "600",
   },
+
+  plotcard: {
+    backgroundColor: "#E9F7EF",
+    borderColor: "#22c55e",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 10,
+  },
+  cardTitle: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  cardSubTitle: {
+    fontSize: 12,
+    color: "#6b7280",
+    marginBottom: 10,
+    marginTop: 3,
+  },
+  sectionSubTitle: {
+    fontSize: 12,
+    color: "#6b7280",
+    marginBottom: 12,
+  },
+
   uploadBox: {
     padding: 16,
     borderWidth: 1,

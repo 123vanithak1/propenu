@@ -28,10 +28,11 @@ import {
 import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
 import AmenitiesWithModal from "../../PropertyDetails/detailProperty/AmenitiesWithModal";
 import NearByLocations from "../../PropertyDetails/detailProperty/NearByLocation";
-
+import { useAuth } from "../../../context/AuthContext";
 const MoreLandDetails = ({ route }) => {
   const { width, height } = useDimensions();
   const { id } = route.params;
+  const { isLoggedIn,userDetails } = useAuth();
 
   //   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -54,16 +55,8 @@ const MoreLandDetails = ({ route }) => {
     }
   };
   const handleContactOwner = async()=> {
-    const storedUser = await getItem("user");
   
-    if (!storedUser) {
-      ToastInfo("User not authenticated");
-      return;
-    }
-  
-    const userData = JSON.parse(storedUser);
-  
-    if (!userData?.name) {
+    if (!isLoggedIn) {
       ToastInfo("User not authenticated");
     } else ToastSuccess("We will contact you shortly");
   };
@@ -301,6 +294,8 @@ const styles = StyleSheet.create({
 
   contactBtn: {
     flexDirection: "row",
+    width:"60%",
+    alignSelf:"center",
     margin: 16,
     padding: 14,
     borderRadius: 8,

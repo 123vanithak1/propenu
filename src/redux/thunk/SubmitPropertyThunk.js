@@ -18,8 +18,9 @@ export const submitPropertyThunk = createAsyncThunk(
         throw new Error("Property type not selected");
       }
 
-       const userData = await getItem("user");
-      if (!userData || !userData.user) {
+       const data = await getItem("user");
+       const userData = JSON.parse(data);
+      if (!userData || !userData.name) {
         throw new Error("User not authenticated");
       }
 
@@ -51,7 +52,7 @@ export const submitPropertyThunk = createAsyncThunk(
         throw new Error(`Property sub-type is required for ${propertyType}`);
       }
 
-      const userId = user.id;
+      const userId = userData.id;
       if (!userId) {
         throw new Error("User ID not found");
       }

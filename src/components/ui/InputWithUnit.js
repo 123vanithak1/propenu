@@ -24,8 +24,7 @@ const InputWithUnit = ({
 }) => {
   const [open, setOpen] = useState(false);
 
-  const selectedUnit =
-    units.find((u) => u.value === unit) || units[0];
+  const selectedUnit = units.find((u) => u.value === unit) || units[0];
 
   return (
     <View style={styles.container}>
@@ -62,10 +61,8 @@ const InputWithUnit = ({
           style={styles.unitContainer}
           onPress={() => setOpen(true)}
         >
-          <Text style={styles.unitText}>
-            {selectedUnit?.label}
-          </Text>
-          <Ionicons name="chevron-down" size={16} color="#6b7280" />
+          <Text style={styles.unitText}>{selectedUnit?.label}</Text>
+          <Ionicons name="chevron-down" size={1} color="#6b7280" />
         </Pressable>
       </View>
 
@@ -86,10 +83,7 @@ const InputWithUnit = ({
               return (
                 <TouchableOpacity
                   key={u.value}
-                  style={[
-                    styles.unitOption,
-                    active && styles.activeUnit,
-                  ]}
+                  style={[styles.unitOption, active && styles.activeUnit]}
                   onPress={() => {
                     onUnitChange(u.value);
                     setOpen(false);
@@ -122,10 +116,10 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   label: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "500",
     color: "#374151",
-    marginBottom: 6,
+    marginBottom: 4,
   },
   required: {
     color: "#ef4444",
@@ -200,7 +194,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ecfdf5",
   },
   unitOptionText: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#374151",
   },
   activeUnitText: {

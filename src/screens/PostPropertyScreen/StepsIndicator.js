@@ -1,4 +1,3 @@
-
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
@@ -151,6 +150,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 2,
     backgroundColor: "#999",
+    // backgroundColor:"red",
     zIndex: -1,
   },
 

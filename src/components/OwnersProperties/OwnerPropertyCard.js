@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import React from "react";
 import HomePageImage from "../../../assets/HomePageImage.png";
-import LikedIconContainer from "../LikedIconContainer";
+import LikedIconContainer from "../ui/LikedIconContainer";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -16,12 +16,14 @@ import { getItem } from "../../utils/Storage";
 import AutoImageSlider from "../ui/AutoImageSlider";
 import useDimensions from "../CustomHooks/UseDimension";
 import { ToastInfo, ToastSuccess } from "../../utils/Toast";
-import defaultImage from "../../../assets/defaultImage.png"
+import defaultImage from "../../../assets/defaultImage.png";
+import { useAuth } from "../../context/AuthContext";
 
 const OwnerPropertyCard = ({ details }) => {
   // console.log("details :", details._id);
   const navigation = useNavigation();
   const { width, height } = useDimensions();
+  const { isLoggedIn } = useAuth();
   const cardWidth = width * 0.8;
   const imageSource =
     details?.gallery?.length > 0
@@ -43,19 +45,10 @@ const OwnerPropertyCard = ({ details }) => {
   };
 
   const handleContact = async () => {
-    const storedUser = await getItem("user");
-
-    if (!storedUser) {
-      ToastInfo("User not authenticated");
-      return;
-    }
-
-    const userData = JSON.parse(storedUser);
-
-    if (!userData?.name) {
-      ToastInfo("User not authenticated");
-    } else {
+    if (isLoggedIn) {
       ToastSuccess("Owner will contact you shortly");
+    } else {
+      ToastInfo("User not authenticated");
     }
   };
 

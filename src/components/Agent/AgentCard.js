@@ -1,6 +1,5 @@
 import { View, Text, StyleSheet, Image } from "react-native";
 import HomePageImage from "../../../assets/HomePageImage.png";
-import LikedIconContainer from "../LikedIconContainer";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Logo, LocationIcon } from "../../../assets/svg/Logo";
 import FallBackImage from "../../../assets/svg/FallBackImage";

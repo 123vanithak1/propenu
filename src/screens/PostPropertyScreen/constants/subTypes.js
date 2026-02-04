@@ -4,13 +4,8 @@
 export const RESIDENTIAL_PROPERTY_OPTIONS = [
   { key: "apartment", label: "Apartment", icon: "🏠" },
   { key: "independent-house", label: "Independent House", icon: "🏠" },
-  { key: "duplex", label: "Duplex", icon: "🏘️" },
-  { key: "row-house", label: "Row House", icon: "🧱" },
   { key: "villa", label: "Villa", icon: "🏡" },
   { key: "penthouse", label: "Penthouse", icon: "🏙️" },
-  { key: "studio", label: "Studio", icon: "🎬" },
-  { key: "triplex", label: "Triplex", icon: "🏚️" },
-  { key: "plot", label: "Plot", icon: "📐" },
   { key: "farmhouse", label: "Farmhouse", icon: "🌾" },
 ];
 
@@ -33,7 +28,7 @@ export const COMMERCIAL_PROPERTY_OPTIONS = [
   { key: "office", label: "Office", icon: "🏢" },
   { key: "retail", label: "Retail", icon: "🏬" },
   { key: "shop", label: "Shop", icon: "🛒" },
-  { key: "showroom", label: "Showroom", icon: "🏪" },
+  { key: "showroom", label: "Showroom", icon: "🏪"  },
   { key: "warehouse", label: "Warehouse", icon: "🏭" },
   { key: "industrial", label: "Industrial", icon: "🏗️" },
   { key: "coworking", label: "Co-working", icon: "💼" },

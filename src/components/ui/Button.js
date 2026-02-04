@@ -1,5 +1,5 @@
 import { Pressable, Text, StyleSheet } from "react-native";
-import useDimensions from "./CustomHooks/UseDimension";
+import useDimensions from "../CustomHooks/UseDimension";
 
 const Button = ({ title }) => {
   const { width, height, isLandscape } = useDimensions();

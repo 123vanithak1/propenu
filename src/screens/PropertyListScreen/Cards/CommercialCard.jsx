@@ -14,10 +14,12 @@ import {
   PhoneIcon,
 } from "../../../../assets/svg/Logo";
 import AutoImageSlider from "../../../components/ui/AutoImageSlider";
+import { useAuth } from "../../../context/AuthContext";
 
 const CommercialCard = ({ item }) => {
   const { width } = useDimensions();
   const navigation = useNavigation();
+  const { isLoggedIn,userDetails } = useAuth();
 
   const handlePress = async () => {
     console.log("Checking property id : ", item.id);
@@ -27,16 +29,8 @@ const CommercialCard = ({ item }) => {
   };
 
 const handleContact = async () => {
-  const storedUser = await getItem("user");
 
-  if (!storedUser) {
-    ToastInfo("User not authenticated");
-    return;
-  }
-
-  const userData = JSON.parse(storedUser);
-
-  if (!userData?.name) {
+  if (!isLoggedIn) {
     ToastInfo("User not authenticated");
   } else {
     ToastSuccess("Owner will contact you shortly");

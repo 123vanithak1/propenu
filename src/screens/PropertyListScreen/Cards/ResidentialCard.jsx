@@ -5,7 +5,7 @@ import { getItem } from "../../../utils/Storage";
 import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
 import useDimensions from "../../../components/CustomHooks/UseDimension";
 import formatINR from "../../../utils/FormatINR";
-import LikedIconContainer from "../../../components/LikedIconContainer";
+import LikedIconContainer from "../../../components/ui/LikedIconContainer";
 import {
   AreaIcon,
   BedIcon,
@@ -13,10 +13,12 @@ import {
   PhoneIcon,
 } from "../../../../assets/svg/Logo";
 import AutoImageSlider from "../../../components/ui/AutoImageSlider";
+import { useAuth } from "../../../context/AuthContext";
 
 const ResidentialCard = ({ item }) => {
   const { width } = useDimensions();
   const navigation = useNavigation();
+  const { isLoggedIn,userDetails } = useAuth();
 
   const handleNavigate = async () => {
     console.log("Checking property id : ", item?.id);
@@ -26,16 +28,7 @@ const ResidentialCard = ({ item }) => {
   };
 
   const handleContact = async () => {
-    const storedUser = await getItem("user");
-
-    if (!storedUser) {
-      ToastInfo("User not authenticated");
-      return;
-    }
-
-    const userData = JSON.parse(storedUser);
-
-    if (!userData?.name) {
+    if (!isLoggedIn) {
       ToastInfo("User not authenticated");
     } else {
       ToastSuccess("Owner will contact you shortly");

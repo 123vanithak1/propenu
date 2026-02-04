@@ -7,7 +7,7 @@ import {
   ScrollView,
   FlatList,
   Platform,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import AutoImageSlider from "../../../components/ui/AutoImageSlider";
@@ -26,13 +26,15 @@ import {
   PhoneIcon,
   ReadyToMoveIcon,
   ImageListIcon,
-  LocationIcon
+  LocationIcon,
 } from "../../../../assets/svg/Logo";
 import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
+import { useAuth } from "../../../context/AuthContext";
 
 const MoreCommercialDetails = ({ route }) => {
   const { width, height } = useDimensions();
   const { id } = route.params;
+  const { isLoggedIn, userDetails } = useAuth();
 
   //   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -55,17 +57,8 @@ const MoreCommercialDetails = ({ route }) => {
     }
   };
 
-  const handleContactOwner = async()=> {
-    const storedUser = await getItem("user");
-  
-    if (!storedUser) {
-      ToastInfo("User not authenticated");
-      return;
-    }
-  
-    const userData = JSON.parse(storedUser);
-  
-    if (!userData?.name) {
+  const handleContactOwner = async () => {
+    if (!isLoggedIn) {
       ToastInfo("User not authenticated");
     } else ToastSuccess("We will contact you shortly");
   };
@@ -73,15 +66,15 @@ const MoreCommercialDetails = ({ route }) => {
   useEffect(() => {
     fetchData();
   }, []);
-  
-    if (loading) {
-      return (
-        <SafeAreaView style={styles.loadingContainer}>
-          <ActivityIndicator size="large" />
-          <Text style={{ marginTop: 10 }}>Loading... </Text>
-        </SafeAreaView>
-      );
-    }
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" />
+        <Text style={{ marginTop: 10 }}>Loading... </Text>
+      </SafeAreaView>
+    );
+  }
 
   const MetaItem = ({ Icon, label, value, iconProps = {} }) => (
     <View style={styles.metaItem}>
@@ -165,30 +158,17 @@ const MoreCommercialDetails = ({ route }) => {
 
         {/* DETAILS */}
         <Section title="More Details">
-          <DetailRow
-            label="Property Type"
-            value={details?.propertyType}
-          />
+          <DetailRow label="Property Type" value={details?.propertyType} />
           <DetailRow
             label="Property Ownership"
             value={details?.listingSource}
           />
-          <DetailRow
-            label="Pantry Type"
-            value={details?.pantry?.type}
-          />
-          <DetailRow
-            label="Power Backup"
-            value="Available"
-          />
-          <DetailRow
-            label="Security"
-            value="Available"
-          />
-          
+          <DetailRow label="Pantry Type" value={details?.pantry?.type} />
+          <DetailRow label="Power Backup" value="Available" />
+          <DetailRow label="Security" value="Available" />
         </Section>
 
-              <AmenitiesWithModal amenities={details?.amenities} />
+        <AmenitiesWithModal amenities={details?.amenities} />
 
         {details?.nearbyPlaces && (
           <View style={styles.gallery}>
@@ -239,7 +219,7 @@ const MoreCommercialDetails = ({ route }) => {
 };
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
-    loadingContainer: {
+  loadingContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
@@ -313,7 +293,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 6,
   },
-    gallery: {
+  gallery: {
     marginHorizontal: 12,
   },
 
@@ -327,6 +307,8 @@ const styles = StyleSheet.create({
 
   contactBtn: {
     flexDirection: "row",
+    width: "60%",
+    alignSelf: "center",
     margin: 16,
     padding: 14,
     borderRadius: 8,

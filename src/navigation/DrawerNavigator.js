@@ -26,6 +26,8 @@ import {
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { AntDesign } from "@expo/vector-icons";
 import { ToastSuccess } from "../utils/Toast";
+import * as Keychain from "react-native-keychain";
+import { useAuth } from "../context/AuthContext";
 const menuItems = [
   {
     label: "My Properties",
@@ -57,27 +59,15 @@ const menuItems = [
 const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = ({ navigation, state }) => {
-  const [userData, setUserData] = useState(null);
+  const { isLoggedIn,userDetails, refreshAuth } = useAuth();
+  console.log("is login:", isLoggedIn, userDetails)
 
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 
-  const getUserInfo = async () => {
-    try {
-      const data = await getItem("user");
-      if (data) {
-        const parsedData = JSON.parse(data);
-        console.log("userdata :", data, parsedData);
-        setUserData(parsedData);
-      }
-    } catch (error) {
-      console.log("Error when getting user Data : ", error);
-    }
-  };
-
   const handleNavigate = (route) => {
     console.log("Route in left menu : ", route);
-    if (userData) {
+    if (userDetails != null) {
       navigation.navigate("HomeStack", { screen: route });
     } else {
       navigation.navigate("HomeStack", { screen: "Login" });
@@ -85,9 +75,12 @@ const CustomDrawerContent = ({ navigation, state }) => {
   };
 
   const handleLogout = async () => {
-    if (userData) {
+   if (userDetails != null) {
       await clearStorage();
-      setUserData(null);
+      await Keychain.resetGenericPassword();
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await refreshAuth();
+      // setUserData(null);
       ToastSuccess("Logged out successfully");
       navigation.navigate("HomeStack", { screen: "Home" });
     } else {
@@ -95,17 +88,9 @@ const CustomDrawerContent = ({ navigation, state }) => {
     }
   };
 
-  useEffect(() => {
-    getUserInfo();
-  }, []);
-
-  useEffect(() => {
-    console.log("userData UPDATED:", userData);
-  }, [userData]);
-
   return (
     <SafeAreaView style={styles.drawerContent}>
-      {userData ? (
+      {userDetails ? (
         <Pressable
           onPress={() =>
             navigation.navigate("HomeStack", { screen: "Settings" })
@@ -123,10 +108,10 @@ const CustomDrawerContent = ({ navigation, state }) => {
               <FontAwesome name="user-circle" size={28} color="black" />
               <View>
                 <Text style={styles.userName}>
-                  Welcome back, {capitalize(userData?.name)} 👋
+                  Welcome back, {capitalize(userDetails?.name)} 👋
                 </Text>
                 <Text style={styles.userName}>
-                  {capitalize(userData?.roleName)}
+                  {capitalize(userDetails?.roleName)}
                 </Text>
               </View>
             </View>

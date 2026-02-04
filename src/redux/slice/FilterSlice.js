@@ -6,7 +6,9 @@ const initialState = {
   listingTypeLabel: "Buy",
   listingTypeValue: "buy",
 
-  category: "Residential",
+  // category: "Residential",
+  category: "null",
+
   searchText: "",
 
   /* Budget (shared) */

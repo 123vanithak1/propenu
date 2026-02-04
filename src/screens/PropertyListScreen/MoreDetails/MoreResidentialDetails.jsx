@@ -27,10 +27,12 @@ import {
   LocationIcon,
 } from "../../../../assets/svg/Logo";
 import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
+import { useAuth } from "../../../context/AuthContext";
 
 const MoreResidentialDetails = ({ route }) => {
   const { width, height } = useDimensions();
   const { id } = route.params;
+  const { isLoggedIn,userDetails } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [details, setDetails] = useState(null);
@@ -53,16 +55,8 @@ const MoreResidentialDetails = ({ route }) => {
   };
 
   const handleContactOwner = async()=> {
-    const storedUser = await getItem("user");
   
-    if (!storedUser) {
-      ToastInfo("User not authenticated");
-      return;
-    }
-  
-    const userData = JSON.parse(storedUser);
-  
-    if (!userData?.name) {
+    if (!isLoggedIn) {
       ToastInfo("User not authenticated");
     } else ToastSuccess("We will contact you shortly");
   };

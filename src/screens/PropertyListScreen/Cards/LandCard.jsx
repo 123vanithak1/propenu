@@ -14,10 +14,12 @@ import {
 } from "../../../../assets/svg/Logo";
 import AutoImageSlider from "../../../components/ui/AutoImageSlider";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { useAuth } from "../../../context/AuthContext";
 
 const LandCard = ({ item }) => {
   const { width } = useDimensions();
   const navigation = useNavigation();
+  const { isLoggedIn,userDetails } = useAuth();
 
   const handleNavigate = async () => {
     console.log("Checking property id : ", item.id);
@@ -27,16 +29,8 @@ const LandCard = ({ item }) => {
   };
 
   const handleContact = async () => {
-    const storedUser = await getItem("user");
 
-    if (!storedUser) {
-      ToastInfo("User not authenticated");
-      return;
-    }
-
-    const userData = JSON.parse(storedUser);
-
-    if (!userData?.name) {
+    if (!isLoggedIn) {
       ToastInfo("User not authenticated");
     } else {
       ToastSuccess("Owner will contact you shortly");

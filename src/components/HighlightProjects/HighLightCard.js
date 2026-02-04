@@ -8,7 +8,6 @@ import {
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import HomePageImage from "../../../assets/HomePageImage.png";
-import LikedIconContainer from "../LikedIconContainer";
 import defaultImage from "../../../assets/defaultImage.png"
 
 const HighLightCard = ({ details }) => {

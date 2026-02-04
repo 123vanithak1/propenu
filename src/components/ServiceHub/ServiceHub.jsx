@@ -45,7 +45,10 @@ const ServiceHub = () => {
             interest rates. Our experts guide you through eligibility,
             documentation, and lender selection.
           </Text>
-          <Pressable style={styles.knowButton}>
+          <Pressable
+            style={styles.knowButton}
+            onPress={() => navigation.navigate("upComingScreen")}
+          >
             <Text style={{ color: "#AE276B", fontWeight: 500, lineHeight: 18 }}>
               Know More{" "}
             </Text>
@@ -93,7 +96,7 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     margin: 10,
-    marginBottom: 20,
+    marginBottom: 25
   },
 
   upcomingPage: {
