@@ -316,7 +316,7 @@ export const PhoneIcon= ({width =20, height = 20,color="#27AE60", ...props }) =>
     />
   </Svg>
 );
-export const  ImageListIcon= ({width =12, height = 12,color="#27AE60", ...props }) => (
+export const  ImageListIcon= ({width = 12, height = 12, color="#27AE60", ...props }) => (
    <Svg
     viewBox="0 0 24 24"
     width={width}
@@ -325,8 +325,9 @@ export const  ImageListIcon= ({width =12, height = 12,color="#27AE60", ...props 
     {...props}
   >
    <Path
-      fill="#fff"
+      fill={color}
       d="M3.6 9.6c-.33 0-.613-.117-.848-.352A1.156 1.156 0 0 1 2.4 8.4V1.2c0-.33.118-.612.353-.847C2.986.118 3.27 0 3.6 0h7.2c.33 0 .612.117.848.352.235.236.352.518.352.848v7.2c0 .33-.117.612-.352.848a1.156 1.156 0 0 1-.848.352H3.6Zm0-1.2h7.2V1.2H3.6v7.2ZM1.2 12c-.33 0-.612-.117-.847-.352A1.156 1.156 0 0 1 0 10.8V2.4h1.2v8.4h8.4V12H1.2Z"
     />
   </Svg>
 );
+

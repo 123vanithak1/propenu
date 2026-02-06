@@ -41,11 +41,20 @@ import CounterField from "../../../components/ui/CounterField";
 import Dropdownui from "../../../components/ui/DropDownUI";
 import DateInputField from "../../../components/ui/DateInputField";
 import PricingDetails from "../../../components/ui/PricingDetails";
+import { submitBasicThunk } from "../../../redux/thunk/SubmitPropertyThunk";
+import { ToastSuccess } from "../../../utils/Toast";
 
 export default function BasicDetailsStep() {
-  const { propertyType, base, residential, commercial, land, agricultural } =
-    useSelector((state) => state.postProperty);
-  console.log("Base :",propertyType, base);
+  const {
+    propertyType,
+    base,
+    residential,
+    commercial,
+    land,
+    draftId,
+    agricultural,
+  } = useSelector((state) => state.postProperty);
+
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { isLoggedIn, userDetails, isChecking } = useAuth();
@@ -97,6 +106,7 @@ export default function BasicDetailsStep() {
     },
     propertyType,
   );
+  console.log(validationResult, "PPPP");
   const isFormValid = validationResult.success;
 
   const fieldErrors =
@@ -107,6 +117,8 @@ export default function BasicDetailsStep() {
   const handleSelect = (type) => {
     dispatch(setPropertyType(type));
   };
+
+  console.log("DRAFT ID :", draftId, isFormValid, fieldErrors);
 
   useEffect(() => {
     const userData = async () => {
@@ -210,6 +222,34 @@ export default function BasicDetailsStep() {
   const agriculturalSubTypes =
     propertyType === "agricultural" ? AGRICULTURAL_PROPERTY_SUBTYPES : [];
 
+  const handleSubmitBasic = () => {
+    setShowErrors(true);
+    console.log("isformvalid and draft id checking :", isFormValid, draftId);
+    if (!isFormValid || !draftId) {
+      console.log("Validation failed", fieldErrors);
+      return;
+    }
+
+    dispatch(
+      submitBasicThunk({
+        category: propertyType,
+        id: draftId,
+        data: {
+          ...base,
+          ...profileData,
+        },
+      }),
+    )
+      .unwrap()
+      .then(() => {
+        ToastSuccess("Basic details submitted successfully");
+        dispatch(nextStep());
+      })
+      .catch((err) => {
+        console.error("Basic step failed", err);
+      });
+  };
+
   const OptionButton = ({ label, active, onPress }) => (
     <Pressable
       onPress={onPress}
@@ -220,7 +260,6 @@ export default function BasicDetailsStep() {
       </Text>
     </Pressable>
   );
-  console.log("Res", residential);
 
   return (
     <KeyboardAvoidingView
@@ -575,7 +614,7 @@ export default function BasicDetailsStep() {
             </>
           )}
 
-          {commercial.commercialSubType && (
+          {propertyType === "commercial" && commercial.commercialSubType && (
             <View style={styles.counterGrid}>
               <View style={styles.counterItems2}>
                 <CounterField
@@ -612,64 +651,66 @@ export default function BasicDetailsStep() {
           )}
 
           {/* Furnishing */}
-          {(commercial.cabins > 0 || commercial.seats > 0) && (
-            <>
+          {propertyType === "commercial" &&
+            (commercial.cabins > 0 || commercial.seats > 0) && (
               <>
-                <Text style={styles.furnish}>Furnishing</Text>
-                <View style={styles.row}>
-                  {[
-                    { label: "Furnished", value: "fully-furnished" },
-                    { label: "Semi Furnished", value: "semi-furnished" },
-                    { label: "Unfurnished", value: "unfurnished" },
-                  ].map((item) => (
-                    <OptionButton
-                      key={item.value}
-                      label={item.label}
-                      active={commercial.furnishing === item.value}
-                      onPress={() =>
+                <>
+                  <Text style={styles.furnish}>Furnishing</Text>
+                  <View style={styles.row}>
+                    {[
+                      { label: "Furnished", value: "fully-furnished" },
+                      { label: "Semi Furnished", value: "semi-furnished" },
+                      { label: "Unfurnished", value: "unfurnished" },
+                    ].map((item) => (
+                      <OptionButton
+                        key={item.value}
+                        label={item.label}
+                        active={commercial.furnishing === item.value}
+                        onPress={() =>
+                          dispatch(
+                            setProfileField({
+                              propertyType: "commercial",
+                              key: "furnishing",
+                              value: item.value,
+                            }),
+                          )
+                        }
+                      />
+                    ))}
+                  </View>
+                  <View style={styles.facingDropDown}>
+                    <Dropdownui
+                      label="Wall Finish"
+                      value={commercial.wallFinishStatus}
+                      options={WALL_FINISH_STATUS.map((v) => ({
+                        label: v.replace("-", " "),
+                        value: v,
+                      }))}
+                      onChange={(value) =>
                         dispatch(
                           setProfileField({
                             propertyType: "commercial",
-                            key: "furnishing",
-                            value: item.value,
+                            key: "wallFinishStatus",
+                            value,
                           }),
                         )
                       }
+                      placeholder="Select"
+                      error={fieldErrors.wallFinishStatus?.[0]}
                     />
-                  ))}
-                </View>
-                <View style={styles.facingDropDown}>
-                  <Dropdownui
-                    label="Wall Finish"
-                    value={commercial.wallFinishStatus}
-                    options={WALL_FINISH_STATUS.map((v) => ({
-                      label: v.replace("-", " "),
-                      value: v,
-                    }))}
-                    onChange={(value) =>
-                      dispatch(
-                        setProfileField({
-                          propertyType: "commercial",
-                          key: "wallFinishStatus",
-                          value,
-                        }),
-                      )
-                    }
-                    placeholder="Select"
-                    error={fieldErrors.wallFinishStatus?.[0]}
-                  />
-                </View>
+                  </View>
 
-                {commercial.wallFinishStatus && (
-                  <PricingDetails
-                    propertyType="commercial"
-                    data={commercial}
-                    fieldErrors={fieldErrors}
-                  />
-                )}
+                  {propertyType === "commercial" &&
+                    commercial.wallFinishStatus && (
+                      <PricingDetails
+                        propertyType="commercial"
+                        data={commercial}
+                        fieldErrors={fieldErrors}
+                      />
+                    )}
+                </>
               </>
-            </>
-          )}
+            )}
 
           {propertyType === "land" && land.landSubType && (
             <View style={styles.section}>
@@ -771,11 +812,11 @@ export default function BasicDetailsStep() {
                     <OptionButton
                       key={item.value}
                       label={item.label}
-                      active={residential.constructionStatus === item.value}
+                      active={profileData.constructionStatus === item.value}
                       onPress={() =>
                         dispatch(
                           setProfileField({
-                            propertyType: "residential",
+                            propertyType,
                             key: "constructionStatus",
                             value: item.value,
                           }),
@@ -786,7 +827,7 @@ export default function BasicDetailsStep() {
                 </View>
 
                 {/* Property Age */}
-                {residential.constructionStatus === "ready-to-move" && (
+                {profileData.constructionStatus === "ready-to-move" && (
                   <View style={styles.section}>
                     <Text style={styles.label}>Property Age</Text>
                     <View style={styles.row}>
@@ -799,7 +840,7 @@ export default function BasicDetailsStep() {
                         <OptionButton
                           key={item.value}
                           label={item.label}
-                          active={residential.propertyAge === item.value}
+                          active={profileData.propertyAge === item.value}
                           onPress={() =>
                             dispatch(
                               setProfileField({
@@ -816,12 +857,12 @@ export default function BasicDetailsStep() {
                 )}
 
                 {/* Possession Date using datetimepicker */}
-                {residential.constructionStatus === "under-construction" && (
+                {profileData.constructionStatus === "under-construction" && (
                   <DateInputField
                     label="Expected Possession Date"
-                    value={residential.possessionDate}
+                    value={profileData.possessionDate}
                     required
-                    minimumDate={new Date()} // future only
+                    minimumDate={new Date()}
                     onChange={(value) =>
                       dispatch(
                         setProfileField({
@@ -845,11 +886,11 @@ export default function BasicDetailsStep() {
                     <OptionButton
                       key={item.value}
                       label={item.label}
-                      active={residential.transactionType === item.value}
+                      active={profileData.transactionType === item.value}
                       onPress={() =>
                         dispatch(
                           setProfileField({
-                            propertyType: "residential",
+                            propertyType,
                             key: "transactionType",
                             value: item.value,
                           }),
@@ -904,15 +945,15 @@ export default function BasicDetailsStep() {
         <Pressable
           style={[
             styles.continueBtn,
-            !isFormValid && showErrors && styles.disabledBtn,
-            {},
+            !isFormValid && showErrors 
           ]}
-          onPress={() => {
-            setShowErrors(true);
-            if (isFormValid) {
-              dispatch(nextStep());
-            }
-          }}
+          onPress={handleSubmitBasic}
+          // onPress={() => {
+          //   setShowErrors(true);
+          //   if (isFormValid) {
+          //     dispatch(nextStep());
+          //   }
+          // }}
         >
           <Text style={styles.continueText}>Continue</Text>
         </Pressable>
@@ -1016,11 +1057,11 @@ const styles = StyleSheet.create({
     color: "#374151",
     textTransform: "capitalize",
   },
-
   section: {
     marginBottom: 10,
   },
   counterGrid: {
+    marginTop: 5,
     flexDirection: "row",
     flexWrap: "wrap",
     // gap:5

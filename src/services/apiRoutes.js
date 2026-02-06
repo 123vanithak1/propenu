@@ -1,3 +1,5 @@
+import { PROVIDER_DEFAULT } from "react-native-maps";
+
 export const API_ROUTES = {
   AUTH: {
     LOGIN : "/api/users/auth/request-otp",
@@ -30,5 +32,6 @@ export const API_ROUTES = {
    SHORTLISTED_PROP : "/api/users/shortlist",
    MY_PROPERTIES :"/api/properties/search/my",
    CONTACTED_PROP:"/api/properties/leads/my-contacts"
-  }
+  },
+
 };

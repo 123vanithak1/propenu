@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
+import Entypo from '@expo/vector-icons/Entypo';
 
 const AmenitiesSelect = ({
   label = "Amenities",
@@ -76,12 +77,14 @@ const AmenitiesSelect = ({
                     checked && styles.optionChecked,
                   ]}
                 >
+                
                   <View
                     style={[
                       styles.checkbox,
                       checked && styles.checkboxChecked,
                     ]}
-                  />
+                  >  {checked && <Entypo name="check" size={12} color="white" />}
+                    </View>
                   <Text style={styles.optionText}>
                     {amenity.title}
                   </Text>
@@ -112,7 +115,7 @@ const styles = StyleSheet.create({
   },
 
   inputBox: {
-    minHeight: 52,
+    minHeight: 50,
     borderWidth: 1,
     borderStyle: "dashed",
     borderRadius: 6,
@@ -174,13 +177,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     padding: 8,
+    justifyContent:"space-between"
   },
 
   option: {
-    width: "50%",
+    width: "48%",
     flexDirection: "row",
     alignItems: "center",
-    padding: 8,
+    padding: 6,
     borderRadius: 6,
     borderWidth: 1,
     borderColor: "#E5E7EB",
@@ -193,12 +197,13 @@ const styles = StyleSheet.create({
   },
 
   checkbox: {
-    width: 16,
-    height: 16,
+    width: 15,
+    height: 15,
     borderRadius: 4,
     borderWidth: 1,
     borderColor: "#9CA3AF",
     marginRight: 8,
+    alignItems:"center"
   },
 
   checkboxChecked: {
@@ -207,7 +212,7 @@ const styles = StyleSheet.create({
   },
 
   optionText: {
-    fontSize: 13,
+    fontSize: 12,
     color: "#374151",
   },
 

@@ -22,19 +22,25 @@ import InputField from "../../../components/ui/InputField";
 import TextArea from "../../../components/ui/TextArea";
 import MapScreen from "../../../components/location/MapScreen";
 import NearbyLocationSearch from "../../../components/location/NearbyLocationSearch";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { submitLocationThunk } from "../../../redux/thunk/SubmitPropertyThunk";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 import { search } from "india-pincode-search";
 
 const LocationDetailsStep = () => {
-  const { propertyType, base } = useSelector((state) => state.postProperty);
+  const { propertyType, base, draftId } = useSelector(
+    (state) => state.postProperty,
+  );
 
   const dispatch = useDispatch();
   const [showErrors, setShowErrors] = useState(false);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const validationResult = validateLocationDetails(base);
   const isFormValid = validationResult.success;
-     const insets = useSafeAreaInsets();
+  const insets = useSafeAreaInsets();
 
   const fieldErrors =
     showErrors && !validationResult.success
@@ -74,33 +80,55 @@ const LocationDetailsStep = () => {
       setBaseField({
         key: "state",
         value: formatToTitleCase(pin.state),
-      })
+      }),
     );
     dispatch(
       setBaseField({
         key: "city",
         value: formatToTitleCase(pin.city),
-      })
+      }),
     );
     dispatch(
       setBaseField({
         key: "locality",
         value: formatToTitleCase(pin.village || pin.office),
-      })
+      }),
     );
   };
 
   const isLandOrAgri =
     propertyType === "land" || propertyType === "agricultural";
 
+  const handleSubmitLocation = () => {
+    setShowErrors(true);
+
+    if (!isFormValid || !draftId) return;
+    console.log("hai");
+
+    dispatch(
+      submitLocationThunk({
+        category: propertyType,
+        id: draftId,
+        data: base,
+      }),
+    )
+      .unwrap()
+      .then(() => {
+        dispatch(nextStep());
+      })
+      .catch((err) => {
+        console.log("Location step failed", err);
+      });
+  };
+
   useEffect(() => {
     const show = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-      () => setKeyboardOpen(true)
+      () => setKeyboardOpen(true),
     );
     const hide = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
-      () => setKeyboardOpen(false)
+      () => setKeyboardOpen(false),
     );
 
     return () => {
@@ -116,8 +144,9 @@ const LocationDetailsStep = () => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
     >
       <ScrollView
-        style={[styles.container,{paddingBottom: insets.bottom + 16,}]}
-        contentContainerStyle={{ paddingBottom: keyboardOpen ? 100 : 0 }}
+        style={[styles.container]}
+        // contentContainerStyle={{ paddingBottom: keyboardOpen ? 100 : 0 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -133,7 +162,7 @@ const LocationDetailsStep = () => {
               setBaseField({
                 key: "address",
                 value: formatToTitleCase(value),
-              })
+              }),
             )
           }
           error={getCustomError("address", "Enter property address")}
@@ -154,7 +183,7 @@ const LocationDetailsStep = () => {
                 setBaseField({
                   key: "buildingName",
                   value: formatToTitleCase(value),
-                })
+                }),
               )
             }
             error={getCustomError("buildingName", "Enter name")}
@@ -181,7 +210,7 @@ const LocationDetailsStep = () => {
                 setBaseField({
                   key: "locality",
                   value: formatToTitleCase(value),
-                })
+                }),
               )
             }
             error={getCustomError("locality", "Enter locality")}
@@ -196,7 +225,7 @@ const LocationDetailsStep = () => {
                 setBaseField({
                   key: "city",
                   value: formatToTitleCase(value),
-                })
+                }),
               )
             }
             error={getCustomError("city", "Enter city")}
@@ -211,7 +240,7 @@ const LocationDetailsStep = () => {
                 setBaseField({
                   key: "state",
                   value: formatToTitleCase(value),
-                })
+                }),
               )
             }
             error={getCustomError("state", "Enter state")}
@@ -244,13 +273,11 @@ const LocationDetailsStep = () => {
           </Pressable>
           <Pressable
             style={styles.button}
-            onPress={() => {
-              setShowErrors(true);
-              if (isFormValid) {
-                console.log("Location Data:", base);
-                dispatch(nextStep());
-              }
-            }}
+            onPress={handleSubmitLocation}
+            // if (isFormValid) {
+            //   console.log("Location Data:", base);
+            //   dispatch(nextStep());
+            // }
           >
             <Text style={styles.buttonText}>Continue</Text>
           </Pressable>

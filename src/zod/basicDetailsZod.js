@@ -11,12 +11,9 @@ export const basicDetailsSchema = z
       message: "Listing type is required",
     }),
 
-    category: z.enum(
-      ["residential", "commercial", "land", "agricultural"],
-      {
-        message: "Property type is required",
-      }
-    ),
+    category: z.enum(["residential", "commercial", "land", "agricultural"], {
+      message: "Property type is required",
+    }),
 
     propertyType: z.string().optional(),
 
@@ -27,6 +24,9 @@ export const basicDetailsSchema = z
 
     wallFinishStatus: z.string().optional(),
 
+    landSubType: z.string().optional(),
+    agriculturalSubType: z.string().optional(),
+
     /* ---------------- PRICING ---------------- */
     price: z.union([z.string(), z.number()]).optional(),
 
@@ -34,7 +34,15 @@ export const basicDetailsSchema = z
     builtUpArea: z.union([z.string(), z.number()]).optional(),
 
     plotArea: z.union([z.string(), z.number()]).optional(),
-    totalArea: z.union([z.string(), z.number()]).optional(),
+    totalArea: z.any().optional(),
+    roadWidth: z.any().optional(),
+
+    dimensions: z
+      .object({
+        length: z.union([z.string(), z.number()]).optional(),
+        width: z.union([z.string(), z.number()]).optional(),
+      })
+      .optional(),
 
     /* ---------------- RESIDENTIAL ---------------- */
     bedrooms: z.union([z.string(), z.number()]).optional(),
@@ -51,12 +59,7 @@ export const basicDetailsSchema = z
 
     transactionType: z.string().optional(),
 
-    /**
-     * React Native does NOT have File
-     * Images usually come from ImagePicker:
-     * { uri, name, type }
-     */
-    images: z.array(z.any()).optional(),
+    images: z.array(z.instanceof(File)).optional(),
   })
   .superRefine((data, ctx) => {
     const {
@@ -72,7 +75,8 @@ export const basicDetailsSchema = z
       cabins,
       seats,
     } = data;
-    console.log(price,category,"LLLLLLLLL")
+
+    console.log(category,propertyType)
 
     /* ================= PROPERTY TYPE ================= */
     if (
@@ -86,6 +90,50 @@ export const basicDetailsSchema = z
       });
     }
 
+    /* ================= LAND ================= */
+    if (category === "land" && !data.landSubType) {
+      ctx.addIssue({
+        path: ["landSubType"],
+        code: z.ZodIssueCode.custom,
+        message: "Land sub-type is required",
+      });
+    }
+
+    /* ================= LAND DIMENSIONS ================= */
+    if (category === "land" && data.dimensions) {
+      const length = Number(data.dimensions.length);
+      const width = Number(data.dimensions.width);
+
+      const hasLength = !!data.dimensions.length;
+      const hasWidth = !!data.dimensions.width;
+
+      if ((hasLength && !hasWidth) || (!hasLength && hasWidth)) {
+        ctx.addIssue({
+          path: ["dimensions"],
+          code: z.ZodIssueCode.custom,
+          message: "Please enter both length and width",
+        });
+      }
+
+      if ((hasLength && length <= 0) || (hasWidth && width <= 0)) {
+        ctx.addIssue({
+          path: ["dimensions"],
+          code: z.ZodIssueCode.custom,
+          message: "Length and width must be greater than 0",
+        });
+      }
+    }
+
+    /* ================= AGRICULTURAL ================= */
+    if (category === "agricultural" && !data.agriculturalSubType) {
+      ctx.addIssue({
+        path: ["agriculturalSubType"],
+        code: z.ZodIssueCode.custom,
+        message: "Agricultural sub-type is required",
+      });
+    }
+
+    /* ================= VALID PROPERTY TYPE ================= */
     if (
       category === "residential" &&
       propertyType &&
@@ -125,8 +173,7 @@ export const basicDetailsSchema = z
     }
 
     if (category === "commercial") {
-      const needsFurnishing =
-        Number(cabins) > 0 || Number(seats) > 0;
+      const needsFurnishing = Number(cabins) > 0 || Number(seats) > 0;
 
       if (needsFurnishing && !data.furnishing) {
         ctx.addIssue({
@@ -174,22 +221,12 @@ export const basicDetailsSchema = z
       }
     }
 
-    if (category === "agricultural") {
-      if (!price || Number(price) <= 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["price"],
-          message: "Total price is required",
-        });
-      }
-
-      if (!totalArea || Number(totalArea) <= 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["totalArea"],
-          message: "Total area is required",
-        });
-      }
+    if (category === "agricultural" && !totalArea) {
+      ctx.addIssue({
+        path: ["totalArea"],
+        code: z.ZodIssueCode.custom,
+        message: "Total area is required",
+      });
     }
 
     /* ================= AVAILABILITY ================= */
@@ -260,9 +297,11 @@ export const basicDetailsSchema = z
     }
   });
 
-  export const validateBasicDetails = (data, category) => {
+/* ================= VALIDATOR ================= */
+export const validateBasicDetails = (data, category) => {
   return basicDetailsSchema.safeParse({
     ...data,
     category,
   });
 };
+

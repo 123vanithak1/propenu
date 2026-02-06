@@ -5,6 +5,33 @@ import {
   getFiles as getFileStoreFiles,
   clearFiles as clearFileStoreFiles,
 } from "../../lib/FileStore";
+import {postPropertyServices} from "../../services/postPropertyServices"
+import { ErrorToast } from "react-native-toast-message";
+
+export const createDraftThunk = createAsyncThunk(
+  "postProperty/createDraft",
+  async (category) => {
+    return await postPropertyServices.getDraftId(category);
+  },
+);
+
+export const submitBasicThunk = createAsyncThunk(
+  "postProperty/basic",
+  async ({ category, id, data }) => {
+    console.log("📦 [BASIC] category:", category, "id:", id);
+    // console.log("📦 [BASIC] payload:", data);
+    return await postPropertyServices.BasicDetailsStep(category, id,"basic", data);
+  },
+);
+
+export const submitLocationThunk = createAsyncThunk(
+  "postProperty/location",
+  async ({ category, id, data }) => {
+    console.log("📍 [LOCATION] category:", category, "id:", id);
+    // console.log("📍 [LOCATION] payload:", data);
+    return await postPropertyServices.BasicDetailsStep(category, id, "location", data);
+  },
+);
 
 export const submitPropertyThunk = createAsyncThunk(
   "postProperty/submit",

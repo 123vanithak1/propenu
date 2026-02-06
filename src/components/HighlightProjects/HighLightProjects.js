@@ -14,7 +14,10 @@ const HighLightProjects = () => {
         const response = await apiService.HighlightProjects();
         if (response.status === 200) {
           const data = response.data.items;
-
+          console.log(
+            data.length,
+            data.map((item) => item.city),
+          );
           const filteredData = selectedCity?.city
             ? data.filter(
                 (item) =>

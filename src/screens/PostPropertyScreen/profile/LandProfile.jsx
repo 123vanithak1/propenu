@@ -119,7 +119,8 @@ const LandProfile = () => {
     >
       <ScrollView
         style={[styles.container, { paddingBottom: insets.bottom + 16 }]}
-        contentContainerStyle={{ paddingBottom: keyboardOpen ? 135 : 40 }}
+        // contentContainerStyle={{ paddingBottom: keyboardOpen ? 135 : 40 }}
+         contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
