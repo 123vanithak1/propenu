@@ -16,6 +16,7 @@ const initialState = {
   commercial: {},
   land: {},
   agricultural: {},
+  percentage: 0,
 };
 
 const postPropertySlice = createSlice({
@@ -46,6 +47,12 @@ const postPropertySlice = createSlice({
       state.propertyType = action.payload;
     },
 
+    /* -------- Percentage -------- */
+
+    setPercentage(state, action) {
+      state.percentage = action.payload;
+    },
+
     /* -------- Base fields -------- */
 
     setBaseField(state, action) {
@@ -61,13 +68,15 @@ const postPropertySlice = createSlice({
       if (!propertyType) {
         console.warn(
           "setProfileField: propertyType is required but got:",
-          propertyType
+          propertyType,
         );
         return;
       }
 
       state[propertyType][key] = value;
     },
+
+    resetPostProperty: () => initialState,
   },
 });
 
@@ -79,6 +88,8 @@ export const {
   prevStep,
   setStep,
   setDraftId,
+  setPercentage,
+  resetPostProperty 
 } = postPropertySlice.actions;
 
 export default postPropertySlice.reducer;

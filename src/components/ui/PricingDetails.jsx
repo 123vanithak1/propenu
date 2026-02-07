@@ -29,7 +29,7 @@ export default function PricingDetails({ propertyType, data, fieldErrors }) {
     ? "Road Width (ft)"
     : "Built-up Area (sq ft)";
 
-  /* ✅ AUTO CALCULATE PRICE / SQ FT */
+  /*  AUTO CALCULATE PRICE / SQ FT */
   useEffect(() => {
     const price = Number(data.price) || Number(data.expectedPrice);
     const area = Number(data[areaKey]);

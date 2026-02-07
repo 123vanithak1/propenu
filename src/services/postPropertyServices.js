@@ -56,11 +56,64 @@ export const postPropertyServices = {
         },
       );
       const res = await response.json();
-      
+
       return res;
     } catch (error) {
-        console.log("Error in basic details step:", error)
+      console.log("Error in basic details step:", error);
     }
   },
+  ProfileDetailsStep: async (category, id, formData) => {
+    const token = await getToken();
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}/api/properties/${category}/${id}/details`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData, // for formdata no need to mention content type
+        },
+      );
+      const res = await response.json();
+      console.log( "************************************************",`${ENV.BASE_URL}/api/properties/${category}/${id}/details`,"***********************************************")
+      console.log("Resultttttttttttttttt :", res);
 
+      return res;
+    } catch (error) {
+      console.log("Error in basic details step:", error);
+    }
+  },
+  VerificationStep: async (category, id, formData) => {
+    const token = await getToken();
+
+    for (const pair of formData.entries()) {
+      console.log("   →", pair[0], pair[1]);
+    }
+
+    try {
+      const res = await fetch(
+       `${ENV.BASE_URL}/api/properties/${category}/${id}/verification`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        },
+      );
+
+      const data = await res.json();
+      console.log("verification completed and posted:", data);
+
+      if (!res.ok) {
+        throw data;
+      }
+
+      return data;
+    } catch (error) {
+      console.log("🔥 VERIFY API ERROR:", error);
+      throw error;
+    }
+  },
 };

@@ -13,7 +13,6 @@ import {
 import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { useAppDispatch } from "../../../redux/store/store";
-import { setProfileField } from "../../../redux/slice/PostPropertySlice";
 import { submitPropertyThunk } from "../../../redux/thunk/SubmitPropertyThunk";
 import Toggle from "../../../components/ui/ToggleSwitch";
 import InputField from "../../../components/ui/InputField";
@@ -23,7 +22,13 @@ import AmenitiesSelect from "./AmenitiesSelect";
 import { AMENITIES } from "../constants/amenities";
 import InputWithUnit from "../../../components/ui/InputWithUnit";
 import { ToastError, ToastSuccess } from "../../../utils/Toast";
-
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import {
+  setProfileField,
+  nextStep,
+  prevStep,
+  setPercentage,
+} from "../../../redux/slice/PostPropertySlice";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -46,33 +51,66 @@ const LAND_APPROVAL_AUTHORITIES = ["dtcp", "hmda", "cmda", "bda", "panchayat"];
 const LandProfile = () => {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const { land } = useSelector((state) => state.postProperty);
+   const [showErrors, setShowErrors] = useState(false);
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
-  const handleSubmitProperty = () => {
-    dispatch(submitPropertyThunk("land"))
-      .unwrap()
-      .then((response) => {
-        if (response?.success) {
-          ToastSuccess("Property posted successfully");
+   const fieldErrors =
+    showErrors && !validationResult.success
+      ? validationResult.error.flatten().fieldErrors
+      : {};
 
-          console.log(
-            "Property Submission Successful:",
-            response.status,
-            response.success,
-          );
+  // const handleSubmitProperty = () => {
+  //   dispatch(submitPropertyThunk("land"))
+  //     .unwrap()
+  //     .then((response) => {
+  //       if (response?.success) {
+  //         ToastSuccess("Property posted successfully");
 
-          navigation.navigate("Drawer");
-        } else {
-          ToastError("Failed to post property");
-        }
-      })
-      .catch((error) => {
-        ToastError("Failed to post property");
-        console.error("Property submission failed:", error);
-      });
-  };
+  //         console.log(
+  //           "Property Submission Successful:",
+  //           response.status,
+  //           response.success,
+  //         );
+
+  //         navigation.navigate("Drawer");
+  //       } else {
+  //         ToastError("Failed to post property");
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       ToastError("Failed to post property");
+  //       console.error("Property submission failed:", error);
+  //     });
+  // };
+
+
+    const handleSubmitDetails = () => {
+      setShowErrors(true);
+  
+      if (!isFormValid || !draftId) return;
+      console.log("hai");
+  
+      dispatch(
+        submitLocationThunk({
+          category: propertyType,
+          id: draftId,
+          data: base,
+        }),
+      )
+        .unwrap()
+        .then((result) => {
+          dispatch(setPercentage(result?.data?.completion?.percent));
+          ToastSuccess("Basic details submitted successfully");
+          dispatch(nextStep());
+        })
+        .catch((err) => {
+          console.log("Location step failed", err);
+        });
+    };
+
+  
 
   useEffect(() => {
     dispatch(
@@ -112,15 +150,16 @@ const LandProfile = () => {
   );
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
-    >
+        <KeyboardAwareScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          enableOnAndroid
+          extraScrollHeight={20}
+          keyboardShouldPersistTaps="handled"
+        >
       <ScrollView
-        style={[styles.container, { paddingBottom: insets.bottom + 16 }]}
+        style={[styles.container, ]}
         // contentContainerStyle={{ paddingBottom: keyboardOpen ? 135 : 40 }}
-         contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
+        //  contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -512,29 +551,35 @@ const LandProfile = () => {
           }
         />
 
-        {/* SUBMIT */}
-        <Pressable style={styles.submitBtn} onPress={handleSubmitProperty}>
-          <Text style={styles.submitText}>Submit Property</Text>
-        </Pressable>
-
-        {/* <Pressable
-          style={styles.submitBtn}
-          onPress={() => {
-            dispatch(submitPropertyThunk("land"));
-          }}
-        >
-          <Text style={styles.submitText}>Submit Property</Text>
-        </Pressable> */}
+       
+             {/* Buttons */}
+         <View style={styles.btnOptions}>
+                  <Pressable
+                    style={styles.backButton}
+                    onPress={() => dispatch(prevStep())}
+                  >
+                    <Text style={styles.backButtonText}>Back</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.button}
+                    onPress={handleSubmitDetails}
+                    // if (isFormValid) {
+                    //   console.log("Location Data:", base);
+                    //   dispatch(nextStep());
+                    // }
+                  >
+                    <Text style={styles.buttonText}>Continue</Text>
+                  </Pressable>
+                </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 };
 
 export default LandProfile;
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    paddingBottom: 40,
+    paddingHorizontal: 10,
   },
   section: {
     marginBottom: 15,
@@ -665,17 +710,44 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#555",
   },
-  submitBtn: {
-    padding: 12,
-    backgroundColor: "#22C55E",
-    borderRadius: 8,
-    width: "60%",
-    alignSelf: "center",
+ btnOptions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 12,
+    alignItems: "center",
+    marginRight: 10,
+    marginVertical: 15,
   },
-  submitText: {
-    color: "#fff",
-    textAlign: "center",
+  backButton: {
+    width: "40%",
+    alignSelf: "center",
+    backgroundColor: "white",
+    borderColor: "#22C55E",
+    borderWidth: 1,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: "center",
+    // marginVertical: 15,
+    // marginBottom: 40,
+  },
+  backButtonText: {
+    color: "#22C55E",
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: "600",
+  },
+  button: {
+    width: "40%",
+    alignSelf: "center",
+    backgroundColor: "#22C55E",
+    paddingVertical: 9,
+    borderRadius: 8,
+    alignItems: "center",
+    // marginVertical: 15,
+    // marginBottom: 40,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

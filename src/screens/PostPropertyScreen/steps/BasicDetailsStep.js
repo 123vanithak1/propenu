@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -20,6 +21,7 @@ import {
   setBaseField,
   setProfileField,
   setPropertyType,
+  setPercentage,
 } from "../../../redux/slice/PostPropertySlice";
 import { getItem } from "../../../utils/Storage";
 import { setFiles as setFileStoreFiles } from "../../../lib/FileStore";
@@ -106,7 +108,7 @@ export default function BasicDetailsStep() {
     },
     propertyType,
   );
-  console.log(validationResult, "PPPP");
+  // console.log(validationResult, "PPPP");
   const isFormValid = validationResult.success;
 
   const fieldErrors =
@@ -241,7 +243,10 @@ export default function BasicDetailsStep() {
       }),
     )
       .unwrap()
-      .then(() => {
+      .then((result) => {
+        // console.log("Thunk result:",result, result.data.completion.percent);
+        dispatch(setPercentage(result?.data?.completion?.percent));
+
         ToastSuccess("Basic details submitted successfully");
         dispatch(nextStep());
       })
@@ -251,30 +256,32 @@ export default function BasicDetailsStep() {
   };
 
   const OptionButton = ({ label, active, onPress }) => (
-    <Pressable
-      onPress={onPress}
-      style={[styles.optionButton, active && styles.optionActive]}
-    >
-      <Text style={[styles.optionText, active && styles.optionTextActive]}>
-        {label}
-      </Text>
-    </Pressable>
+    <>
+      <Pressable
+        onPress={onPress}
+        style={[styles.optionButton, active && styles.optionActive]}
+      >
+        <Text style={[styles.optionText, active && styles.optionTextActive]}>
+          {label}
+        </Text>
+      </Pressable>
+    </>
   );
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+    <KeyboardAwareScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      enableOnAndroid
+      extraScrollHeight={20}
+      keyboardShouldPersistTaps="handled"
     >
       <ScrollView
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={[
           styles.container,
-          { paddingBottom: insets.bottom + 15 },
+          // { paddingBottom: insets.bottom  },
         ]}
       >
-        <Text style={styles.heading}>Add Basic Details</Text>
-
         {/* Listing Type */}
         <Text style={styles.label}>Listing Type</Text>
 
@@ -379,6 +386,9 @@ export default function BasicDetailsStep() {
                 );
               })}
             </View>
+            {fieldErrors?.propertyType ? (
+              <Text style={styles.errorText}>{fieldErrors?.propertyType}</Text>
+            ) : null}
           </View>
         )}
 
@@ -422,6 +432,11 @@ export default function BasicDetailsStep() {
                 );
               })}
             </View>
+            {fieldErrors?.commercialSubType ? (
+              <Text style={styles.errorText}>
+                {fieldErrors?.commercialSubType}
+              </Text>
+            ) : null}
           </View>
         )}
 
@@ -503,6 +518,11 @@ export default function BasicDetailsStep() {
                 );
               })}
             </View>
+            {fieldErrors?.agriculturalSubType ? (
+              <Text style={styles.errorText}>
+                {fieldErrors?.agriculturalSubType}
+              </Text>
+            ) : null}
           </View>
         )}
 
@@ -615,39 +635,44 @@ export default function BasicDetailsStep() {
           )}
 
           {propertyType === "commercial" && commercial.commercialSubType && (
-            <View style={styles.counterGrid}>
-              <View style={styles.counterItems2}>
-                <CounterField
-                  label="Cabins"
-                  value={commercial.cabins || 0}
-                  onChange={(value) =>
-                    dispatch(
-                      setProfileField({
-                        propertyType: "commercial",
-                        key: "cabins",
-                        value,
-                      }),
-                    )
-                  }
-                />
-              </View>
+            <>
+              <View style={styles.counterGrid}>
+                <View style={styles.counterItems2}>
+                  <CounterField
+                    label="Cabins"
+                    value={commercial.cabins || 0}
+                    onChange={(value) =>
+                      dispatch(
+                        setProfileField({
+                          propertyType: "commercial",
+                          key: "cabins",
+                          value,
+                        }),
+                      )
+                    }
+                  />
+                </View>
 
-              <View style={styles.counterItems2}>
-                <CounterField
-                  label="Seats"
-                  value={commercial.seats || 0}
-                  onChange={(value) =>
-                    dispatch(
-                      setProfileField({
-                        propertyType: "commercial",
-                        key: "seats",
-                        value,
-                      }),
-                    )
-                  }
-                />
+                <View style={styles.counterItems2}>
+                  <CounterField
+                    label="Seats"
+                    value={commercial.seats || 0}
+                    onChange={(value) =>
+                      dispatch(
+                        setProfileField({
+                          propertyType: "commercial",
+                          key: "seats",
+                          value,
+                        }),
+                      )
+                    }
+                  />
+                </View>
               </View>
-            </View>
+              {fieldErrors?.cabins ? (
+                <Text style={styles.errorText}>{fieldErrors?.cabins}</Text>
+              ) : null}
+            </>
           )}
 
           {/* Furnishing */}
@@ -678,6 +703,11 @@ export default function BasicDetailsStep() {
                       />
                     ))}
                   </View>
+                  {fieldErrors?.furnishing ? (
+                    <Text style={styles.errorText}>
+                      {fieldErrors?.furnishing}
+                    </Text>
+                  ) : null}
                   <View style={styles.facingDropDown}>
                     <Dropdownui
                       label="Wall Finish"
@@ -825,6 +855,11 @@ export default function BasicDetailsStep() {
                     />
                   ))}
                 </View>
+                {fieldErrors?.constructionStatus ? (
+                  <Text style={styles.errorText}>
+                    {fieldErrors?.constructionStatus}
+                  </Text>
+                ) : null}
 
                 {/* Property Age */}
                 {profileData.constructionStatus === "ready-to-move" && (
@@ -853,26 +888,33 @@ export default function BasicDetailsStep() {
                         />
                       ))}
                     </View>
+                    {fieldErrors?.propertyAge ? (
+                      <Text style={styles.errorText}>
+                        {fieldErrors?.propertyAge}
+                      </Text>
+                    ) : null}
                   </View>
                 )}
 
                 {/* Possession Date using datetimepicker */}
                 {profileData.constructionStatus === "under-construction" && (
-                  <DateInputField
-                    label="Expected Possession Date"
-                    value={profileData.possessionDate}
-                    required
-                    minimumDate={new Date()}
-                    onChange={(value) =>
-                      dispatch(
-                        setProfileField({
-                          propertyType,
-                          key: "possessionDate",
-                          value,
-                        }),
-                      )
-                    }
-                  />
+                  <View style={{ marginTop: 10 }}>
+                    <DateInputField
+                      label="Expected Possession Date"
+                      value={profileData.possessionDate}
+                      required
+                      minimumDate={new Date()}
+                      onChange={(value) =>
+                        dispatch(
+                          setProfileField({
+                            propertyType,
+                            key: "possessionDate",
+                            value,
+                          }),
+                        )
+                      }
+                    />
+                  </View>
                 )}
 
                 <Text style={[styles.label, { marginTop: 10 }]}>
@@ -899,6 +941,11 @@ export default function BasicDetailsStep() {
                     />
                   ))}
                 </View>
+                {fieldErrors?.transactionType ? (
+                  <Text style={styles.errorText}>
+                    {fieldErrors?.transactionType}
+                  </Text>
+                ) : null}
               </>
             )}
         </View>
@@ -916,37 +963,9 @@ export default function BasicDetailsStep() {
           </Pressable>
         )}
 
-        {/* <Text style={styles.label}>Property Images</Text>
-      <View style={styles.previewContainer}>
-        {files.map((img, index) => (
-          <Image
-            key={index}
-            source={{ uri: img.uri }}
-            style={styles.previewImage}
-          />
-        ))}
-      </View> */}
-
-        {/* Image Upload */}
-
-        {/* <Pressable style={styles.uploadBox} onPress={pickImages}>
-        <Text style={styles.uploadText}>
-          {files.length > 0
-            ? `${files.length} image(s) selected`
-            : "Upload Property Images"}
-        </Text>
-
-        {fieldErrors?.images && (
-          <Text style={styles.errorText}>{fieldErrors.images[0]}</Text>
-        )}
-      </Pressable> */}
-
         {/* Continue Button */}
         <Pressable
-          style={[
-            styles.continueBtn,
-            !isFormValid && showErrors 
-          ]}
+          style={[styles.continueBtn, !isFormValid && showErrors]}
           onPress={handleSubmitBasic}
           // onPress={() => {
           //   setShowErrors(true);
@@ -958,34 +977,18 @@ export default function BasicDetailsStep() {
           <Text style={styles.continueText}>Continue</Text>
         </Pressable>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 }
 const styles = StyleSheet.create({
   container: {
-    // padding: 16,
-    paddingHorizontal: 12,
-    // paddingBottom: 16,
+    paddingHorizontal: 10,
   },
   label: {
     fontSize: 14,
     fontWeight: "600",
     color: "#374151",
-    marginBottom: 8,
-  },
-  previewContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    // justifyContent:"flex-start",
-    flexWrap: "wrap",
-    marginBottom: 10,
-  },
-  previewImage: {
-    width: "30%",
-    height: 100,
-    borderRadius: 8,
-    marginRight: 8,
-    marginBottom: 8,
+    marginVertical: 8,
   },
 
   listngTypeRow: {
@@ -1058,10 +1061,10 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
   },
   section: {
-    marginBottom: 10,
+    // marginBottom: 10,
   },
   counterGrid: {
-    marginTop: 5,
+    marginTop: 12,
     flexDirection: "row",
     flexWrap: "wrap",
     // gap:5
@@ -1123,7 +1126,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     gap: 10,
-    marginBottom: 10,
+    // marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 16,
@@ -1186,29 +1189,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 3,
   },
-  sectionSubTitle: {
-    fontSize: 12,
-    color: "#6b7280",
-    marginBottom: 12,
-  },
 
-  uploadBox: {
-    padding: 16,
-    borderWidth: 1,
-    borderStyle: "dashed",
-    borderRadius: 10,
-    borderColor: "#acaeb3ff",
-    marginBottom: 20,
-  },
-  uploadText: {
-    textAlign: "center",
-    color: "#6B7280",
-  },
   errorText: {
     color: "#DC2626",
     marginTop: 5,
     fontSize: 12,
-    alignSelf: "center",
+    // alignSelf: "center",
   },
   continueBtn: {
     width: "60%",
@@ -1217,9 +1203,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
     alignItems: "center",
-  },
-  disabledBtn: {
-    opacity: 0.5,
+    marginVertical: 15,
   },
   continueText: {
     color: "#fff",

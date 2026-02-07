@@ -33,6 +33,100 @@ export const submitLocationThunk = createAsyncThunk(
   },
 );
 
+export const submitDetailsThunk = createAsyncThunk(
+  "postProperty/details",
+  async ({ category, id, payload }, { rejectWithValue }) => {
+    try {
+      console.log("🧩 [DETAILS] RAW payload from Redux:", payload);
+
+      // 🔹 Files from your custom store (RN format expected)
+      const files = getFileStoreFiles("postProperty"); 
+      // each file should look like:
+      // { uri: string, name: string, type: string }
+
+      console.log(files,"getting files from the store")
+
+      const safePayload = {
+        ...payload,
+
+        totalArea: payload?.totalArea
+          ? {
+              value: Number(payload.totalArea.value),
+              unit: payload.totalArea.unit,
+            }
+          : undefined,
+
+        roadWidth: payload?.roadWidth
+          ? {
+              value: Number(payload.roadWidth.value),
+              unit: payload.roadWidth.unit,
+            }
+          : undefined,
+
+        amenities: Array.isArray(payload?.amenities)
+          ? payload.amenities.map((a) => ({
+              title:
+                typeof a === "string"
+                  ? a.trim()
+                  : String(a?.title).trim(),
+            }))
+          : [],
+      };
+
+      const formData = new FormData();
+
+      Object.entries(safePayload).forEach(([key, value]) => {
+        if (value === undefined || value === null) return;
+
+        if (typeof value === "object") {
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, String(value));
+        }
+      });
+
+      if (Array.isArray(files) && files.length > 0) {
+        files.forEach((file, index) => {
+          formData.append("galleryFiles", {
+            uri: file.uri,
+            name: file.fileName || file.name || "image.jpg",
+            type: file.mimeType || file.type || "image/jpeg",
+          });
+        });
+
+        clearFileStoreFiles("postProperty");
+      }
+
+      console.log("📤 [DETAILS] FINAL FormData:", formData);
+     
+
+      const response = await postPropertyServices.ProfileDetailsStep(category, id, formData);
+      return response;
+    } catch (error) {
+      console.log("❌ submitDetailsThunk error:", error);
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const submitVerificationThunk = createAsyncThunk(
+  "postProperty/verification",
+  async ({ category, id, payload }, { rejectWithValue }) => {
+    try {
+      console.log("Thunk payload:", payload);
+
+      const response = await postPropertyServices.VerificationStep(category, id, payload);
+
+      return response;
+    } catch (err) {
+      console.log("SUBMIT THUNK ERROR:", err);
+
+      return rejectWithValue(err.message || "Something went wrong");
+    }
+  }
+);
+
+
 export const submitPropertyThunk = createAsyncThunk(
   "postProperty/submit",
   async (argPropertyType, { getState, rejectWithValue }) => {

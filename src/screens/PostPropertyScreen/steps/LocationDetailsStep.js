@@ -7,14 +7,14 @@ import {
   ScrollView,
   Platform,
   Keyboard,
-  KeyboardAvoidingView,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import {
   setBaseField,
   nextStep,
   prevStep,
+  setPercentage,
 } from "../../../redux/slice/PostPropertySlice";
 import { validateLocationDetails } from "../../../zod/locationDetailsZod";
 import InputField from "../../../components/ui/InputField";
@@ -27,13 +27,14 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-
+import { ToastSuccess } from "../../../utils/Toast";
 import { search } from "india-pincode-search";
 
 const LocationDetailsStep = () => {
   const { propertyType, base, draftId } = useSelector(
     (state) => state.postProperty,
   );
+  console.log("Property type :", propertyType);
 
   const dispatch = useDispatch();
   const [showErrors, setShowErrors] = useState(false);
@@ -113,7 +114,9 @@ const LocationDetailsStep = () => {
       }),
     )
       .unwrap()
-      .then(() => {
+      .then((result) => {
+        dispatch(setPercentage(result?.data?.completion?.percent));
+        ToastSuccess("Basic details submitted successfully");
         dispatch(nextStep());
       })
       .catch((err) => {
@@ -136,17 +139,26 @@ const LocationDetailsStep = () => {
       hide.remove();
     };
   }, []);
+  const propertLinePlaceholder =
+    propertyType === "commercial"
+      ? "No.3A, Business Plaza, Opposite Metro Exit"
+      : propertyType === "residential"
+        ? "e.g. Flat 302, Green Residency, Near Metro Station"
+        : propertyType === "land"
+          ? "Plot No. 45, Silver Oak Layout, Near Outer Ring Road"
+          : "Survey No. 76, Agricultural Land, Near Canal Road";
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+    <KeyboardAwareScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      enableOnAndroid
+      extraScrollHeight={20}
+      keyboardShouldPersistTaps="handled"
     >
       <ScrollView
         style={[styles.container]}
         // contentContainerStyle={{ paddingBottom: keyboardOpen ? 100 : 0 }}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
+        // contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -154,7 +166,7 @@ const LocationDetailsStep = () => {
         <TextArea
           label="Property Line"
           value={base.address || ""}
-          placeholder="e.g. Flat 302, Green Residency, Near Metro Station"
+          placeholder={propertLinePlaceholder}
           rows={4}
           maxLength={500}
           onChange={(value) =>
@@ -177,7 +189,11 @@ const LocationDetailsStep = () => {
                 : "Building / Society Name"
             }
             value={base.buildingName || ""}
-            placeholder="Enter Building or Society name"
+            placeholder={
+              isLandOrAgri
+                ? "Enter Land or Layout name"
+                : "Enter Building or Society name"
+            }
             onChange={(value) =>
               dispatch(
                 setBaseField({
@@ -283,7 +299,7 @@ const LocationDetailsStep = () => {
           </Pressable>
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 };
 
@@ -291,7 +307,6 @@ export default LocationDetailsStep;
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    // gap: 12,
   },
   row: {
     // flexDirection: "column",
@@ -321,16 +336,15 @@ const styles = StyleSheet.create({
     gap: 12,
     alignItems: "center",
     marginRight: 10,
-    marginBottom: 20,
-    marginTop: 15,
+    marginVertical: 15,
   },
   backButton: {
-    width: "35%",
+    width: "40%",
     alignSelf: "center",
     backgroundColor: "white",
     borderColor: "#22C55E",
     borderWidth: 1,
-    paddingVertical: 12,
+    paddingVertical: 8,
     borderRadius: 8,
     alignItems: "center",
     // marginVertical: 15,
@@ -342,10 +356,10 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   button: {
-    width: "35%",
+    width: "40%",
     alignSelf: "center",
     backgroundColor: "#22C55E",
-    paddingVertical: 12,
+    paddingVertical: 9,
     borderRadius: 8,
     alignItems: "center",
     // marginVertical: 15,

@@ -118,33 +118,34 @@ export default function StackNavigator() {
       <Stack.Screen
         name="PostProperty"
         component={PostProperty}
-        options={({ navigation }) => ({
-          headerBackVisible: false, // Make this true for back option
-          headerStyle: {
-            elevation: 0,
-            shadowColor: "transparent",
-            borderBottomWidth: 0,
-          },
+         options={{ headerShown: false }}
+        // options={({ navigation }) => ({
+        //   headerBackVisible: false, // Make this true for back option
+        //   headerStyle: {
+        //     elevation: 0,
+        //     shadowColor: "transparent",
+        //     borderBottomWidth: 0,
+        //   },
 
-          headerLeft: () => (
-            <Pressable onPress={() => navigation.openDrawer()} hitSlop={10}>
-              <MaterialIcons name="menu" size={26} color="#000" />
-            </Pressable>
-          ),
+        //   headerLeft: () => (
+        //     <Pressable onPress={() => navigation.openDrawer()} hitSlop={10}>
+        //       <MaterialIcons name="menu" size={26} color="#000" />
+        //     </Pressable>
+        //   ),
 
-          headerTitle: () => (
-            <View style={{ marginLeft: 20 }}>
-              <Text style={{ fontSize: 16, fontWeight: "600" }}>
-                Post Your Property
-              </Text>
-              <Text style={{ fontSize: 12, color: "gray" }}>
-                Sell or rent your property
-              </Text>
-            </View>
-          ),
+        //   headerTitle: () => (
+        //     <View style={{ marginLeft: 20 }}>
+        //       <Text style={{ fontSize: 16, fontWeight: "600" }}>
+        //         Post Your Property
+        //       </Text>
+        //       <Text style={{ fontSize: 12, color: "gray" }}>
+        //         Sell or rent your property
+        //       </Text>
+        //     </View>
+        //   ),
 
-          headerRight: () => null,
-        })}
+        //   headerRight: () => null,
+        // })}
       />
 
       <Stack.Screen

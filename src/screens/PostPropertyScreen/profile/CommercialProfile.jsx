@@ -9,10 +9,10 @@ import {
   Platform,
   Keyboard,
   Switch,
+  Image,
 } from "react-native";
 import { useSelector } from "react-redux";
 import DateInputField from "../../../components/ui/DateInputField";
-import { setProfileField } from "../../../redux/slice/PostPropertySlice";
 import { submitPropertyThunk } from "../../../redux/thunk/SubmitPropertyThunk";
 import { useAppDispatch } from "../../../redux/store/store";
 import { useNavigation } from "@react-navigation/native";
@@ -22,9 +22,26 @@ import Dropdownui from "../../../components/ui/DropDownUI";
 import Toggle from "../../../components/ui/ToggleSwitch";
 import TextArea from "../../../components/ui/TextArea";
 import AmenitiesSelect from "./AmenitiesSelect";
-import { AMENITIES } from "../constants/amenities";
+import { COMMERCIAL_AMENITIES } from "../constants/amenities";
 import { ToastError, ToastSuccess } from "../../../utils/Toast";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import Entypo from "@expo/vector-icons/Entypo";
+import { ImageListIcon } from "../../../../assets/svg/Logo";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import * as ImagePicker from "expo-image-picker";
+import { submitDetailsThunk } from "../../../redux/thunk/SubmitPropertyThunk";
+import { setFiles as setFileStoreFiles } from "../../../lib/FileStore";
+import {
+  setProfileField,
+  setBaseField,
+  nextStep,
+  prevStep,
+  setPercentage,
+} from "../../../redux/slice/PostPropertySlice";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { validateCommercialProfile } from "../../../zod/detailsZod/commercialProfileZod";
 
 export const WALL_FINISH_STATUS = [
   "no-partitions",
@@ -57,11 +74,16 @@ const FIRE_DATA = [
 
 const CommercialProfile = () => {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
-  const { commercial } = useSelector((state) => state.postProperty);
+  const { commercial, propertyType, draftId } = useSelector(
+    (state) => state.postProperty,
+  );
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
+  const [files, setFiles] = useState([]);
+  const [showErrors, setShowErrors] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState(null);
 
-   const insets = useSafeAreaInsets();
+  const insets = useSafeAreaInsets();
   /** Auto calculate price per sqft */
   useEffect(() => {
     const price = Number(commercial.price || commercial.expectedPrice);
@@ -73,7 +95,7 @@ const CommercialProfile = () => {
           propertyType: "commercial",
           key: "pricePerSqft",
           value: String(Math.round(price / area)),
-        })
+        }),
       );
     }
   }, [commercial.price, commercial.expectedPrice, commercial.carpetArea]);
@@ -81,11 +103,11 @@ const CommercialProfile = () => {
   useEffect(() => {
     const show = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-      () => setKeyboardOpen(true)
+      () => setKeyboardOpen(true),
     );
     const hide = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
-      () => setKeyboardOpen(false)
+      () => setKeyboardOpen(false),
     );
 
     return () => {
@@ -93,6 +115,97 @@ const CommercialProfile = () => {
       hide.remove();
     };
   }, []);
+  const isInsidePremises = commercial?.pantry?.insidePremises ?? false;
+  const isSharedPantry = commercial?.pantry?.shared ?? false;
+
+  const pickImages = async () => {
+    // Need user permission to get images
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permission.granted) {
+      ToastError("Permission required to access images");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 0.8,
+    });
+
+    if (result.canceled) return;
+
+    const assets = result.assets || [];
+    console.log(assets,"11111111111111111111111111111111111111111111111111111111111111111111111")
+
+    setFileStoreFiles("postProperty", assets);
+    console.log("SETTING FILES");
+setFiles([...assets]);
+
+    dispatch(
+      setBaseField({
+        key: "galleryFiles",
+        value: assets.map((img) => ({
+          uri: img.uri,
+          name: img.fileName || "image.jpg",
+          type: img.type,
+        })),
+      }),
+    );
+  };
+  const handleCommercialDetials = () => {
+    setShowErrors(true);
+
+    // Convert amenities → string[] ONLY for validation
+    const payloadForValidation = {
+      ...commercial,
+      amenities: Array.isArray(commercial?.amenities)
+        ? commercial.amenities
+            .map((a) => (typeof a === "string" ? a : a?.title))
+            .filter(Boolean)
+        : [],
+    };
+
+    const validationResult = validateCommercialProfile(
+      payloadForValidation,
+      files.map((f) => f),
+    );
+
+    const ZodErrors = !validationResult.success
+      ? validationResult.error.flatten().fieldErrors
+      : {};
+    setFieldErrors(ZodErrors);
+
+    const isFormValid = validationResult.success;
+
+    console.log("validation result commercial", validationResult);
+
+    if (isFormValid) {
+      dispatch(
+        submitDetailsThunk({
+          category: propertyType,
+          id: draftId,
+          payload: commercial,
+        }),
+      )
+        .unwrap()
+        .then((res) => {
+          console.log("Result :", res);
+          dispatch(setPercentage(res?.data?.completion?.percent));
+          ToastSuccess("Profile details submitted successfully");
+          dispatch(nextStep());
+        })
+        .catch((error) => {
+          console.log("🔥 FULL ERROR FROM API:", error);
+        });
+    }
+  };
+  useEffect(()=>{
+   
+  console.log(files,"22222222222222222222222222222222")
+  },[files])
+
+  console.log("PPPPPPPPPPPP", fieldErrors);
 
   const OptionButtons = ({ title, options, value, onSelect }) => (
     <View style={styles.section}>
@@ -124,7 +237,7 @@ const CommercialProfile = () => {
         value={!!value}
         onValueChange={onChange}
         trackColor={{ false: "#d1d5db", true: "#16a34a" }}
-        thumbColor="#fff"
+        thumbColor={value ? "#A7F3D0" : "#D1D5DB"}
       />
     </View>
   );
@@ -137,107 +250,16 @@ const CommercialProfile = () => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
     >
       <ScrollView
-        style={[styles.container,{paddingBottom: insets.bottom + 16,}]}
+        style={[styles.container]}
         // contentContainerStyle={{ paddingBottom: keyboardOpen ? 135 : 40 }}
-         contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
+        // contentContainerStyle={{ paddingBottom: insets.bottom }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Cabins & Seats */}
-        <View style={styles.row}>
-          <View style={styles.counteItem}>
-            <CounterField
-              label="Cabins"
-              value={commercial.cabins || 0}
-              onChange={(value) =>
-                dispatch(
-                  setProfileField({
-                    propertyType: "commercial",
-                    key: "cabins",
-                    value,
-                  })
-                )
-              }
-            />
-          </View>
-
-          <View style={styles.counteItem}>
-            <CounterField
-              label="Seats"
-              value={commercial.seats || 0}
-              onChange={(value) =>
-                dispatch(
-                  setProfileField({
-                    propertyType: "commercial",
-                    key: "seats",
-                    value,
-                  })
-                )
-              }
-            />
-          </View>
-        </View>
-
-        {/* Furnishing */}
-        <Text style={styles.sectionTitle}>Furnishing</Text>
-        <View style={styles.furnishing}>
-          {[
-            { label: "Furnished", value: "fully-furnished" },
-            { label: "Semi furnished", value: "semi-furnished" },
-            { label: "Un-furnished", value: "unfurnished" },
-          ].map((item) => (
-            <Pressable
-              key={item.value}
-              style={[
-                styles.optionBtn,
-                commercial.furnishing === item.value && styles.optionActive,
-              ]}
-              onPress={() =>
-                dispatch(
-                  setProfileField({
-                    propertyType: "commercial",
-                    key: "furnishing",
-                    value: item.value,
-                  })
-                )
-              }
-            >
-              <Text
-                style={[
-                  commercial.furnishing === item.value &&
-                    styles.optionActiveText,
-                  { color: "#374151" },
-                ]}
-              >
-                {item.label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-
-        {/* Wall Finish */}
-        <Dropdownui
-          label="Wall Finish"
-          value={commercial.wallFinishStatus}
-          options={WALL_FINISH_STATUS.map((v) => ({
-            label: v.replace("-", " "),
-            value: v,
-          }))}
-          onChange={(value) =>
-            dispatch(
-              setProfileField({
-                propertyType: "commercial",
-                key: "wallFinishStatus",
-                value,
-              })
-            )
-          }
-        />
-
         {/* Amenities */}
         <AmenitiesSelect
           label="Amenities"
-          options={AMENITIES}
+          options={COMMERCIAL_AMENITIES}
           value={commercial.amenities || []}
           onChange={(value) =>
             dispatch(
@@ -245,11 +267,13 @@ const CommercialProfile = () => {
                 propertyType: "commercial",
                 key: "amenities",
                 value,
-              })
+              }),
             )
           }
         />
-
+        {showErrors && fieldErrors?.amenities ? (
+          <Text style={styles.errorText}>{fieldErrors?.amenities}</Text>
+        ) : null}
         {/* Parking */}
         <Text style={styles.sectionTitle}>Parking Details (Optional)</Text>
         <View style={styles.row}>
@@ -263,7 +287,7 @@ const CommercialProfile = () => {
                     propertyType: "commercial",
                     key: "parkingDetails",
                     value: { ...commercial.parkingDetails, twoWheeler: value },
-                  })
+                  }),
                 )
               }
             />
@@ -278,13 +302,12 @@ const CommercialProfile = () => {
                     propertyType: "commercial",
                     key: "parkingDetails",
                     value: { ...commercial.parkingDetails, fourWheeler: value },
-                  })
+                  }),
                 )
               }
             />
           </View>
         </View>
-
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Floor Details</Text>
           <Dropdownui
@@ -296,7 +319,7 @@ const CommercialProfile = () => {
                   propertyType: "commercial",
                   key: "flooringType",
                   value,
-                })
+                }),
               )
             }
             options={FLOORING_TYPES.map((t) => ({
@@ -317,7 +340,7 @@ const CommercialProfile = () => {
                       propertyType: "commercial",
                       key: "floorNumber",
                       value,
-                    })
+                    }),
                   )
                 }
               />
@@ -333,7 +356,7 @@ const CommercialProfile = () => {
                       propertyType: "commercial",
                       key: "totalFloors",
                       value,
-                    })
+                    }),
                   )
                 }
               />
@@ -350,7 +373,7 @@ const CommercialProfile = () => {
                   propertyType: "commercial",
                   key: "pantry",
                   value: { ...commercial.pantry, type: value },
-                })
+                }),
               )
             }
             options={PANTRY_TYPES.map((t) => ({
@@ -360,112 +383,77 @@ const CommercialProfile = () => {
           />
           <View style={styles.row}>
             <View style={styles.counteItem}>
-              <ToggleRow
-                label="Inside Premises"
-                value={commercial.pantry?.insidePremises}
-                onChange={(val) =>
-                  dispatch(
-                    setProfileField({
-                      propertyType: "commercial",
-                      key: "pantry",
-                      value: { ...commercial.pantry, insidePremises: val },
-                    })
-                  )
-                }
-              />
+              <View style={styles.modularKitchen}>
+                <Text style={styles.modularKitchenText}>Inside Premises</Text>
+
+                <Pressable
+                  onPress={() =>
+                    dispatch(
+                      setProfileField({
+                        propertyType: "commercial",
+                        key: "pantry",
+                        value: {
+                          ...commercial?.pantry,
+                          insidePremises: !isInsidePremises, // 🔥 toggle
+                        },
+                      }),
+                    )
+                  }
+                >
+                  <View style={styles.modular}>
+                    <Text style={styles.smallText}>Available</Text>
+
+                    <View
+                      style={[
+                        styles.checkbox,
+                        isInsidePremises && styles.checked,
+                      ]}
+                    >
+                      {isInsidePremises && (
+                        <Entypo name="check" size={14} color="white" />
+                      )}
+                    </View>
+                  </View>
+                </Pressable>
+              </View>
             </View>
             <View style={styles.counteItem}>
-              <ToggleRow
-                label="Shared Pantry"
-                value={commercial.pantry?.shared}
-                onChange={(val) =>
-                  dispatch(
-                    setProfileField({
-                      propertyType: "commercial",
-                      key: "pantry",
-                      value: { ...commercial.pantry, shared: val },
-                    })
-                  )
-                }
-              />
+              <View style={styles.modularKitchen}>
+                <Text style={styles.modularKitchenText}>Shared Pantry</Text>
+
+                <Pressable
+                  onPress={() =>
+                    dispatch(
+                      setProfileField({
+                        propertyType: "commercial",
+                        key: "pantry",
+                        value: {
+                          ...commercial?.pantry,
+                          shared: !isSharedPantry,
+                        },
+                      }),
+                    )
+                  }
+                >
+                  <View style={styles.modular}>
+                    <Text style={styles.smallText}>Available</Text>
+
+                    <View
+                      style={[
+                        styles.checkbox,
+                        isSharedPantry && styles.checked,
+                      ]}
+                    >
+                      {isSharedPantry && (
+                        <Entypo name="check" size={14} color="white" />
+                      )}
+                    </View>
+                  </View>
+                </Pressable>
+              </View>
             </View>
           </View>
         </View>
-        <OptionButtons
-          title="Availability Status"
-          value={commercial.constructionStatus}
-          options={[
-            { label: "Ready to Move", value: "ready-to-move" },
-            { label: "Under Construction", value: "under-construction" },
-          ]}
-          onSelect={(value) =>
-            dispatch(
-              setProfileField({
-                propertyType: "commercial",
-                key: "constructionStatus",
-                value,
-              })
-            )
-          }
-        />
-        <OptionButtons
-          title="Transaction Type"
-          value={commercial.transactionType}
-          options={[
-            { label: "New Sale", value: "new-sale" },
-            { label: "Resale", value: "resale" },
-          ]}
-          onSelect={(value) =>
-            dispatch(
-              setProfileField({
-                propertyType: "commercial",
-                key: "transactionType",
-                value,
-              })
-            )
-          }
-        />
-        {commercial.constructionStatus === "ready-to-move" && (
-          <OptionButtons
-            title="Property Age"
-            value={commercial.propertyAge}
-            options={[
-              { label: "0-1 Year", value: "0-1-year" },
-              { label: "1-5 Years", value: "1-5-years" },
-              { label: "5-10 Years", value: "5-10-years" },
-              { label: "10+ Years", value: "10-plus-years" },
-            ]}
-            onSelect={(value) =>
-              dispatch(
-                setProfileField({
-                  propertyType: "commercial",
-                  key: "propertyAge",
-                  value,
-                })
-              )
-            }
-          />
-        )}
-
-        {/* Possession Date using datetimepicker */}
-        {commercial.constructionStatus === "under-construction" && (
-          <DateInputField
-            label="Expected Possession Date"
-            value={commercial.possessionDate}
-            required
-            minimumDate={new Date()} // future only
-            onChange={(value) =>
-              dispatch(
-                setProfileField({
-                  propertyType: "commercial",
-                  key: "possessionDate",
-                  value,
-                })
-              )
-            }
-          />
-        )}
-
         {/* ========== BUILDING MANAGEMENT ========== */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Building Management</Text>
@@ -474,7 +462,7 @@ const CommercialProfile = () => {
           </Text>
 
           <InputField
-            label="Building Management Company"
+            label="Management Company"
             value={commercial.buildingManagement?.managedBy || ""}
             placeholder="e.g. ABC Property Management"
             onChange={(value) =>
@@ -486,7 +474,7 @@ const CommercialProfile = () => {
                     ...commercial.buildingManagement,
                     managedBy: value,
                   },
-                })
+                }),
               )
             }
           />
@@ -505,7 +493,7 @@ const CommercialProfile = () => {
                     ...commercial.buildingManagement,
                     contact: value,
                   },
-                })
+                }),
               )
             }
           />
@@ -522,7 +510,7 @@ const CommercialProfile = () => {
                   propertyType: "commercial",
                   key: "zoning",
                   value,
-                })
+                }),
               )
             }
           />
@@ -541,14 +529,14 @@ const CommercialProfile = () => {
                 <Pressable
                   onPress={() => {
                     const updated = commercial.tenantInfo.filter(
-                      (_, i) => i !== index
+                      (_, i) => i !== index,
                     );
                     dispatch(
                       setProfileField({
                         propertyType: "commercial",
                         key: "tenantInfo",
                         value: updated,
-                      })
+                      }),
                     );
                   }}
                 >
@@ -568,7 +556,7 @@ const CommercialProfile = () => {
                       propertyType: "commercial",
                       key: "tenantInfo",
                       value: updated,
-                    })
+                    }),
                   );
                 }}
               />
@@ -589,7 +577,7 @@ const CommercialProfile = () => {
                       propertyType: "commercial",
                       key: "tenantInfo",
                       value: updated,
-                    })
+                    }),
                   );
                 }}
               />
@@ -605,7 +593,7 @@ const CommercialProfile = () => {
                       propertyType: "commercial",
                       key: "tenantInfo",
                       value: updated,
-                    })
+                    }),
                   );
                 }}
               />
@@ -621,7 +609,7 @@ const CommercialProfile = () => {
                       propertyType: "commercial",
                       key: "tenantInfo",
                       value: updated,
-                    })
+                    }),
                   );
                 }}
               />
@@ -644,7 +632,7 @@ const CommercialProfile = () => {
                       leaseEnd: "",
                     },
                   ],
-                })
+                }),
               )
             }
           >
@@ -675,109 +663,58 @@ const CommercialProfile = () => {
                         ...commercial.fireSafety,
                         [item.key]: val,
                       },
-                    })
+                    }),
                   )
                 }
               />
             );
           })}
         </View>
+        {/* Preview images after upload */}
+        <Text style={styles.label}>Add photos of your property</Text>
+        <View style={styles.previewContainer}>
+         {files?.length > 0 ?
+  (files.map((img, index) => (
+    <Image key={index} source={{ uri: img.uri }} style={styles.previewImage} />
+  )))  : <Text>no images are selected</Text>}
+  {/* {files.map((img, index) => (
+            <Image
+              key={index}
+              source={{ uri: img.uri }}
+              style={styles.previewImage}
+            />
+          ))} */}
+        </View>
+        {/* Image Upload */}
+        <Pressable style={styles.uploadBox} onPress={pickImages}>
+          <ImageListIcon width={50} height={40} color="#82D1A3" />
 
-        {/* {(commercial.tenantInfo || []).map((tenant, index) => (
-          <View key={index} style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>Tenant #{index + 1}</Text>
-              <Pressable onPress={() => removeTenant(index)}>
-                <Text style={styles.remove}>Remove</Text>
-              </Pressable>
+          {files.length > 0 ? (
+            <Text style={styles.uploadText}>
+              {files.length} image(s) selected
+            </Text>
+          ) : (
+            <View style={styles.uploadContent}>
+              <Text style={styles.uploadText}>
+                Tap to upload property images
+              </Text>
+
+              <Text style={styles.uploadText}>
+                Max 5 photos upto size 10 MB • png, jpg
+              </Text>
             </View>
-
-            <InputField
-              label="Tenant Name"
-              value={tenant.currentTenant}
-              onChange={(v) => updateTenant(index, "currentTenant", v)}
-            />
-
-            <InputField
-              label="Monthly Rent"
-              value={tenant.rent}
-              keyboardType="numeric"
-              onChange={(v) =>
-                updateTenant(index, "rent", v.replace(/\D/g, ""))
-              }
-            />
-
-            <DateInputField
-              label="Lease Start Date"
-              value={tenant.leaseStart}
-              onChange={(v) => updateTenant(index, "leaseStart", v)}
-            />
-
-            <DateInputField
-              label="Lease End Date"
-              value={tenant.leaseEnd}
-              onChange={(v) => updateTenant(index, "leaseEnd", v)}
-            />
-          </View>
-        ))} */}
-
-        {/* Price */}
-        <Text style={styles.sectionTitle}>Price Details</Text>
-
-        <InputField
-          label="Total Price"
-          value={commercial.price}
-          placeholder="e.g. 75,00,000"
-          keyboardType="numeric"
-          onChange={(value) =>
-            dispatch(
-              setProfileField({
-                propertyType: "commercial",
-                key: "price",
-                value: value.replace(/\D/g, ""),
-              })
-            )
-          }
-        />
-
-        <InputField
-          label="Carpet Area (sqft)"
-          value={commercial.carpetArea}
-          keyboardType="numeric"
-          placeholder="e.g. 1200"
-          onChange={(value) =>
-            dispatch(
-              setProfileField({
-                propertyType: "commercial",
-                key: "carpetArea",
-                value: value.replace(/\D/g, ""),
-              })
-            )
-          }
-        />
-
-        <InputField
-          label="Price / sqft"
-          value={commercial.pricePerSqft}
-          editable={false}
-          placeholder="Auto calculated"
-          disabled
-        />
-        <InputField
-          label="Built-up (sq ft)"
-          value={commercial.builtUpArea || ""}
-          placeholder="Optional"
-          onChange={(value) =>
-            dispatch(
-              setProfileField({
-                propertyType: "commercial",
-                key: "builtUpArea",
-                value,
-              })
-            )
-          }
-        />
-
+          )}
+          <Text style={styles.uploadButton}>Upload photos</Text>
+        </Pressable>
+        {showErrors && fieldErrors?.images ? (
+          <Text style={styles.errorText}>{fieldErrors?.images}</Text>
+        ) : null}
+        <View style={[styles.warning]}>
+          <Ionicons name="warning" size={17} color="orange" />
+          <Text style={[styles.smallText]}>
+            Postings with no photos attract less attention
+          </Text>
+        </View>
         <View style={styles.negotiableContainer}>
           <View>
             <Text style={styles.label}>Is the price negotiable?</Text>
@@ -785,10 +722,10 @@ const CommercialProfile = () => {
               Enable this if you are open to offers from buyers
             </Text>
           </View>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 10, }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
             <Text
               style={{
-                color: commercial.isPriceNegotiable ? "green" : "gray",
+                color: commercial.isPriceNegotiable ? "#27AE60" : "gray",
               }}
             >
               {commercial.isPriceNegotiable ? "YES" : "NO"}
@@ -801,13 +738,12 @@ const CommercialProfile = () => {
                     propertyType: "commercial",
                     key: "isPriceNegotiable",
                     value: val,
-                  })
+                  }),
                 )
               }
             />
           </View>
         </View>
-
         {/* Description */}
         <TextArea
           label="Property Description"
@@ -820,33 +756,34 @@ const CommercialProfile = () => {
                 propertyType: "commercial",
                 key: "description",
                 value,
-              })
+              }),
             )
           }
         />
-
-        {/* Submit */}
-        <Pressable
-          style={styles.submitBtn}
-          // onPress={() => dispatch(submitPropertyThunk())}
-          onPress={() => {
-            dispatch(submitPropertyThunk())
-              .unwrap()
-              .then((response) => {
-                if (response.success) {
-                  ToastSuccess("Property posted successfully");
-                  console.log("Property Submission Successful:", response.status,response.success);
-                  navigation.navigate("Drawer");
-                }
-              })
-              .catch((error) => {
-                ToastError("Failed to post property");
-                console.error("Property submission failed:", error);
-              });
-          }}
-        >
-          <Text style={styles.submitText}>Submit Property</Text>
-        </Pressable>
+        <View>
+          {showErrors && fieldErrors?.description ? (
+            <Text style={styles.errorText}>{fieldErrors?.description}</Text>
+          ) : null}
+        </View>
+        {/* Continue */}
+        <View style={styles.btnOptions}>
+          <Pressable
+            style={styles.backButton}
+            onPress={() => dispatch(prevStep())}
+          >
+            <Text style={styles.backButtonText}>Back</Text>
+          </Pressable>
+          <Pressable
+            style={styles.button}
+            onPress={handleCommercialDetials}
+            // if (isFormValid) {
+            //   console.log("Location Data:", base);
+            //   dispatch(nextStep());
+            // }
+          >
+            <Text style={styles.buttonText}>Continue</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -856,7 +793,7 @@ export default CommercialProfile;
 const styles = StyleSheet.create({
   container: {
     padding: 10,
-    // paddingBottom: 120,
+    // paddingBottom: 10,
   },
   row: {
     flexDirection: "row",
@@ -883,13 +820,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 12,
+    padding: 10,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
     backgroundColor: "#f5f5f5",
-    marginBottom: 20,
-    borderStyle:"dashed"
+    marginVertical: 20,
+    borderStyle: "dashed",
   },
   label: {
     fontSize: 14,
@@ -911,7 +848,105 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 500,
   },
-
+  modularKitchen: {
+    // paddingVertical: 7,
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+  modularKitchenText: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: "#374151",
+  },
+  modular: {
+    marginTop: 7,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    paddingVertical: 8,
+    backgroundColor: "white",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  checkbox: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#999",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  checked: {
+    backgroundColor: "#22C55E",
+    borderColor: "#22C55E",
+  },
+  tick: {
+    width: 10,
+    height: 10,
+    backgroundColor: "#fff",
+  },
+  previewContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    // justifyContent:"flex-start",
+    flexWrap: "wrap",
+    marginBottom: 10,
+  },
+  previewImage: {
+    width: "30%",
+    height: 100,
+    borderRadius: 8,
+    marginRight: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  uploadBox: {
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: "#82D1A3",
+    backgroundColor: "#F1FCF5",
+    borderRadius: 8,
+    padding: 16,
+    // minHeight: 140,
+    alignItems: "center",
+    justifyContent: "center",
+    // marginBottom: 15,
+  },
+  uploadText: {
+    fontSize: 12,
+    textAlign: "center",
+    color: "#6B7280",
+  },
+  uploadButton: {
+    alignSelf: "center",
+    color: "white",
+    width: 150,
+    alignItems: "center",
+    textAlign: "center",
+    padding: 5,
+    marginTop: 8,
+    borderRadius: 5,
+    backgroundColor: "#22C55E",
+  },
+  warning: {
+    backgroundColor: "#F1FCF5",
+    paddingVertical: 8,
+    borderRadius: 10,
+    paddingHorizontal: 7,
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 15,
+  },
+  errorText: {
+    color: "#DC2626",
+    marginLeft: 3,
+    marginTop: 2,
+    fontSize: 12,
+  },
   section: { marginBottom: 10 },
 
   sectionSubtitle: { fontSize: 12, color: "#6b7280", marginBottom: 12 },
@@ -994,17 +1029,44 @@ const styles = StyleSheet.create({
   },
   remove: { color: "#dc2626", fontSize: 12 },
 
-  submitBtn: {
-    padding: 12,
-    backgroundColor: "#22C55E",
-    borderRadius: 8,
-    width: "60%",
-    alignSelf: "center",
+  btnOptions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 12,
+    alignItems: "center",
+    marginRight: 10,
+    marginVertical: 15,
   },
-  submitText: {
-    color: "#fff",
-    textAlign: "center",
+  backButton: {
+    width: "40%",
+    alignSelf: "center",
+    backgroundColor: "white",
+    borderColor: "#22C55E",
+    borderWidth: 1,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: "center",
+    // marginVertical: 15,
+    // marginBottom: 40,
+  },
+  backButtonText: {
+    color: "#22C55E",
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: "600",
+  },
+  button: {
+    width: "40%",
+    alignSelf: "center",
+    backgroundColor: "#22C55E",
+    paddingVertical: 9,
+    borderRadius: 8,
+    alignItems: "center",
+    // marginVertical: 15,
+    // marginBottom: 40,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

@@ -1,13 +1,6 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
-import Entypo from '@expo/vector-icons/Entypo';
-
+import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import Entypo from "@expo/vector-icons/Entypo";
 const AmenitiesSelect = ({
   label = "Amenities",
   value = [],
@@ -51,7 +44,7 @@ const AmenitiesSelect = ({
               >
                 <Text style={styles.chipText}>{amenity.title}</Text>
                 <Pressable onPress={() => toggleAmenity(amenity)}>
-                  <Text style={styles.chipRemove}>✕</Text>
+                  <Entypo name="cross" size={15} color="#27AE60" />
                 </Pressable>
               </View>
             ))}
@@ -64,30 +57,22 @@ const AmenitiesSelect = ({
         <ScrollView style={styles.dropdown} nestedScrollEnabled>
           <View style={styles.grid}>
             {options.map((amenity, idx) => {
-              const checked = value.some(
-                (a) => a.key === amenity.key
-              );
+              const checked = value.some((a) => a.key === amenity.key);
 
               return (
                 <Pressable
                   key={amenity.key ?? amenity.title ?? idx}
                   onPress={() => toggleAmenity(amenity)}
-                  style={[
-                    styles.option,
-                    checked && styles.optionChecked,
-                  ]}
+                  style={[styles.option, checked && styles.optionChecked]}
                 >
-                
                   <View
-                    style={[
-                      styles.checkbox,
-                      checked && styles.checkboxChecked,
-                    ]}
-                  >  {checked && <Entypo name="check" size={12} color="white" />}
-                    </View>
-                  <Text style={styles.optionText}>
-                    {amenity.title}
-                  </Text>
+                    style={[styles.checkbox, checked && styles.checkboxChecked]}
+                  >
+                    {checked ? (
+                      <Entypo name="check" size={12} color="white" />
+                    ) : null}
+                  </View>
+                  <Text style={styles.optionText}>{amenity.title}</Text>
                 </Pressable>
               );
             })}
@@ -177,7 +162,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     padding: 8,
-    justifyContent:"space-between"
+    justifyContent: "space-between",
   },
 
   option: {
@@ -203,7 +188,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#9CA3AF",
     marginRight: 8,
-    alignItems:"center"
+    alignItems: "center",
   },
 
   checkboxChecked: {
