@@ -11,6 +11,7 @@ import { ErrorToast } from "react-native-toast-message";
 export const createDraftThunk = createAsyncThunk(
   "postProperty/createDraft",
   async (category) => {
+    console.log("Category :", category)
     return await postPropertyServices.getDraftId(category);
   },
 );

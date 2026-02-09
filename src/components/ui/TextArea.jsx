@@ -65,7 +65,7 @@ export default TextArea;
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    marginBottom: 12,
+    marginBottom: 10,
   },
   label: {
     fontSize: 14,

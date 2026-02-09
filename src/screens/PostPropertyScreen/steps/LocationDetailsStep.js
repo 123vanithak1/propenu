@@ -7,6 +7,7 @@ import {
   ScrollView,
   Platform,
   Keyboard,
+  KeyboardAvoidingView
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -104,7 +105,7 @@ const LocationDetailsStep = () => {
     setShowErrors(true);
 
     if (!isFormValid || !draftId) return;
-    console.log("hai");
+    console.log("hai", base);
 
     dispatch(
       submitLocationThunk({
@@ -149,12 +150,11 @@ const LocationDetailsStep = () => {
           : "Survey No. 76, Agricultural Land, Near Canal Road";
 
   return (
-    <KeyboardAwareScrollView
-      contentContainerStyle={{ flexGrow: 1 }}
-      enableOnAndroid
-      extraScrollHeight={20}
-      keyboardShouldPersistTaps="handled"
-    >
+    <KeyboardAvoidingView
+         style={{ flex: 1 }}
+         behavior={Platform.OS === "ios" ? "padding" : "height"}
+         keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+       >
       <ScrollView
         style={[styles.container]}
         // contentContainerStyle={{ paddingBottom: keyboardOpen ? 100 : 0 }}
@@ -277,7 +277,7 @@ const LocationDetailsStep = () => {
         </Text>
 
         {/* Nearby places */}
-        <NearbyLocationSearch />
+        <NearbyLocationSearch city={base.city} state={base.state} />
 
         {/* Continue */}
         <View style={styles.btnOptions}>
@@ -299,7 +299,7 @@ const LocationDetailsStep = () => {
           </Pressable>
         </View>
       </ScrollView>
-    </KeyboardAwareScrollView>
+    </KeyboardAvoidingView>
   );
 };
 

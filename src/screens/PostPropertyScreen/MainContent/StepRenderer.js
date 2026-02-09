@@ -22,7 +22,8 @@ export default function StepRenderer() {
     const createDraft = async () => {
       try {
         const res = await dispatch(createDraftThunk(propertyType)).unwrap();
-        dispatch(setDraftId(res?.data?.data?._id));
+        console.log("Step :", step, res?.data?._id);
+        dispatch(setDraftId(res?.data?._id));
       } catch (error) {
         console.log("Error when getting the draft ",propertyType, error);
       }

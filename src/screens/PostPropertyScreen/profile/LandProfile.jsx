@@ -9,21 +9,28 @@ import {
   Keyboard,
   Platform,
   StyleSheet,
+  Image
 } from "react-native";
 import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { useAppDispatch } from "../../../redux/store/store";
-import { submitPropertyThunk } from "../../../redux/thunk/SubmitPropertyThunk";
+import { submitDetailsThunk } from "../../../redux/thunk/SubmitPropertyThunk";
 import Toggle from "../../../components/ui/ToggleSwitch";
 import InputField from "../../../components/ui/InputField";
 import TextArea from "../../../components/ui/TextArea";
 import Dropdownui from "../../../components/ui/DropDownUI";
 import AmenitiesSelect from "./AmenitiesSelect";
-import { AMENITIES } from "../constants/amenities";
+import { LAND_AMENITIES } from "../constants/amenities";
 import InputWithUnit from "../../../components/ui/InputWithUnit";
 import { ToastError, ToastSuccess } from "../../../utils/Toast";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { setFiles as setFileStoreFiles } from "../../../lib/FileStore";
+import { ImageListIcon } from "../../../../assets/svg/Logo";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import {validateLandProfile} from "../../../zod/detailsZod/landProfileZod";
+import * as ImagePicker from "expo-image-picker";
 import {
+  setBaseField,
   setProfileField,
   nextStep,
   prevStep,
@@ -50,16 +57,13 @@ const LAND_APPROVAL_AUTHORITIES = ["dtcp", "hmda", "cmda", "bda", "panchayat"];
 
 const LandProfile = () => {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
-  const { land } = useSelector((state) => state.postProperty);
-   const [showErrors, setShowErrors] = useState(false);
+  const { land,propertyType, draftId, base } = useSelector((state) => state.postProperty);
+  const [showErrors, setShowErrors] = useState(false);
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-
-   const fieldErrors =
-    showErrors && !validationResult.success
-      ? validationResult.error.flatten().fieldErrors
-      : {};
+  const [files, setFiles] = useState([]);
+  const [fieldErrors, setFieldErrors] = useState(null);
 
   // const handleSubmitProperty = () => {
   //   dispatch(submitPropertyThunk("land"))
@@ -85,32 +89,89 @@ const LandProfile = () => {
   //     });
   // };
 
+ const pickImages = async () => {
+    // Need user permission to get images
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    const handleSubmitDetails = () => {
-      setShowErrors(true);
-  
-      if (!isFormValid || !draftId) return;
-      console.log("hai");
-  
-      dispatch(
-        submitLocationThunk({
-          category: propertyType,
-          id: draftId,
-          data: base,
-        }),
-      )
-        .unwrap()
-        .then((result) => {
-          dispatch(setPercentage(result?.data?.completion?.percent));
-          ToastSuccess("Basic details submitted successfully");
-          dispatch(nextStep());
-        })
-        .catch((err) => {
-          console.log("Location step failed", err);
-        });
-    };
+    if (!permission.granted) {
+      ToastError("Permission required to access images");
+      return;
+    }
 
-  
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 0.8,
+    });
+
+    if (result.canceled) return;
+
+    const assets = result.assets || [];
+
+    setFileStoreFiles("postProperty", assets);
+    console.log("SETTING FILES");
+    setFiles([...assets]);
+
+    dispatch(
+      setBaseField({
+        key: "galleryFiles",
+        value: assets.map((img) => ({
+          uri: img.uri,
+          name: img.fileName || "image.jpg",
+          type: img.type,
+        })),
+      }),
+    );
+  };
+
+
+  const handleLandSubmitDetails = () => {
+     setShowErrors(true);
+ 
+     // Convert amenities → string[] ONLY for validation
+     const payloadForValidation = {
+       ...land,
+       amenities: Array.isArray(land?.amenities)
+         ? land.amenities
+             .map((a) => (typeof a === "string" ? a : a?.title))
+             .filter(Boolean)
+         : [],
+     };
+ 
+     const validationResult = validateLandProfile(
+       payloadForValidation,
+       files.map((f) => f),
+     );
+ 
+     const ZodErrors = !validationResult.success
+       ? validationResult.error.flatten().fieldErrors
+       : {};
+     setFieldErrors(ZodErrors);
+ 
+     const isFormValid = validationResult.success;
+ 
+     console.log("validation result land", validationResult);
+ 
+     if (isFormValid) {
+       dispatch(
+         submitDetailsThunk({
+           category: propertyType,
+           id: draftId,
+           payload: land,
+         }),
+       )
+         .unwrap()
+         .then((res) => {
+           console.log("Result :", res);
+           dispatch(setPercentage(res?.data?.completion?.percent));
+           ToastSuccess("Profile details submitted successfully");
+           dispatch(nextStep());
+         })
+         .catch((error) => {
+           console.log("🔥 FULL ERROR FROM API:", error);
+         });
+     }
+   };
 
   useEffect(() => {
     dispatch(
@@ -150,14 +211,13 @@ const LandProfile = () => {
   );
 
   return (
-        <KeyboardAwareScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          enableOnAndroid
-          extraScrollHeight={20}
-          keyboardShouldPersistTaps="handled"
-        >
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+    >
       <ScrollView
-        style={[styles.container, ]}
+        style={[styles.container]}
         // contentContainerStyle={{ paddingBottom: keyboardOpen ? 135 : 40 }}
         //  contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
         keyboardShouldPersistTaps="handled"
@@ -169,60 +229,6 @@ const LandProfile = () => {
           <Text style={styles.sectionSubTitle}>
             Provide essential information about the plot.
           </Text>
-
-          {/* Plot Dimensions */}
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Plot Dimensions (Optional)</Text>
-            <Text style={styles.cardSubTitle}>
-              Enter length and width in feet
-            </Text>
-
-            <View style={styles.row}>
-              <View style={styles.subrow}>
-                <InputField
-                  label="Length"
-                  type="number"
-                  placeholder="e.g. 40"
-                  value={land.dimensions?.length ?? ""}
-                  onChange={(value) =>
-                    dispatch(
-                      setProfileField({
-                        propertyType: "land",
-                        key: "dimensions",
-                        value: {
-                          length: value,
-                          width: land.dimensions?.width || "",
-                        },
-                      }),
-                    )
-                  }
-                />
-              </View>
-              <View style={styles.multiplyContainer}>
-                <Text style={styles.multiply}>×</Text>
-              </View>
-              <View style={styles.subrow}>
-                <InputField
-                  label="Width"
-                  type="number"
-                  placeholder="e.g. 60"
-                  value={land.dimensions?.width ?? ""}
-                  onChange={(value) =>
-                    dispatch(
-                      setProfileField({
-                        propertyType: "land",
-                        key: "dimensions",
-                        value: {
-                          length: land.dimensions?.length || "",
-                          width: value,
-                        },
-                      }),
-                    )
-                  }
-                />
-              </View>
-            </View>
-          </View>
 
           {/* Layout Type */}
           <View style={styles.block}>
@@ -263,6 +269,9 @@ const LandProfile = () => {
                 );
               })}
             </View>
+            {showErrors && fieldErrors?.layoutType?.[0] && (
+            <Text style={styles.errorText}>{fieldErrors.layoutType[0]}</Text>
+          )}
           </View>
 
           {/* Facing & Approval */}
@@ -285,7 +294,7 @@ const LandProfile = () => {
               }))}
             />
 
-            <Dropdownui
+            {/* <Dropdownui
               label="Approved By Authority"
               value={land.approvedByAuthority || null}
               onChange={(value) =>
@@ -301,14 +310,14 @@ const LandProfile = () => {
                 value: a,
                 label: a.replace(/-/g, " ").toUpperCase(),
               }))}
-            />
+            /> */}
           </View>
         </View>
 
         {/* AMENITIES */}
         <AmenitiesSelect
           label="Amenities"
-          options={AMENITIES}
+          options={LAND_AMENITIES}
           value={land.amenities || []}
           onChange={(value) =>
             dispatch(
@@ -415,95 +424,59 @@ const LandProfile = () => {
           })}
         </View>
 
-        {/* PRICE */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Price Details</Text>
-          <Text style={styles.sectionSubTitle}>
-            Enter pricing and area details for this property
-          </Text>
-          <View style={styles.row}>
-            <View style={styles.sectionRow}>
-              <InputField
-                label="Total Price"
-                value={land.price || ""}
-                placeholder="e.g. 75,00,000"
-                keyboardType="numeric"
-                onChange={(value) =>
-                  dispatch(
-                    setProfileField({
-                      propertyType: "land",
-                      key: "price",
-                      value: value.replace(/\D/g, ""),
-                    }),
-                  )
-                }
+  {/* Preview images after upload */}
+        <Text style={styles.label}>Add photos of your property</Text>
+        <View style={styles.previewContainer}>
+           {files?.length > 0 && (
+            files.map((img, index) => (
+              <Image
+                key={index}
+                source={{ uri: img.uri }}
+                style={styles.previewImage}
               />
-            </View>
-            <View style={styles.sectionRow}>
-              <InputField
-                label="Price Per Sqft"
-                value={land.pricePerSqft || ""}
-                placeholder="e.g. 6250"
-                keyboardType="numeric"
-                onChange={(value) =>
-                  dispatch(
-                    setProfileField({
-                      propertyType: "land",
-                      key: "pricePerSqft",
-                      value: value.replace(/\D/g, ""),
-                    }),
-                  )
-                }
-              />
-            </View>
-          </View>
-          <View style={styles.row}>
-            <View style={styles.sectionRow}>
-              <InputWithUnit
-                label="Plot Area"
-                value={land.plotArea}
-                unit={land.areaUnit} // ✅ CORRECT
-                units={[{ label: "SQ.FT", value: "sqft" }]}
-                placeholder="1200"
-                onValueChange={(value) =>
-                  dispatch(
-                    setProfileField({
-                      propertyType: "land",
-                      key: "plotArea",
-                      value,
-                    }),
-                  )
-                }
-                onUnitChange={(unit) =>
-                  dispatch(
-                    setProfileField({
-                      propertyType: "land",
-                      key: "areaUnit",
-                      value: unit,
-                    }),
-                  )
-                }
-              />
-            </View>
-            <View style={styles.sectionRow}>
-              <InputField
-                label="Road Width (ft)"
-                type="number"
-                value={land.roadWidthFt ?? ""}
-                placeholder="e.g. 40"
-                onChange={(value) =>
-                  dispatch(
-                    setProfileField({
-                      propertyType: "land",
-                      key: "roadWidthFt",
-                      value,
-                    }),
-                  )
-                }
-              />
-            </View>
-          </View>
+            ))
+          ) }
+          {/* {files.map((img, index) => (
+            <Image
+              key={index}
+              source={{ uri: img.uri }}
+              style={styles.previewImage}
+            />
+          ))} */}
         </View>
+        {/* Image Upload */}
+        <Pressable style={styles.uploadBox} onPress={pickImages}>
+          <ImageListIcon width={50} height={40} color="#82D1A3" />
+
+          {files.length > 0 ? (
+            <Text style={styles.uploadText}>
+              {files.length} image(s) selected
+            </Text>
+          ) : (
+            <View style={styles.uploadContent}>
+              <Text style={styles.uploadText}>
+                Tap to upload property images
+              </Text>
+
+              <Text style={styles.uploadText}>
+                Max 5 photos upto size 10 MB • png, jpg
+              </Text>
+            </View>
+          )}
+          <Text style={styles.uploadButton}>Upload photos</Text>
+        </Pressable>
+        {showErrors && fieldErrors?.images ? (
+          <Text style={styles.errorText}>{fieldErrors?.images}</Text>
+        ) : null}
+        <View style={[styles.warning]}>
+          <Ionicons name="warning" size={17} color="orange" />
+          <Text style={[styles.smallText]}>
+            Postings with no photos attract less attention
+          </Text>
+        </View>
+
+
+       
 
         <View style={styles.negotiableContainer}>
           <View>
@@ -550,29 +523,31 @@ const LandProfile = () => {
             )
           }
         />
+          {showErrors && fieldErrors?.description && (
+            <Text style={styles.errorText}>{fieldErrors.description}</Text>
+          )}
 
-       
-             {/* Buttons */}
-         <View style={styles.btnOptions}>
-                  <Pressable
-                    style={styles.backButton}
-                    onPress={() => dispatch(prevStep())}
-                  >
-                    <Text style={styles.backButtonText}>Back</Text>
-                  </Pressable>
-                  <Pressable
-                    style={styles.button}
-                    onPress={handleSubmitDetails}
-                    // if (isFormValid) {
-                    //   console.log("Location Data:", base);
-                    //   dispatch(nextStep());
-                    // }
-                  >
-                    <Text style={styles.buttonText}>Continue</Text>
-                  </Pressable>
-                </View>
+        {/* Buttons */}
+        <View style={styles.btnOptions}>
+          <Pressable
+            style={styles.backButton}
+            onPress={() => dispatch(prevStep())}
+          >
+            <Text style={styles.backButtonText}>Back</Text>
+          </Pressable>
+          <Pressable
+            style={styles.button}
+            onPress={handleLandSubmitDetails}
+            // if (isFormValid) {
+            //   console.log("Location Data:", base);
+            //   dispatch(nextStep());
+            // }
+          >
+            <Text style={styles.buttonText}>Continue</Text>
+          </Pressable>
+        </View>
       </ScrollView>
-    </KeyboardAwareScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -669,12 +644,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 6,
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#d1d5db",
     borderRadius: 8,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   featureRowActive: {
     borderColor: "#22c55e",
@@ -687,16 +662,69 @@ const styles = StyleSheet.create({
     color: "#15803d",
     fontWeight: "600",
   },
+   previewContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    // justifyContent:"flex-start",
+    flexWrap: "wrap",
+    marginBottom: 10,
+  },
+  previewImage: {
+    width: "30%",
+    height: 100,
+    borderRadius: 8,
+    marginRight: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  uploadBox: {
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: "#82D1A3",
+    backgroundColor: "#F1FCF5",
+    borderRadius: 8,
+    padding: 16,
+    // minHeight: 140,
+    alignItems: "center",
+    justifyContent: "center",
+    // marginBottom: 15,
+  },
+  uploadText: {
+    fontSize: 12,
+    textAlign: "center",
+    color: "#6B7280",
+  },
+  uploadButton: {
+    alignSelf: "center",
+    color: "white",
+    width: 150,
+    alignItems: "center",
+    textAlign: "center",
+    padding: 5,
+    marginTop: 8,
+    borderRadius: 5,
+    backgroundColor: "#22C55E",
+  },
+  warning: {
+    backgroundColor: "#F1FCF5",
+    paddingVertical: 8,
+    borderRadius: 10,
+    paddingHorizontal: 7,
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 15,
+  },
   negotiableContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 12,
+    padding: 10,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
     backgroundColor: "#f5f5f5",
-    marginBottom: 20,
+    marginVertical: 20,
     borderStyle: "dashed",
   },
   label: {
@@ -705,12 +733,18 @@ const styles = StyleSheet.create({
     marginBottom: 7,
     color: "#374151",
   },
+   errorText: {
+    color: "#DC2626",
+    marginLeft: 3,
+    marginTop: 2,
+    fontSize: 12,
+  },
 
   smallText: {
     fontSize: 12,
     color: "#555",
   },
- btnOptions: {
+  btnOptions: {
     flexDirection: "row",
     justifyContent: "flex-end",
     gap: 12,

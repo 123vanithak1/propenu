@@ -89,7 +89,7 @@ export default function BasicDetailsStep() {
         ? commercial
         : propertyType === "land"
           ? land
-          : agricultural;
+          : propertyType === "agricultural" ? agricultural : null;
 
   const profileData =
     propertyType === "residential"
@@ -98,7 +98,7 @@ export default function BasicDetailsStep() {
         ? commercial
         : propertyType === "land"
           ? land
-          : agricultural;
+          : propertyType === "agricultural" ? agricultural : null;
 
   const validationResult = validateBasicDetails(
     {
@@ -119,8 +119,6 @@ export default function BasicDetailsStep() {
   const handleSelect = (type) => {
     dispatch(setPropertyType(type));
   };
-
-  console.log("DRAFT ID :", draftId, isFormValid, fieldErrors);
 
   useEffect(() => {
     const userData = async () => {
@@ -226,7 +224,8 @@ export default function BasicDetailsStep() {
 
   const handleSubmitBasic = () => {
     setShowErrors(true);
-    console.log("isformvalid and draft id checking :", isFormValid, draftId);
+    console.log("isformvalid and draft id checking :", isFormValid, draftId,);
+
     if (!isFormValid || !draftId) {
       console.log("Validation failed", fieldErrors);
       return;
@@ -314,6 +313,7 @@ export default function BasicDetailsStep() {
             );
           })}
         </View>
+        {showErrors && fieldErrors?.listingType && (   <Text style={styles.errorText}>{fieldErrors.listingType}</Text>)}
 
         {/* Property Type */}
         <Text style={styles.label}>Select your property type</Text>
@@ -612,6 +612,10 @@ export default function BasicDetailsStep() {
                   />
                 ))}
               </View>
+               {fieldErrors?.furnishing ? (
+                <Text style={styles.errorText}>{fieldErrors.furnishing}</Text>
+              ) : null}
+
               <View style={styles.facingDropDown}>
                 <Dropdownui
                   label="Facing"
@@ -988,13 +992,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#374151",
-    marginVertical: 8,
+    marginBottom: 8,
+    marginTop:15
   },
 
   listngTypeRow: {
     flexDirection: "row",
     gap: 12,
-    marginBottom: 16,
+    // marginBottom: 16,
   },
   rowWrap: {
     marginTop: 5,
@@ -1192,7 +1197,7 @@ const styles = StyleSheet.create({
 
   errorText: {
     color: "#DC2626",
-    marginTop: 5,
+    marginTop: 4,
     fontSize: 12,
     // alignSelf: "center",
   },

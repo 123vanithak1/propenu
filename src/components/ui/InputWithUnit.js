@@ -142,15 +142,15 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     paddingHorizontal: 10,
-    paddingVertical: 10,
+    // paddingVertical: 10,
     fontSize: 14,
     backgroundColor: "#fff",
     color: "#111827",
   },
   divider: {
     width: 1,
-    backgroundColor: "#e5e7eb",
-    marginVertical: 6,
+    backgroundColor: "#d1d2d4",
+    // marginVertical: 6,
   },
   unitContainer: {
     flexDirection: "row",
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.3)",
     justifyContent: "center",
-    padding: 24,
+    padding: 15,
   },
   modal: {
     backgroundColor: "#fff",

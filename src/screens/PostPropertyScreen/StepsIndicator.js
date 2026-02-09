@@ -4,27 +4,36 @@ import { useSelector } from "react-redux";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { PhoneIcon } from "../../../assets/svg/Logo";
+import { prevStep } from "../../redux/slice/PostPropertySlice";
+import { useAppDispatch } from "../../redux/store/store";
 
 const StepIndicator = ({ steps = [], currentStep = 0 }) => {
   const { propertyType, percentage } = useSelector(
     (state) => state.postProperty,
   );
-  console.log(percentage, propertyType, currentStep, "%%%%%%%%%");
+  const dispatch = useAppDispatch();
   if (!steps.length) return null;
 
   const totalSteps = steps.length;
   const currentLabel = steps[currentStep] || "";
-
-  const handleBack = () => {
-    console.log("HAI");
-  };
-
+  const isDisabled = currentStep === 0;
+  
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Pressable onPress={handleBack} hitSlop={10}>
-          <Ionicons name="arrow-back-outline" size={20} color="black" />
+        {/* {currentStep > 0 && ( */}
+        <Pressable
+          disabled={isDisabled}
+          onPress={() => dispatch(prevStep())}
+          hitSlop={10}
+        >
+          <Ionicons
+            name="arrow-back-outline"
+            size={20}
+            color={isDisabled ? "#9CA3AF" : "#000"}
+          />
         </Pressable>
+        {/* )} */}
         <View style={styles.help}>
           <Text style={styles.helpText}>Need Help? </Text>
           <FontAwesome name="phone" size={14} color="#27AE60" />
@@ -44,7 +53,9 @@ const StepIndicator = ({ steps = [], currentStep = 0 }) => {
 
       <View style={styles.bar}>
         <View style={styles.progressContainer}>
-          <View style={[styles.progressFill, { width: `${percentage ?? 0}%` }]} />
+          <View
+            style={[styles.progressFill, { width: `${percentage ?? 0}%` }]}
+          />
         </View>
         <Text style={styles.percentText}>{percentage ?? 0}%</Text>
       </View>
@@ -124,6 +135,7 @@ const styles = StyleSheet.create({
   help: {
     flexDirection: "row",
     alignItems: "center",
+    marginLeft: "auto",
   },
   helpText: {
     fontSize: 12,

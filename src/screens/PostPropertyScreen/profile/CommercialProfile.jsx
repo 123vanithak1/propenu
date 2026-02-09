@@ -136,11 +136,14 @@ const CommercialProfile = () => {
     if (result.canceled) return;
 
     const assets = result.assets || [];
-    console.log(assets,"11111111111111111111111111111111111111111111111111111111111111111111111")
+    console.log(
+      assets,
+      "11111111111111111111111111111111111111111111111111111111111111111111111",
+    );
 
     setFileStoreFiles("postProperty", assets);
     console.log("SETTING FILES");
-setFiles([...assets]);
+    setFiles([...assets]);
 
     dispatch(
       setBaseField({
@@ -200,12 +203,7 @@ setFiles([...assets]);
         });
     }
   };
-  useEffect(()=>{
-   
-  console.log(files,"22222222222222222222222222222222")
-  },[files])
-
-  console.log("PPPPPPPPPPPP", fieldErrors);
+  useEffect(() => {}, [files]);
 
   const OptionButtons = ({ title, options, value, onSelect }) => (
     <View style={styles.section}>
@@ -673,11 +671,16 @@ setFiles([...assets]);
         {/* Preview images after upload */}
         <Text style={styles.label}>Add photos of your property</Text>
         <View style={styles.previewContainer}>
-         {files?.length > 0 ?
-  (files.map((img, index) => (
-    <Image key={index} source={{ uri: img.uri }} style={styles.previewImage} />
-  )))  : <Text>no images are selected</Text>}
-  {/* {files.map((img, index) => (
+          {files?.length > 0 && (
+            files.map((img, index) => (
+              <Image
+                key={index}
+                source={{ uri: img.uri }}
+                style={styles.previewImage}
+              />
+            ))
+          ) }
+          {/* {files.map((img, index) => (
             <Image
               key={index}
               source={{ uri: img.uri }}

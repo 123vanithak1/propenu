@@ -15,7 +15,7 @@ import { useAppDispatch } from "../../../redux/store/store";
 import { submitVerificationThunk } from "../../../redux/thunk/SubmitPropertyThunk";
 import { validatePropertyVerify } from "../../../zod/verificationZod/propertyVerifyZod";
 import { ToastSuccess, ToastInfo, ToastError } from "../../../utils/Toast";
-
+import Feather from "@expo/vector-icons/Feather";
 const VerificationStep = () => {
   const dispatch = useAppDispatch();
 
@@ -109,7 +109,7 @@ const VerificationStep = () => {
     }
 
     const selectedDoc = VERIFICATION_DOCS.find(
-      (d) => d.key === commercial?.verificationDocument,
+      (d) => d.key === propertyProfile?.verificationDocument,
     );
 
     if (!selectedDoc) {
@@ -188,6 +188,14 @@ const VerificationStep = () => {
 
             {/* Label */}
             <Text style={styles.label}>{doc.label}</Text>
+            {doc?.showInfo ? (
+              <Pressable
+                style={{ marginRight: 5 }}
+                onPress={ToastInfo("Please Upload in PDF format only")}
+              >
+                <Feather name="info" size={12} color="gray" />
+              </Pressable>
+            ) : null}
           </Pressable>
         );
       })}

@@ -59,11 +59,11 @@ const menuItems = [
 const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = ({ navigation, state }) => {
-  const { isLoggedIn,userDetails, refreshAuth } = useAuth();
-  console.log("is login:", isLoggedIn, userDetails)
+  const { isLoggedIn, userDetails, refreshAuth } = useAuth();
+  console.log("is login:", isLoggedIn, userDetails);
 
   const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
+    str?.split("_").map(w => w[0].toUpperCase() + w.slice(1)).join(" ") || "";
 
   const handleNavigate = (route) => {
     console.log("Route in left menu : ", route);
@@ -75,10 +75,10 @@ const CustomDrawerContent = ({ navigation, state }) => {
   };
 
   const handleLogout = async () => {
-   if (userDetails != null) {
+    if (userDetails != null) {
       await clearStorage();
       await Keychain.resetGenericPassword();
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       await refreshAuth();
       // setUserData(null);
       ToastSuccess("Logged out successfully");

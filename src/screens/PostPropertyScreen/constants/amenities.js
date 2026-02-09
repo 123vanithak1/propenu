@@ -25,6 +25,27 @@ export const COMMERCIAL_AMENITIES = [
   { key: "maintenance", title: "Maintenance Staff" },
 ];
 
+export const LAND_AMENITIES = [
+  { key: "gated-community", title: "Gated Community" },
+  { key: "street-light", title: "Street Lights" },
+  { key: "drainage", title: "Underground Drainage" },
+  { key: "water-connection", title: "Water Connection" },
+  { key: "electricity", title: "Electricity Available" },
+  { key: "park", title: "Park / Open Space" },
+  { key: "avenue-plantation", title: "Avenue Plantation" },
+  { key: "boundary", title: "Compound Fencing" },
+  { key: "rainwater", title: "Rain Water Harvesting" },
+  { key: "sewage", title: "Sewage Line" },
+];
+export const AGRICULTURE_AMENITIES = [
+  { key: "borewell", title: "Borewell" },
+  { key: "irrigation", title: "Irrigation Facility" },
+  { key: "farm-road", title: "Farm Road Access" },
+  { key: "electric-pole", title: "Electric Pole Nearby" },
+  { key: "water-source", title: "Water Source Nearby" },
+  { key: "fencing", title: "Fencing" },
+];
+
 
 
 

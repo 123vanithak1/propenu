@@ -4,7 +4,7 @@ import {
   Text,
   TextInput,
   ScrollView,
-  Button,
+  Image,
   Switch,
   KeyboardAvoidingView,
   Keyboard,
@@ -16,10 +16,9 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 import { Picker } from "@react-native-picker/picker";
-import { setProfileField } from "../../../redux/slice/PostPropertySlice";
-import { submitPropertyThunk } from "../../../redux/thunk/SubmitPropertyThunk";
+import { submitDetailsThunk } from "../../../redux/thunk/SubmitPropertyThunk";
 import { useAppDispatch } from "../../../redux/store/store";
-import { AMENITIES } from "../constants/amenities";
+import { AGRICULTURE_AMENITIES } from "../constants/amenities";
 import InputWithUnit from "../../../components/ui/InputWithUnit";
 import { ToastError, ToastSuccess } from "../../../utils/Toast";
 import InputField from "../../../components/ui/InputField";
@@ -27,8 +26,23 @@ import CounterField from "../../../components/ui/CounterField";
 import Dropdownui from "../../../components/ui/DropDownUI";
 import Toggle from "../../../components/ui/ToggleSwitch";
 import TextArea from "../../../components/ui/TextArea";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { setFiles as setFileStoreFiles } from "../../../lib/FileStore";
+import { ImageListIcon } from "../../../../assets/svg/Logo";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import * as ImagePicker from "expo-image-picker";
+import {
+  setBaseField,
+  setProfileField,
+  nextStep,
+  prevStep,
+  setPercentage,
+} from "../../../redux/slice/PostPropertySlice";
+import { validateAgriculturalProfile } from "../../../zod/detailsZod/agriculturalProfileZod";
 const AREA_UNITS = ["sqft", "sqmt", "acre", "guntha", "cent", "hectare"];
 const ROAD_WIDTH_UNITS = ["ft", "meter"];
 
@@ -96,9 +110,14 @@ const AGRICULTURAL_FEATURES = [
 const AgriculturalProfile = () => {
   const dispatch = useAppDispatch();
   const [keyboardOpen, setKeyboardOpen] = useState(false);
-  const { agricultural } = useSelector((state) => state.postProperty);
+  const { agricultural, propertyType, draftId, base } = useSelector(
+    (state) => state.postProperty,
+  );
   const navigation = useNavigation();
-   const insets = useSafeAreaInsets();
+  const insets = useSafeAreaInsets();
+  const [files, setFiles] = useState([]);
+  const [fieldErrors, setFieldErrors] = useState(null);
+  const [showErrors, setShowErrors] = useState(false);
 
   const setField = (key, value) => {
     dispatch(
@@ -106,18 +125,18 @@ const AgriculturalProfile = () => {
         propertyType: "agricultural",
         key,
         value,
-      })
+      }),
     );
   };
 
   useEffect(() => {
     const show = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-      () => setKeyboardOpen(true)
+      () => setKeyboardOpen(true),
     );
     const hide = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
-      () => setKeyboardOpen(false)
+      () => setKeyboardOpen(false),
     );
 
     return () => {
@@ -125,6 +144,81 @@ const AgriculturalProfile = () => {
       hide.remove();
     };
   }, []);
+
+  const pickImages = async () => {
+    // Need user permission to get images
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permission.granted) {
+      ToastError("Permission required to access images");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 0.8,
+    });
+
+    if (result.canceled) return;
+
+    const assets = result.assets || [];
+
+    setFileStoreFiles("postProperty", assets);
+    console.log("SETTING FILES");
+    setFiles([...assets]);
+
+    dispatch(
+      setBaseField({
+        key: "galleryFiles",
+        value: assets.map((img) => ({
+          uri: img.uri,
+          name: img.fileName || "image.jpg",
+          type: img.type,
+        })),
+      }),
+    );
+  };
+
+  const handleAgriculturalSubmitDetails = () => {
+    setShowErrors(true);
+
+    const validationResult = validateAgriculturalProfile(
+      agricultural,
+      files.map((f) => f),
+    );
+
+    const ZodErrors = !validationResult.success
+      ? validationResult.error.flatten().fieldErrors
+      : {};
+    setFieldErrors(ZodErrors);
+
+    const isFormValid = validationResult.success;
+
+    console.log("validation result agricultural", validationResult);
+
+    if (!isFormValid && !draftId) {
+      ToastError("Something went wrong");
+      return;
+    }
+    dispatch(
+      submitDetailsThunk({
+        category: propertyType,
+        id: draftId,
+        payload: agricultural,
+      }),
+    )
+      .unwrap()
+      .then((res) => {
+        console.log("Result :", res);
+        dispatch(setPercentage(res?.data?.completion?.percent));
+        ToastSuccess("Profile details submitted successfully");
+        dispatch(nextStep());
+      })
+      .catch((error) => {
+        console.log("🔥 FULL ERROR FROM API:", error);
+      });
+  };
   const Section = ({ title, subtitle, children }) => (
     <View style={styles.section}>
       <Text style={styles.title}>{title}</Text>
@@ -139,7 +233,7 @@ const AgriculturalProfile = () => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
     >
       <ScrollView
-        style={[styles.container,{paddingBottom: insets.bottom + 16,}]}
+        style={[styles.container, { paddingBottom: insets.bottom + 16 }]}
         // contentContainerStyle={{ paddingBottom: keyboardOpen ? 135 : 40 }}
         contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
         keyboardShouldPersistTaps="handled"
@@ -151,73 +245,6 @@ const AgriculturalProfile = () => {
             Enter the size, road access, and plantation age of the land
           </Text>
           <View style={styles.column}>
-            <InputWithUnit
-              label="Total Area"
-              value={agricultural.totalArea?.value || ""}
-              placeholder="1200"
-              unit={agricultural.totalArea?.unit || "acre"}
-              units={[
-                { label: "SQ.FT", value: "sqft" },
-                { label: "SQ.MT", value: "sqmt" },
-                { label: "ACRE", value: "acre" },
-                { label: "GUNTHA", value: "guntha" },
-                { label: "CENT", value: "cent" },
-                { label: "HECTARE", value: "hectare" },
-              ]}
-              onValueChange={(value) =>
-                dispatch(
-                  setProfileField({
-                    propertyType: "agricultural",
-                    key: "totalArea",
-                    value: {
-                      value,
-                      unit: agricultural.totalArea?.unit || "acre",
-                    },
-                  })
-                )
-              }
-              onUnitChange={(unit) =>
-                dispatch(
-                  setProfileField({
-                    propertyType: "agricultural",
-                    key: "totalArea",
-                    value: { value: agricultural.totalArea?.value || "", unit },
-                  })
-                )
-              }
-            />
-
-            <InputWithUnit
-              label="Road Width"
-              value={agricultural.roadWidth?.value || ""}
-              unit={agricultural.roadWidth?.unit || "ft"}
-              placeholder="40"
-              units={[
-                { label: "FT", value: "ft" },
-                { label: "METER", value: "meter" },
-              ]}
-              onValueChange={(value) =>
-                dispatch(
-                  setProfileField({
-                    propertyType: "agricultural",
-                    key: "roadWidth",
-                    value: {
-                      value,
-                      unit: agricultural.roadWidth?.unit || "ft",
-                    },
-                  })
-                )
-              }
-              onUnitChange={(unit) =>
-                dispatch(
-                  setProfileField({
-                    propertyType: "agricultural",
-                    key: "roadWidth",
-                    value: { value: agricultural.roadWidth?.value || "", unit },
-                  })
-                )
-              }
-            />
             <View style={styles.plantation}>
               <CounterField
                 label="Plantation Age (years)"
@@ -229,7 +256,7 @@ const AgriculturalProfile = () => {
                       propertyType: "agricultural",
                       key: "plantationAge",
                       value,
-                    })
+                    }),
                   )
                 }
               />
@@ -257,7 +284,7 @@ const AgriculturalProfile = () => {
                   propertyType: "agricultural",
                   key: "soilType",
                   value,
-                })
+                }),
               )
             }
           />
@@ -275,7 +302,7 @@ const AgriculturalProfile = () => {
                   propertyType: "agricultural",
                   key: "irrigationType",
                   value,
-                })
+                }),
               )
             }
           />
@@ -293,7 +320,7 @@ const AgriculturalProfile = () => {
                   propertyType: "agricultural",
                   key: "waterSource",
                   value,
-                })
+                }),
               )
             }
           />
@@ -317,11 +344,88 @@ const AgriculturalProfile = () => {
                     propertyType: "agricultural",
                     key: "numberOfBorewells",
                     value,
-                  })
+                  }),
                 )
               }
             />
           </View>
+
+          {agricultural?.numberOfBorewells > 0 && (
+            <View>
+              <InputField
+                label="Borewell Depth (meters)"
+                type="number"
+                value={agricultural.borewellDetails?.depthMeters || ""}
+                placeholder="e.g. 100"
+                onChange={(value) =>
+                  dispatch(
+                    setProfileField({
+                      propertyType: "agricultural",
+                      key: "borewellDetails",
+                      value: {
+                        ...agricultural.borewellDetails,
+                        depthMeters: Number(value) || 0,
+                      },
+                    }),
+                  )
+                }
+              />
+              {showErrors &&
+                fieldErrors?.borewellErrors?.depthMeters?._errors?.[0] && (
+                  <Text style={styles.errorText}>
+                    {fieldErrors?.borewellErrors.depthMeters._errors[0]}
+                  </Text>
+                )}
+              <InputField
+                label="Yield (LPM)"
+                type="number"
+                value={agricultural.borewellDetails?.yieldLpm || ""}
+                placeholder="e.g. 5000"
+                onChange={(value) =>
+                  dispatch(
+                    setProfileField({
+                      propertyType: "agricultural",
+                      key: "borewellDetails",
+                      value: {
+                        ...agricultural.borewellDetails,
+                        yieldLpm: Number(value) || 0,
+                      },
+                    }),
+                  )
+                }
+              />
+              {showErrors &&
+                fieldErrors?.borewellErrors?.yieldLpm?._errors?.[0] && (
+                  <Text style={styles.errorText}>
+                    {fieldErrors?.borewellErrors.yieldLpm._errors[0]}
+                  </Text>
+                )}
+              <InputField
+                label="Drilled Year"
+                type="number"
+                value={agricultural.borewellDetails?.drilledYear || ""}
+                placeholder="e.g. 2020"
+                onChange={(value) =>
+                  dispatch(
+                    setProfileField({
+                      propertyType: "agricultural",
+                      key: "borewellDetails",
+                      value: {
+                        ...agricultural.borewellDetails,
+                        drilledYear: Number(value) || 0,
+                      },
+                    }),
+                  )
+                }
+              />
+              {showErrors &&
+                fieldErrors?.borewellErrors?.drilledYear?._errors?.[0] && (
+                  <Text style={styles.errorText}>
+                    {borewellErrors.drilledYear._errors[0]}
+                  </Text>
+                )}
+            </View>
+          )}
         </View>
 
         <View>
@@ -341,7 +445,7 @@ const AgriculturalProfile = () => {
                   propertyType: "agricultural",
                   key: "currentCrop",
                   value,
-                })
+                }),
               )
             }
           />
@@ -355,7 +459,7 @@ const AgriculturalProfile = () => {
                   propertyType: "agricultural",
                   key: "suitableFor",
                   value,
-                })
+                }),
               )
             }
           />
@@ -369,7 +473,7 @@ const AgriculturalProfile = () => {
                   propertyType: "agricultural",
                   key: "landShape",
                   value,
-                })
+                }),
               )
             }
           />
@@ -391,10 +495,15 @@ const AgriculturalProfile = () => {
                   propertyType: "agricultural",
                   key: "statePurchaseRestrictions",
                   value,
-                })
+                }),
               )
             }
           />
+          {showErrors && fieldErrors?.statePurchaseRestrictions && (
+            <Text style={styles.errorText}>
+              {fieldErrors.statePurchaseRestrictions}
+            </Text>
+          )}
           <InputField
             label="Access Road Type"
             value={agricultural.accessRoadType || ""}
@@ -405,15 +514,18 @@ const AgriculturalProfile = () => {
                   propertyType: "agricultural",
                   key: "accessRoadType",
                   value,
-                })
+                }),
               )
             }
           />
+          {showErrors && fieldErrors?.accessRoadType && (
+            <Text style={styles.errorText}>{fieldErrors.accessRoadType}</Text>
+          )}
         </View>
         <View>
-          <Text style={styles.sectionTitle}>Legal & Accessibility</Text>
+          <Text style={styles.sectionTitle}>Site Features</Text>
           <Text style={styles.sectionSubTitle}>
-            Provide information about purchase restrictions and access road type
+            Specify available infrastructure and on-site facilities
           </Text>
         </View>
         <View style={styles.columnStart}>
@@ -430,7 +542,7 @@ const AgriculturalProfile = () => {
                       propertyType: "agricultural",
                       key: item.key,
                       value: !enabled,
-                    })
+                    }),
                   )
                 }
               >
@@ -451,7 +563,7 @@ const AgriculturalProfile = () => {
                         propertyType: "agricultural",
                         key: item.key,
                         value,
-                      })
+                      }),
                     )
                   }
                 />
@@ -460,37 +572,55 @@ const AgriculturalProfile = () => {
           })}
         </View>
 
-        <InputField
-          label="Total Price"
-          placeholder="e.g. 75,00,000"
-          value={agricultural.price || ""}
-          keyboardType="numeric"
-          onChange={(value) =>
-            dispatch(
-              setProfileField({
-                propertyType: "agricultural",
-                key: "price",
-                value: value.replace(/\D/g, ""),
-              })
-            )
-          }
-        />
+        {/* Preview images after upload */}
+        <Text style={styles.label}>Add photos of your property</Text>
+        <View style={styles.previewContainer}>
+          {files?.length > 0 &&
+            files.map((img, index) => (
+              <Image
+                key={index}
+                source={{ uri: img.uri }}
+                style={styles.previewImage}
+              />
+            ))}
+          {/* {files.map((img, index) => (
+            <Image
+              key={index}
+              source={{ uri: img.uri }}
+              style={styles.previewImage}
+            />
+          ))} */}
+        </View>
+        {/* Image Upload */}
+        <Pressable style={styles.uploadBox} onPress={pickImages}>
+          <ImageListIcon width={50} height={40} color="#82D1A3" />
 
-        <InputField
-          label="Price Per Sqft"
-          keyboardType="numeric"
-          placeholder="e.g. 6250"
-          value={agricultural.pricePerSqft || ""}
-          onChange={(value) =>
-            dispatch(
-              setProfileField({
-                propertyType: "agricultural",
-                key: "pricePerSqft",
-                value: value.replace(/\D/g, ""),
-              })
-            )
-          }
-        />
+          {files.length > 0 ? (
+            <Text style={styles.uploadText}>
+              {files.length} image(s) selected
+            </Text>
+          ) : (
+            <View style={styles.uploadContent}>
+              <Text style={styles.uploadText}>
+                Tap to upload property images
+              </Text>
+
+              <Text style={styles.uploadText}>
+                Max 5 photos upto size 10 MB • png, jpg
+              </Text>
+            </View>
+          )}
+          <Text style={styles.uploadButton}>Upload photos</Text>
+        </Pressable>
+        {showErrors && fieldErrors?.images ? (
+          <Text style={styles.errorText}>{fieldErrors?.images}</Text>
+        ) : null}
+        <View style={[styles.warning]}>
+          <Ionicons name="warning" size={17} color="orange" />
+          <Text style={[styles.smallText]}>
+            Postings with no photos attract less attention
+          </Text>
+        </View>
 
         <View style={styles.negotiableContainer}>
           <View>
@@ -515,7 +645,7 @@ const AgriculturalProfile = () => {
                     propertyType: "agricultural",
                     key: "isPriceNegotiable",
                     value: val,
-                  })
+                  }),
                 )
               }
             />
@@ -533,37 +663,33 @@ const AgriculturalProfile = () => {
                 propertyType: "agricultural",
                 key: "description",
                 value,
-              })
+              }),
             )
           }
         />
+        {showErrors && fieldErrors?.description && (
+          <Text style={styles.errorText}>{fieldErrors.description}</Text>
+        )}
 
-        {/* SUBMIT */}
-        <Pressable
-          style={styles.submitBtn}
-          // onPress={() => dispatch(submitPropertyThunk())}
-          onPress={() => {
-            dispatch(submitPropertyThunk())
-              .unwrap()
-              .then((response) => {
-                if (response.success) {
-                  ToastSuccess("Property posted successfully");
-                  console.log(
-                    "Property Submission Successful:",
-                    response.status,
-                    response
-                  );
-                  navigation.navigate("Drawer");
-                }
-              })
-              .catch((error) => {
-                ToastError("Failed to post property");
-                console.error("Property submission failed:", error);
-              });
-          }}
-        >
-          <Text style={styles.submitText}>Submit Property</Text>
-        </Pressable>
+        {/* Buttons */}
+        <View style={styles.btnOptions}>
+          <Pressable
+            style={styles.backButton}
+            onPress={() => dispatch(prevStep())}
+          >
+            <Text style={styles.backButtonText}>Back</Text>
+          </Pressable>
+          <Pressable
+            style={styles.button}
+            onPress={handleAgriculturalSubmitDetails}
+            // if (isFormValid) {
+            //   console.log("Location Data:", base);
+            //   dispatch(nextStep());
+            // }
+          >
+            <Text style={styles.buttonText}>Continue</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -609,12 +735,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 6,
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#d1d5db",
     borderRadius: 8,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   featureRowActive: {
     borderColor: "#22c55e",
@@ -693,12 +819,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 12,
+    padding: 10,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
     backgroundColor: "#f5f5f5",
-    marginBottom: 20,
+    marginVertical: 20,
     borderStyle: "dashed",
   },
   label: {
@@ -707,21 +833,108 @@ const styles = StyleSheet.create({
     marginBottom: 7,
     color: "#374151",
   },
+  previewContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    // justifyContent:"flex-start",
+    flexWrap: "wrap",
+    marginBottom: 10,
+  },
+  previewImage: {
+    width: "30%",
+    height: 100,
+    borderRadius: 8,
+    marginRight: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  uploadBox: {
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: "#82D1A3",
+    backgroundColor: "#F1FCF5",
+    borderRadius: 8,
+    padding: 16,
+    // minHeight: 140,
+    alignItems: "center",
+    justifyContent: "center",
+    // marginBottom: 15,
+  },
+  uploadText: {
+    fontSize: 12,
+    textAlign: "center",
+    color: "#6B7280",
+  },
+  uploadButton: {
+    alignSelf: "center",
+    color: "white",
+    width: 150,
+    alignItems: "center",
+    textAlign: "center",
+    padding: 5,
+    marginTop: 8,
+    borderRadius: 5,
+    backgroundColor: "#22C55E",
+  },
+  warning: {
+    backgroundColor: "#F1FCF5",
+    paddingVertical: 8,
+    borderRadius: 10,
+    paddingHorizontal: 7,
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 15,
+  },
+  errorText: {
+    color: "#DC2626",
+    marginLeft: 3,
+    marginTop: 2,
+    fontSize: 12,
+  },
+
   smallText: {
     fontSize: 12,
     color: "#555",
   },
-  submitBtn: {
-    padding: 12,
-    backgroundColor: "#22C55E",
-    borderRadius: 8,
-    width: "60%",
-    alignSelf: "center",
+  btnOptions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 12,
+    alignItems: "center",
+    marginRight: 10,
+    marginVertical: 15,
   },
-  submitText: {
-    color: "#fff",
-    textAlign: "center",
+  backButton: {
+    width: "40%",
+    alignSelf: "center",
+    backgroundColor: "white",
+    borderColor: "#22C55E",
+    borderWidth: 1,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: "center",
+    // marginVertical: 15,
+    // marginBottom: 40,
+  },
+  backButtonText: {
+    color: "#22C55E",
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: "600",
+  },
+  button: {
+    width: "40%",
+    alignSelf: "center",
+    backgroundColor: "#22C55E",
+    paddingVertical: 9,
+    borderRadius: 8,
+    alignItems: "center",
+    // marginVertical: 15,
+    // marginBottom: 40,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

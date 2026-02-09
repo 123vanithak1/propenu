@@ -29,14 +29,13 @@ export const postPropertyServices = {
           },
         },
       );
+      if (!response.ok) {
+        throw await response.json();
+      }
 
-      const data = await response.json();
-      return {
-        status: response.status,
-        data,
-      };
+      return await response.json();
     } catch (error) {
-      throw error;
+      console.log("Error in getting draft ID:", error);
     }
   },
 
@@ -55,13 +54,18 @@ export const postPropertyServices = {
           body: JSON.stringify(data),
         },
       );
-      const res = await response.json();
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Something went wrong");
+      }
+      console.log("verification completed and posted:", data);
 
-      return res;
+      return await data;
     } catch (error) {
       console.log("Error in basic details step:", error);
     }
   },
+
   ProfileDetailsStep: async (category, id, formData) => {
     const token = await getToken();
     try {
@@ -72,28 +76,28 @@ export const postPropertyServices = {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          body: formData, // for formdata no need to mention content type
+          body: formData,
         },
       );
-      const res = await response.json();
-      console.log( "************************************************",`${ENV.BASE_URL}/api/properties/${category}/${id}/details`,"***********************************************")
-      console.log("Resultttttttttttttttt :", res);
 
-      return res;
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Something went wrong");
+      }
+      console.log("verification completed and posted:", data);
+
+      return await data;
     } catch (error) {
-      console.log("Error in basic details step:", error);
+      console.log("Error in details step:", error);
     }
   },
+
   VerificationStep: async (category, id, formData) => {
     const token = await getToken();
 
-    for (const pair of formData.entries()) {
-      console.log("   →", pair[0], pair[1]);
-    }
-
     try {
       const res = await fetch(
-       `${ENV.BASE_URL}/api/properties/${category}/${id}/verification`,
+        `${ENV.BASE_URL}/api/properties/${category}/${id}/verification`,
         {
           method: "PATCH",
           headers: {
@@ -102,15 +106,13 @@ export const postPropertyServices = {
           body: formData,
         },
       );
-
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Something went wrong");
+      }
       console.log("verification completed and posted:", data);
 
-      if (!res.ok) {
-        throw data;
-      }
-
-      return data;
+      return await data;
     } catch (error) {
       console.log("🔥 VERIFY API ERROR:", error);
       throw error;
