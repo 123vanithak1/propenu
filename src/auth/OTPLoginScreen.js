@@ -90,13 +90,13 @@ const OTPLoginModal = ({ route, navigation }) => {
         throw new Error("Token verification failed");
       }
 
-      // console.log("token result :", tokenResult)
+      // console.log("token result :", tokenResult, tokenResult.data)
       let data = tokenResult?.data;
 
       // await setItem("user", tokenResult?.data);
       // Store token securely
       if (data?.token) {
-        await Keychain.setGenericPassword("token", tokenResult.data.token);
+        await Keychain.setGenericPassword("token", tokenResult.data?.token);
         await new Promise((resolve) => setTimeout(resolve, 100));
         await refreshAuth();
       }
@@ -105,8 +105,8 @@ const OTPLoginModal = ({ route, navigation }) => {
       await setItem(
         "user",
         JSON.stringify({
-          id: data?.user.id,
-          name: data?.user.name,
+          id: data?.user?.id,
+          name: data?.user?.name,
           phone: data?.user?.phone,
           roleName: data?.user?.roleName,
         }),

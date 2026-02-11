@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import * as Keychain from "react-native-keychain";
-import { getItem } from "../utils/Storage";
+import { getItem,setItem } from "../utils/Storage";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
-  const [userDetails, setUserDetails] = useState(null)
+  const [userDetails, setUserDetails] = useState(null);
 
   const refreshAuth = async () => {
     try {
@@ -15,9 +15,9 @@ export const AuthProvider = ({ children }) => {
       const credentials = await Keychain.getGenericPassword();
       const data = await getItem("user");
       const userData = JSON.parse(data);
-      console.log(credentials?.password,data, "haiii")
+
       setIsLoggedIn(!!credentials?.password);
-      setUserDetails(userData)
+      setUserDetails(userData);
     } catch (e) {
       console.log("Auth refresh error", e);
       setIsLoggedIn(false);
@@ -26,13 +26,32 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Initial check
+const updateUserDetails = async (newData) => {
+  try {
+    const updatedUser = { ...userDetails, ...newData };
+
+    setUserDetails(updatedUser); // update UI immediately
+
+    await setItem("user", JSON.stringify(updatedUser)); // ⭐ persist
+  } catch (e) {
+    console.log("Update user error:", e);
+  }
+};
+
   useEffect(() => {
     refreshAuth();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, isChecking,userDetails, refreshAuth }}>
+    <AuthContext.Provider
+      value={{
+        isLoggedIn,
+        isChecking,
+        userDetails,
+        refreshAuth,
+        updateUserDetails, 
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

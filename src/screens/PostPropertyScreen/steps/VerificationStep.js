@@ -52,7 +52,7 @@ const VerificationStep = () => {
 
   const { residential, draftId, propertyType, commercial, land, agricultural } =
     useSelector((state) => state.postProperty);
-  console.log("PR", propertyType, residential, commercial, land, agricultural);
+  // console.log("PR", propertyType, residential, commercial, land, agricultural);
   const propertyProfile =
     propertyType === "residential"
       ? residential
@@ -188,14 +188,14 @@ const VerificationStep = () => {
 
             {/* Label */}
             <Text style={styles.label}>{doc.label}</Text>
-            {doc?.showInfo ? (
+            {/* {doc?.showInfo ? (
               <Pressable
                 style={{ marginRight: 5 }}
                 onPress={ToastInfo("Please Upload in PDF format only")}
               >
                 <Feather name="info" size={12} color="gray" />
               </Pressable>
-            ) : null}
+            ) : null} */}
           </Pressable>
         );
       })}

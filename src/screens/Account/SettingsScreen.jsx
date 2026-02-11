@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,33 +6,38 @@ import {
   StyleSheet,
   Pressable,
   ScrollView,
+  TextInput,
 } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Feather from "react-native-vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
-import {ToastInfo} from "../../utils/Toast";
+import { ToastInfo } from "../../utils/Toast";
+import { useAuth } from "../../context/AuthContext";
+import { setItem, getItem } from "../../utils/Storage";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { AntDesign } from "@expo/vector-icons";
 
 const SettingsScreen = () => {
-  const user = {
-    name: "Narahari Sharma",
-    email: "Naraharisharma@gmail.com",
-    phone: "9876543219",
-    city: "Hyderabad",
-    pincode: "503702",
-  };
+  const { isLoggedIn, updateUserDetails, userDetails } = useAuth();
 
-    // const [image, setImage] = useState("");
-    const [image, setImage] = useState(
-    "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=150&h=150&auto=format&fit=crop"
-  );
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [form, setForm] = useState({
+    name: userDetails?.name || "",
+    phone: userDetails?.phone || "",
+    email: userDetails?.email || "",
+    city: userDetails?.city || "",
+  });
+
+  // const [image, setImage] = useState("");
+  const [image, setImage] = useState(null);
 
   const pickImage = async () => {
-    const permission =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permission.granted) {
-     ToastInfo("Allow photo access to continue");
+      ToastInfo("Allow photo access to continue");
       return;
     }
 
@@ -44,24 +49,68 @@ const SettingsScreen = () => {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const uri = result.assets[0].uri;
+
+      setImage(uri);
+      await setItem("profileImage", uri);
     }
   };
+    const handleLogout = async () => {
+      if (userDetails != null) {
+        await clearStorage();
+        await Keychain.resetGenericPassword();
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        await refreshAuth();
+        // setUserData(null);
+        ToastSuccess("Logged out successfully");
+        navigation.navigate("HomeStack", { screen: "Home" });
+      } else {
+        ToastSuccess("You are already logged out");
+      }
+    };
+
+  useEffect(() => {
+    const loadImage = async () => {
+      const savedImage = await getItem("profileImage");
+      if (savedImage) {
+        setImage(savedImage);
+      }
+    };
+
+    loadImage();
+  }, []);
+
+  useEffect(() => {
+    if (userDetails) {
+      setForm({
+        name: userDetails?.name || "",
+        phone: userDetails?.phone || "",
+        email: userDetails?.email || "",
+        city: userDetails?.city || "",
+      });
+    }
+  }, [userDetails]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Profile Card */}
       <View style={styles.profileCard}>
-         <Pressable style={styles.avatarWrapper} onPress={pickImage}>
-           <Image source={{ uri: image }} style={styles.avatar} />
+        <Pressable style={styles.avatarWrapper} onPress={pickImage}>
+          {image ? (
+            <Image source={{ uri: image }} style={styles.avatar} />
+          ) : (
+            <FontAwesome name="user-circle" size={50} color="#585858" />
+          )}
           <View style={styles.cameraIcon}>
             <MaterialIcons name="photo-camera" size={14} color="#666" />
           </View>
         </Pressable>
 
         <View>
-          <Text style={styles.userName}>{user.name}</Text>
-          <Text style={styles.userCity}>{user.city}</Text>
+          <Text style={styles.userName}>{userDetails.name}</Text>
+          <Text style={styles.userCity}>
+            {userDetails?.city ? userDetails.city : "Hyderabad"}
+          </Text>
         </View>
       </View>
 
@@ -70,7 +119,7 @@ const SettingsScreen = () => {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Personal information</Text>
 
-          <Pressable style={styles.editBtn}>
+          <Pressable style={styles.editBtn} onPress={() => setIsEditing(true)}>
             <Text style={styles.editText}>Edit</Text>
             <Feather name="edit-2" size={14} color="#666" />
           </Pressable>
@@ -78,18 +127,79 @@ const SettingsScreen = () => {
 
         <View style={styles.infoCard}>
           <View style={styles.infoGrid}>
-            <InfoField label="First Name" value="Narahari" />
-            <InfoField label="Last Name" value="Sharma" />
-            <InfoField label="Email Address" value={user.email} />
-            <InfoField label="Phone Number" value={user.phone} />
-            <InfoField label="City" value={user.city} />
-            <InfoField label="Pincode" value={user.pincode} />
+            <InfoField
+              label="Name"
+              value={form.name}
+              editing={isEditing}
+              onChange={(v) => setForm({ ...form, name: v })}
+            />
+
+            <InfoField
+              label="Phone Number"
+              value={form.phone}
+              editing={isEditing}
+              onChange={(v) => setForm({ ...form, phone: v })}
+            />
+
+            <InfoField
+              label="Email Address"
+              value={form.email}
+              editing={isEditing}
+              onChange={(v) => setForm({ ...form, email: v })}
+            />
+
+            <InfoField
+              label="Address"
+              value={form.city}
+              editing={isEditing}
+              onChange={(v) => setForm({ ...form, city: v })}
+            />
+            {isEditing && (
+              <View style={styles.actions}>
+                <Pressable
+                  style={styles.cancelBtn}
+                  onPress={() => {
+                    setIsEditing(false);
+
+                    // reset
+                    setForm({
+                      name: userDetails?.name || "",
+                      phone: userDetails?.phone || "",
+                      email: userDetails?.email || "",
+                      city: userDetails?.city || "",
+                    });
+                  }}
+                >
+                  <Text style={styles.cancelText}>Cancel</Text>
+                </Pressable>
+
+                <Pressable
+                  style={styles.saveBtn}
+                  onPress={async () => {
+                    console.log("SAVE DATA:", form);
+                    await updateUserDetails(form);
+                    setIsEditing(false);
+                  }}
+                >
+                  <Text style={styles.saveText}>Save</Text>
+                </Pressable>
+              </View>
+            )}
           </View>
         </View>
-      </View>
+      </View> {/* LOGOUT BUTTON */}
+          <Pressable
+            onPress={handleLogout}
+            style={[styles.menuItem, styles.logoutItem]}
+          >
+            <AntDesign name="logout" size={19} color="#E53935" />
+            <Text style={[styles.label, styles.logoutLabel]}>Logout</Text>
+          </Pressable>
+
+
 
       {/* KYC Verification */}
-      <View style={styles.section}>
+      {/* <View style={styles.section}>
         <Text style={styles.sectionTitle}>KYC Verification</Text>
 
         <View style={styles.kycCard}>
@@ -99,7 +209,7 @@ const SettingsScreen = () => {
             <Text style={styles.verifiedText}>Verification done</Text>
           </View>
         </View>
-      </View>
+      </View> */}
 
       {/* Footer */}
       {/* <Pressable>
@@ -109,10 +219,21 @@ const SettingsScreen = () => {
   );
 };
 
-const InfoField = ({ label, value }) => (
+const InfoField = ({ label, value, editing, onChange }) => (
   <View style={styles.infoField}>
     <Text style={styles.infoLabel}>{label}</Text>
-    <Text style={styles.infoValue}>{value}</Text>
+
+    {editing ? (
+      <TextInput
+        value={value}
+        onChangeText={onChange}
+        style={styles.input}
+        placeholder={`Enter ${label}`}
+        placeholderTextColor="gray"
+      />
+    ) : (
+      <Text style={styles.infoValue}>{value || "--"}</Text>
+    )}
   </View>
 );
 
@@ -144,8 +265,8 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 32,
     // borderWidth:1,
-    borderColor:"#ccc",
-    backgroundColor:"#eeeeee"
+    borderColor: "#ccc",
+    backgroundColor: "#eeeeee",
   },
 
   cameraIcon: {
@@ -167,6 +288,7 @@ const styles = StyleSheet.create({
   userCity: {
     fontSize: 12,
     color: "#999",
+    marginTop: 3,
   },
 
   section: {
@@ -259,6 +381,68 @@ const styles = StyleSheet.create({
     color: "#D32F2F",
     textDecorationLine: "underline",
     fontSize: 13,
+    fontWeight: "500",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginTop: 4,
+    fontSize: 12,
+  },
+
+  actions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    // marginTop: 16,
+    alignItems: "center",
+    gap: 10,
+    width: "100%",
+  },
+
+  cancelBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+
+  saveBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    backgroundColor: "#27A361",
+  },
+
+  cancelText: {
+    color: "#333",
+    fontWeight: "500",
+  },
+
+  saveText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+   menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingHorizontal: 23,
+    marginTop: 25,
+    // paddingVertical: 14,
+    borderRadius: 14,
+  },
+  label: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: 400,
+    // color: "#82868d",
+  },
+   logoutLabel: {
+    color: "#E53935",
     fontWeight: "500",
   },
 });

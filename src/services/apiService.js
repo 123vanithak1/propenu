@@ -196,13 +196,9 @@ export const apiService = {
   },
 
   ownerProjectById: async (id) => {
-    console.log(
-      "URL : ",
-      `${ENV.BASE_URL}${API_ROUTES.USER.OWNERS_PROPERTIES}/${id}`,
-    );
     try {
       const response = await fetch(
-        `${ENV.BASE_URL}${API_ROUTES.USER.OWNERS_PROPERTIES}/${id}`,
+        `${ENV.BASE_URL}${API_ROUTES.USER.OWNERS_PROPERTIES}/slug/${id}`,
         {
           method: "GET",
           headers: {
@@ -210,11 +206,11 @@ export const apiService = {
           },
         },
       );
+      console.log("DATA : ", response);
+      // const data = await response.json();
+      // console.log("DATA : ", data)
 
-      const data = await response.json();
-      console.log("REs", response.json());
-
-      return data;
+      return response;
     } catch (error) {
       throw error;
     }
@@ -321,6 +317,30 @@ export const apiService = {
       throw error;
     }
   },
+
+  agentDetailsBySlug: async (id) => {
+    const url = `${ENV.BASE_URL}${API_ROUTES.USER.AGENT}/slug/${id}`;
+
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.message || "Request failed");
+      }
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   location: async () => {
     try {
       const response = await fetch(

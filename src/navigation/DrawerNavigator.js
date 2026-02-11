@@ -9,10 +9,12 @@ import {
   Pressable,
   StatusBar,
   Platform,
+  ScrollView,
 } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getItem, clearStorage } from "../utils/Storage";
+import Octicons from "@expo/vector-icons/Octicons";
 import {
   Logo,
   BellIcon,
@@ -23,38 +25,88 @@ import {
   TabBarDomain,
   PhoneIcon,
 } from "../../assets/svg/Logo";
+import HomeExterior from "../../assets/images/HomeExterior.png";
+import HouseSearch from "../../assets/images/HouseSearch.png";
+import HouseSell from "../../assets/images/HouseSell.png";
+import {
+  calling,
+  PrivacyPolicy,
+  TermsAndConditions,
+  ReportIssue,
+  SafetyGuide,
+  AboutUs,
+  ShortList,
+  Dollar,
+  Leads,
+  MyProperties,
+} from "../../assets/svg/UserProfile";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { AntDesign } from "@expo/vector-icons";
 import { ToastSuccess } from "../utils/Toast";
 import * as Keychain from "react-native-keychain";
 import { useAuth } from "../context/AuthContext";
+import { Image } from "react-native";
 const menuItems = [
   {
     label: "My Properties",
     route: "MyProperties",
-    icon: TabBarDomain,
+    icon: MyProperties,
   },
   {
-    label: "Shortlisted Properties",
-    route: "ShortListedProperties",
-    icon: TabBarFavourite,
-  },
-  {
-    label: "Contacted Properties",
-    route: "ContactedProperties",
-    icon: PhoneIcon,
-  },
-  {
-    label: "Membership",
+    label: "Leads",
     route: "Membership",
-    icon: BellIcon,
+    icon: Leads,
   },
   {
-    label: "Account & Settings",
-    route: "Settings",
-    icon: TabBarProfile,
+    label: "Subsciption",
+    route: "Membership",
+    icon: Dollar,
   },
 ];
+const Search_Activity = [
+  {
+    label: "Shortlisted",
+    route: "ShortListedProperties",
+    icon: ShortList,
+  },
+  {
+    label: "Contacted",
+    route: "ContactedProperties",
+    icon: calling,
+  },
+];
+const More_Details = [
+   {
+    label: "About Us",
+    route: "ShortListedProperties",
+    icon: AboutUs,
+  },
+   {
+    label: "Safety Guide",
+    route: "ShortListedProperties",
+    icon: SafetyGuide,
+  },
+   {
+    label: "Report an Issue",
+    route: "ShortListedProperties",
+    icon: ReportIssue,
+  },
+   {
+    label: "Terms & Conditions",
+    route: "ShortListedProperties",
+    icon: TermsAndConditions,
+  },
+   {
+    label: "Privacy Policy",
+    route: "ShortListedProperties",
+    icon: PrivacyPolicy,
+  },
+  {
+    label: "Help Line",
+    route: "ShortListedProperties",
+    icon: calling,
+  },
+]
 
 const Drawer = createDrawerNavigator();
 
@@ -63,7 +115,10 @@ const CustomDrawerContent = ({ navigation, state }) => {
   console.log("is login:", isLoggedIn, userDetails);
 
   const capitalize = (str) =>
-    str?.split("_").map(w => w[0].toUpperCase() + w.slice(1)).join(" ") || "";
+    str
+      ?.split("_")
+      .map((w) => w[0].toUpperCase() + w.slice(1))
+      .join(" ") || "";
 
   const handleNavigate = (route) => {
     console.log("Route in left menu : ", route);
@@ -102,15 +157,18 @@ const CustomDrawerContent = ({ navigation, state }) => {
               // { height: height * 0.15 }
             ]}
           >
-            <View
-              style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
-            >
-              <FontAwesome name="user-circle" size={28} color="black" />
+            <View style={styles.nameContainer}>
+              <View style={styles.icon}>
+                <Text style={styles.nameIcon}>{userDetails?.name[0]}</Text>
+              </View>
               <View>
-                <Text style={styles.userName}>
-                  Welcome back, {capitalize(userDetails?.name)} 👋
-                </Text>
-                <Text style={styles.userName}>
+                <View style={styles.nameContainer}>
+                  <Text style={styles.userName}>
+                    {capitalize(userDetails?.name)}
+                  </Text>
+                  <Octicons name="pencil" size={15} color="black" />
+                </View>
+                <Text style={styles.role}>
                   {capitalize(userDetails?.roleName)}
                 </Text>
               </View>
@@ -139,10 +197,11 @@ const CustomDrawerContent = ({ navigation, state }) => {
         </View>
       )}
 
-      <View style={styles.hrline} />
-      <View style={styles.dataContainer}>
+      {/* <View style={styles.hrline} /> */}
+      <ScrollView style={styles.dataContainer}>
         {/* {userData?.roleName === "user" ? ( */}
-        <View>
+        <View style={styles.userDataContainer}>
+          <Text style={styles.headingData}>Manage Property</Text>
           {menuItems.map((item, index) => {
             const Icon = item.icon;
             // const isActive = route.name === item.route;
@@ -153,25 +212,103 @@ const CustomDrawerContent = ({ navigation, state }) => {
                 onPress={() => handleNavigate(item.route)}
                 style={[styles.menuItem]}
               >
-                <Icon size={22} color="#181818" />
+                <Icon />
+
+                <Text style={[styles.label]}>{item.label}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        <View style={styles.userDataContainer}>
+          <Text style={styles.headingData}>Property Search Activity</Text>
+          {Search_Activity.map((item, index) => {
+            const Icon = item.icon;
+            // const isActive = route.name === item.route;
+
+            return (
+              <Pressable
+                key={index}
+                onPress={() => handleNavigate(item.route)}
+                style={[styles.menuItem]}
+              >
+                <Icon />
 
                 <Text style={[styles.label]}>{item.label}</Text>
               </Pressable>
             );
           })}
 
+        
+
+
+          <Text style={[styles.headingData,{marginTop:18}]}>More Details</Text>
+
+           {More_Details.map((item, index) => {
+            const Icon = item.icon;
+            // const isActive = route.name === item.route;
+
+            return (
+              <Pressable
+                key={index}
+                onPress={() => handleNavigate(item.route)}
+                style={[styles.menuItem]}
+              >
+                <Icon />
+
+                <Text style={[styles.label]}>{item.label}</Text>
+              </Pressable>
+            );
+          })}  <View style={[styles.card,{marginTop:25}]}>
+            <View style={{paddingLeft:5}}>
+              <Text style={styles.textPost}>Post Property</Text>
+              <Text style={styles.subTitle}>Sell / Rent Faster with Propenu</Text>
+            </View>
+
+            <Image
+              source={HouseSell}
+              style={{ width: 40, height: 40 }}
+            />
+          </View>
+
+          
+          <View style={styles.card}>
+            <View style={{paddingLeft:5}}>
+              <Text style={styles.textPost}>Search Property</Text>
+              <Text style={styles.subTitle}>Explore Properties & find your home</Text>
+            </View>
+
+            <Image
+              source={HouseSearch}
+              style={{ width: 40, height: 40 }}
+            />
+          </View>
+
+           {/* <View style={styles.card}>
+            <View style={{paddingLeft:5}}>
+              <Text style={styles.textPost}>Owner Property</Text>
+              <Text style={styles.subTitle}>Connect directly & simplify home</Text>
+            </View>
+
+            <Image
+              source={HomeExterior}
+              style={{ width: 40, height: 40 }}
+            />
+          </View> */}
+
+
           {/* <View style={styles.hrline} /> */}
           {/* LOGOUT BUTTON */}
-          <Pressable
+          {/* <Pressable
             onPress={handleLogout}
             style={[styles.menuItem, styles.logoutItem]}
           >
             <AntDesign name="logout" size={19} color="#E53935" />
             <Text style={[styles.label, styles.logoutLabel]}>Logout</Text>
-          </Pressable>
+          </Pressable> */}
         </View>
+
         {/* ) : null} */}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -182,8 +319,9 @@ export default function DrawerNavigator() {
       screenOptions={{
         headerShown: false,
         drawerStyle: {
+          // backgroundColor:"red",
           // top: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-          borderTopRightRadius: 0,
+          borderTopRightRadius: 10,
           borderBottomRightRadius: 0,
         },
       }}
@@ -203,16 +341,38 @@ export default function DrawerNavigator() {
   );
 }
 const styles = StyleSheet.create({
-  drawerContent: { flex: 1 },
+  drawerContent: { flex: 1, backgroundColor: "#DEFAEA" },
   drawerHeader: {
     justifyContent: "center",
     // borderBottomColor: "gray",
     // borderBottomWidth: 1,
-    // backgroundColor: "#27AE60",
+    // backgroundColor: "#DEFAEA",
     width: "100%",
-    paddingLeft: 30,
-    padding: 20,
+    paddingLeft: 35,
+    // padding: 20,
+    paddingTop: 15,
+    paddingBottom:7,
     gap: 10,
+  },
+  nameContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  icon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "white",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#27AE60",
+  },
+  nameIcon: {
+    color: "#27AE60",
+    fontWeight: 600,
+    fontSize: 16,
   },
   userName: {
     // color: "#27AE60",
@@ -220,6 +380,31 @@ const styles = StyleSheet.create({
     fontWeight: 500,
     lineHeight: 20,
   },
+
+  role: {
+    marginTop:3,
+    fontSize: 12,
+    color: "gray",
+  },
+  userDataContainer: {
+    padding: 15,
+  },
+  headingData: {
+    fontSize: 15,
+    fontWeight: 500,
+    paddingLeft: 10,
+    paddingTop: 5,
+    // color:"#6e6e6e"
+  },
+textPost:{
+    fontSize: 14,
+    fontWeight: 500,
+    marginBottom:5
+},
+subTitle:{
+fontSize: 12,
+color:"gray"
+},
   loginButton: {
     alignItems: "center",
     justifyContent: "center",
@@ -236,7 +421,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
-    paddingVertical: 15,
+    paddingVertical: 10,
   },
   hrline: {
     borderBottomColor: "#ccc",
@@ -246,14 +431,17 @@ const styles = StyleSheet.create({
   },
   dataContainer: {
     // paddingHorizontal: 16,
+    backgroundColor: "white",
     marginTop: 10,
+    height: "100%",
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
-    paddingHorizontal: 35,
-    paddingVertical: 14,
+    gap: 12,
+    paddingHorizontal: 23,
+    marginTop: 25,
+    // paddingVertical: 14,
     borderRadius: 14,
   },
   activeItem: {
@@ -265,13 +453,30 @@ const styles = StyleSheet.create({
   },
   label: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 14,
+    fontWeight: 400,
     // color: "#82868d",
-    color: "#000",
   },
+  
   activeLabel: {
     color: "#27A361",
     fontWeight: "600",
+  },
+  card: {
+    padding: 10,
+    marginTop: 10,
+    marginBottom: 10,
+    borderRadius: 8,
+    // backgroundColor: "#f6faf6",
+    backgroundColor:"white",
+    shadowColor: "#333232",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+
+    flexDirection:"row",
+    justifyContent:"space-between"
   },
   dot: {
     width: 6,

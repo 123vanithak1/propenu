@@ -1,9 +1,12 @@
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet, Image,Pressable } from "react-native";
 import HomePageImage from "../../../assets/HomePageImage.png";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Logo, LocationIcon } from "../../../assets/svg/Logo";
 import FallBackImage from "../../../assets/svg/FallBackImage";
+import { useNavigation } from "@react-navigation/native";
+
 const AgentCard = ({ details }) => {
+    const navigation = useNavigation();
   const imageSource = details?.coverImage?.url
     ? { uri: details.coverImage.url }
     : HomePageImage;
@@ -22,8 +25,12 @@ const AgentCard = ({ details }) => {
     return `₹ ${price.toLocaleString("en-IN")}`;
   };
 
+  const handlePress = () =>{
+    navigation.navigate("MoreAgentDetails", { slug: details?.slug });
+  }
+
   return (
-    <View style={styles.card}>
+    <Pressable style={styles.card} onPress={handlePress}>
       {details?.rera?.isVerified && (
         <View style={styles.VerifiedBadge}>
           <MaterialIcons name="verified-user" size={16} color="white" />
@@ -63,7 +70,7 @@ const AgentCard = ({ details }) => {
           <Text style={styles.info}>Closed</Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 };
 

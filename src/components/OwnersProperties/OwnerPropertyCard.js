@@ -53,8 +53,8 @@ const OwnerPropertyCard = ({ details }) => {
   };
 
   const handleClick = () => {
-    console.log("getting id when select :", details._id);
-    navigation.navigate("MoreOwnerProperties", { propertyId: details._id });
+    console.log("getting id when select :", details.slug);
+    navigation.navigate("MoreOwnerProperties", { propertyId: details.slug });
   };
 
   const MetaItem = ({ label, value, Icon }) => (

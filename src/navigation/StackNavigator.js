@@ -26,7 +26,7 @@ import Membership from "../screens/Account/Membership";
 import MoreOwnerPropertyDetail from "../components/OwnersProperties/MoreOwnerPropertyDetails";
 import UpcomingScreen from "../components/ui/UpComingPage";
 import useCity from "../components/CustomHooks/useCity";
-
+import MoreAgentDetails from "../components/Agent/MoreAgentDetails";
 const Stack = createNativeStackNavigator();
 
 export default function StackNavigator() {
@@ -197,6 +197,11 @@ export default function StackNavigator() {
         name="MoreAgriculturalDetails"
         component={MoreAgriculturalDetails}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MoreAgentDetails"
+        component={MoreAgentDetails}
+        // options={{ headerShown: false }}
       />
       <Stack.Screen
         name="CategoryFilter"

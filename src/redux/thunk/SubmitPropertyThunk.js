@@ -29,7 +29,7 @@ export const submitLocationThunk = createAsyncThunk(
   "postProperty/location",
   async ({ category, id, data }) => {
     console.log("📍 [LOCATION] category:", category, "id:", id);
-    // console.log("📍 [LOCATION] payload:", data);
+    console.log("📍 [LOCATION] payload:", data);
     return await postPropertyServices.BasicDetailsStep(category, id, "location", data);
   },
 );

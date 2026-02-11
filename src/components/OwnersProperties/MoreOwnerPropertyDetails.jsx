@@ -23,7 +23,6 @@ const MoreOwnerPropertyDetail = ({ route }) => {
   const { propertyId } = route.params;
   const [property, setProperty] = useState(null);
   const [showNav, setShowNav] = useState(false);
-  console.log("Property id :", propertyId);
 
   const scrollRef = useRef(null);
   const sectionPositions = useRef({
@@ -53,10 +52,10 @@ const MoreOwnerPropertyDetail = ({ route }) => {
   const fetchPropertyDetails = async () => {
     try {
       const res = await apiService.ownerProjectById(propertyId);
-      console.log("response :", res.data);
+      // console.log("response :", res.data);
       setProperty(res.data);
     } catch (error) {
-      console.error(error);
+      console.log("Error in owner detail page :", error)
     }
   };
 
