@@ -42,7 +42,8 @@ const handleContact = async () => {
     <Pressable style={styles.card} onPress={handlePress}>
       {/* Image slider */}
       <AutoImageSlider
-        images={item.gallery.map((img) => ({ uri: img.url }))}
+        // images={item.gallery.map((img) => ({ uri: img.url }))}
+          images={item.gallery}
         height={180}
         width={width - horizontalSpace }
       />

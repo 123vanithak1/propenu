@@ -29,13 +29,39 @@ export const postPropertyServices = {
           },
         },
       );
+
+      let data = response.json();
+      console.log("Response :", response);
+      if (!response.ok) {
+        throw data;
+      }
+
+      return data;
+    } catch (error) {
+      console.log("Error in getting draft ID:", category, error);
+    }
+  },
+  getMyDraftId: async (category) => {
+    const token = await getToken();
+
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}/api/properties/${category}/draft/me`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
       if (!response.ok) {
         throw await response.json();
       }
 
       return await response.json();
     } catch (error) {
-      console.log("Error in getting draft ID:", error);
+      console.log("Error in getting draft My ID:", error);
     }
   },
 
@@ -58,7 +84,6 @@ export const postPropertyServices = {
       if (!response.ok) {
         throw new Error(data.message || "Something went wrong");
       }
-      console.log("verification completed and posted:", data);
 
       return await data;
     } catch (error) {
@@ -84,8 +109,6 @@ export const postPropertyServices = {
       if (!response.ok) {
         throw new Error(data.message || "Something went wrong");
       }
-      console.log("verification completed and posted:", data);
-
       return await data;
     } catch (error) {
       console.log("Error in details step:", error);
@@ -110,7 +133,6 @@ export const postPropertyServices = {
       if (!res.ok) {
         throw new Error(data.message || "Something went wrong");
       }
-      console.log("verification completed and posted:", data);
 
       return await data;
     } catch (error) {

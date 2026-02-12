@@ -150,7 +150,6 @@ const ResidentialProfile = () => {
     if (result.canceled) return;
 
     const assets = result.assets || [];
-    console.log("Assets ::::::::::::::::::::::::::::::::::::::::::::::::::::", assets)
 
     setFiles(assets);
     setFileStoreFiles("postProperty", assets);
@@ -266,7 +265,7 @@ const ResidentialProfile = () => {
       )
         .unwrap()
         .then((result) => {
-          console.log("Result :", result);
+          // console.log("Result :", result);
           dispatch(setPercentage(result?.data?.completion?.percent));
           ToastSuccess("Profile details submitted successfully");
           dispatch(nextStep());

@@ -12,15 +12,17 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Feather from "react-native-vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
-import { ToastInfo } from "../../utils/Toast";
+import { ToastInfo, ToastSuccess } from "../../utils/Toast";
 import { useAuth } from "../../context/AuthContext";
-import { setItem, getItem } from "../../utils/Storage";
+import { setItem, getItem, clearStorage } from "../../utils/Storage";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AntDesign } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
+import * as Keychain from "react-native-keychain";
 const SettingsScreen = () => {
-  const { isLoggedIn, updateUserDetails, userDetails } = useAuth();
-
+  const { isLoggedIn, updateUserDetails, userDetails, refreshAuth } = useAuth();
+  const navigation = useNavigation();
   const [isEditing, setIsEditing] = useState(false);
 
   const [form, setForm] = useState({
@@ -55,19 +57,19 @@ const SettingsScreen = () => {
       await setItem("profileImage", uri);
     }
   };
-    const handleLogout = async () => {
-      if (userDetails != null) {
-        await clearStorage();
-        await Keychain.resetGenericPassword();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await refreshAuth();
-        // setUserData(null);
-        ToastSuccess("Logged out successfully");
-        navigation.navigate("HomeStack", { screen: "Home" });
-      } else {
-        ToastSuccess("You are already logged out");
-      }
-    };
+  const handleLogout = async () => {
+    if (userDetails != null) {
+      await clearStorage();
+      await Keychain.resetGenericPassword();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await refreshAuth();
+      // setUserData(null);
+      ToastSuccess("Logged out successfully");
+      navigation.navigate("HomeStack", { screen: "Home" });
+    } else {
+      ToastSuccess("You are already logged out");
+    }
+  };
 
   useEffect(() => {
     const loadImage = async () => {
@@ -107,7 +109,7 @@ const SettingsScreen = () => {
         </Pressable>
 
         <View>
-          <Text style={styles.userName}>{userDetails.name}</Text>
+          <Text style={styles.userName}>{userDetails?.name || "Guest"}</Text>
           <Text style={styles.userCity}>
             {userDetails?.city ? userDetails.city : "Hyderabad"}
           </Text>
@@ -187,16 +189,15 @@ const SettingsScreen = () => {
             )}
           </View>
         </View>
-      </View> {/* LOGOUT BUTTON */}
-          <Pressable
-            onPress={handleLogout}
-            style={[styles.menuItem, styles.logoutItem]}
-          >
-            <AntDesign name="logout" size={19} color="#E53935" />
-            <Text style={[styles.label, styles.logoutLabel]}>Logout</Text>
-          </Pressable>
-
-
+      </View>
+      {/* LOGOUT BUTTON */}
+      <Pressable
+        onPress={handleLogout}
+        style={[styles.menuItem, styles.logoutItem]}
+      >
+        <AntDesign name="logout" size={19} color="#E53935" />
+        <Text style={[styles.label, styles.logoutLabel]}>Logout</Text>
+      </Pressable>
 
       {/* KYC Verification */}
       {/* <View style={styles.section}>
@@ -426,7 +427,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
   },
-   menuItem: {
+  menuItem: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
@@ -441,7 +442,7 @@ const styles = StyleSheet.create({
     fontWeight: 400,
     // color: "#82868d",
   },
-   logoutLabel: {
+  logoutLabel: {
     color: "#E53935",
     fontWeight: "500",
   },

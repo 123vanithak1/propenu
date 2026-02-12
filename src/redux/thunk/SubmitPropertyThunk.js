@@ -11,8 +11,16 @@ import { ErrorToast } from "react-native-toast-message";
 export const createDraftThunk = createAsyncThunk(
   "postProperty/createDraft",
   async (category) => {
-    console.log("Category :", category)
+    console.log("Category1 :", category)
     return await postPropertyServices.getDraftId(category);
+  },
+);
+
+export const getMyDraftThunk = createAsyncThunk(
+  "postProperty/getMyDraft",
+  async (category) => {
+    console.log("Category :", category)
+    return await postPropertyServices.getMyDraftId(category);
   },
 );
 
@@ -45,7 +53,7 @@ export const submitDetailsThunk = createAsyncThunk(
       // each file should look like:
       // { uri: string, name: string, type: string }
 
-      console.log(files,"getting files from the store")
+      // console.log(files,"getting files from the store")
 
       const safePayload = {
         ...payload,
@@ -98,7 +106,7 @@ export const submitDetailsThunk = createAsyncThunk(
         clearFileStoreFiles("postProperty");
       }
 
-      console.log("📤 [DETAILS] FINAL FormData:", formData);
+      // console.log("📤 [DETAILS] FINAL FormData:", formData);
      
 
       const response = await postPropertyServices.ProfileDetailsStep(category, id, formData);
@@ -117,6 +125,7 @@ export const submitVerificationThunk = createAsyncThunk(
       console.log("Thunk payload:", payload);
 
       const response = await postPropertyServices.VerificationStep(category, id, payload);
+      console.log("Response :", response)
 
       return response;
     } catch (err) {

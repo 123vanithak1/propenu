@@ -32,10 +32,9 @@ import { ToastSuccess } from "../../../utils/Toast";
 import { search } from "india-pincode-search";
 
 const LocationDetailsStep = () => {
-  const { propertyType, base, draftId } = useSelector(
+  const { propertyType, base, draftId, residential, commercial, land, agricultural } = useSelector(
     (state) => state.postProperty,
   );
-  console.log("Property type :", propertyType);
 
   const dispatch = useDispatch();
   const [showErrors, setShowErrors] = useState(false);
@@ -48,6 +47,16 @@ const LocationDetailsStep = () => {
     showErrors && !validationResult.success
       ? validationResult.error.flatten().fieldErrors
       : {};
+
+
+  const profileData =
+    propertyType === "residential"
+      ? residential
+      : propertyType === "commercial"
+        ? commercial
+        : propertyType === "land"
+          ? land
+          : propertyType === "agricultural" ? agricultural : null;
 
   /* ---------------- Helpers ---------------- */
 
@@ -78,18 +87,20 @@ const LocationDetailsStep = () => {
     const data = search(numericValue);
     if (!data || !data.length) return;
     const pin = data[0];
-    dispatch(
+     dispatch(
       setBaseField({
         key: "state",
         value: formatToTitleCase(pin.state),
       }),
     );
+
     dispatch(
       setBaseField({
         key: "city",
         value: formatToTitleCase(pin.city),
       }),
     );
+
     dispatch(
       setBaseField({
         key: "locality",
@@ -105,19 +116,19 @@ const LocationDetailsStep = () => {
     setShowErrors(true);
 
     if (!isFormValid || !draftId) return;
-    console.log("hai", base);
 
     dispatch(
       submitLocationThunk({
         category: propertyType,
         id: draftId,
-        data: base,
+        data: base
+      
       }),
     )
       .unwrap()
       .then((result) => {
         dispatch(setPercentage(result?.data?.completion?.percent));
-        ToastSuccess("Basic details submitted successfully");
+        ToastSuccess("Location details submitted successfully");
         dispatch(nextStep());
       })
       .catch((err) => {
@@ -164,7 +175,7 @@ const LocationDetailsStep = () => {
       >
         {/* Address */}
         <TextArea
-          label="Property Line"
+          label="Address"
           value={base.address || ""}
           placeholder={propertLinePlaceholder}
           rows={4}

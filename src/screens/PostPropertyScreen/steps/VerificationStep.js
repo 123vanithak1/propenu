@@ -50,9 +50,15 @@ const VerificationStep = () => {
     },
   ];
 
-  const { residential, draftId, propertyType, commercial, land, agricultural } =
-    useSelector((state) => state.postProperty);
-  // console.log("PR", propertyType, residential, commercial, land, agricultural);
+  const {
+    residential,
+    base,
+    draftId,
+    propertyType,
+    commercial,
+    land,
+    agricultural,
+  } = useSelector((state) => state.postProperty);
   const propertyProfile =
     propertyType === "residential"
       ? residential
@@ -64,7 +70,7 @@ const VerificationStep = () => {
 
   const navigation = useNavigation();
 
-  const [files, setFiles] = useState([]);
+  const [file, setFiles] = useState(null);
   const [showErrors, setShowErrors] = useState(false);
 
   const pickFile = async () => {
@@ -75,21 +81,18 @@ const VerificationStep = () => {
 
     if (result.canceled) return;
 
-    const file = result.assets?.[0];
-    if (!file) return;
+    const f = result.assets?.[0];
+    if (!f) return;
 
-    setFiles([
-      {
-        uri: file.uri,
-        name: file.name,
-        type: file.mimeType || "application/octet-stream",
-        file,
-      },
-    ]);
+    setFiles({
+      uri: f.uri,
+      name: f.name,
+      type: f.mimeType || "application/octet-stream",
+    });
   };
 
   const validationResult = validatePropertyVerify({
-    verificationDocuments: files.map((f) => f.file),
+    verificationDocuments: file ? [file] : [],
   });
 
   const fieldErrors =
@@ -99,12 +102,9 @@ const VerificationStep = () => {
 
   const handleSubmit = () => {
     setShowErrors(true);
-    const result = validatePropertyVerify({
-      verificationDocuments: files.map((f) => f.file),
-    });
 
-    if (!result.success || !files.length) {
-      console.log("error", result);
+    if (!file) {
+      ToastError("Please upload a document");
       return;
     }
 
@@ -113,19 +113,15 @@ const VerificationStep = () => {
     );
 
     if (!selectedDoc) {
-      ToastError("Invalid verification document selected");
+      ToastError("Select document type");
       return;
     }
 
-    // ✅ Build FormData
     const formData = new FormData();
     formData.append("verificationType", selectedDoc.verificationType);
     formData.append("title", selectedDoc.title);
-    formData.append("verificationDocuments", {
-      uri: files[0].uri,
-      name: files[0].name,
-      type: files[0].type,
-    });
+    formData.append("verificationDocuments", file);
+
     dispatch(
       submitVerificationThunk({
         category: propertyType,
@@ -135,17 +131,17 @@ const VerificationStep = () => {
     )
       .unwrap()
       .then((res) => {
-        console.log("last step :", result?.data?.completion?.percent);
-        dispatch(setPercentage(result?.data?.completion?.percent));
-        ToastSuccess("Property posted successfully ");
+        dispatch(setPercentage(res?.data?.completion?.percent));
+        ToastSuccess("Property posted successfully");
         dispatch(resetPostProperty());
         navigation.navigate("Home");
       })
       .catch((error) => {
-        // ToastError("Error", error?.message || "Verification failed");
         console.log("error when submitting:", error);
       });
   };
+  // const existingDoc = propertyProfile?.verificationDocuments?.[0];
+  console.log("propertyProfile?.verificationDocuments?.[0]",propertyProfile?.verificationDocument )
 
   return (
     <View style={styles.container}>
@@ -208,22 +204,23 @@ const VerificationStep = () => {
       </Pressable> */}
 
       {/* Image Upload */}
+      {/* {propertyProfile?.verificationDocument && (
+        <Text style={{ marginBottom: 10, color: "green" }}>
+          Document already uploaded
+        </Text>
+      )} */}
+
       <Pressable style={styles.uploadBox} onPress={pickFile}>
         <ImageListIcon width={50} height={40} color="#82D1A3" />
 
-        {files.length > 0 ? (
+        <View style={styles.uploadContent}>
           <Text style={styles.uploadText}>
-            {files.length} image(s) selected
+            Tap here to upload your document.
           </Text>
-        ) : (
-          <View style={styles.uploadContent}>
-            <Text style={styles.uploadText}>
-              Tap here to upload your document.
-            </Text>
 
-            <Text style={styles.uploadText}>Max 1 image : upto 5 MB</Text>
-          </View>
-        )}
+          <Text style={styles.uploadText}>Max 1 image : upto 5 MB</Text>
+        </View>
+
         <Text style={styles.uploadButton}>Upload document</Text>
       </Pressable>
 

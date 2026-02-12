@@ -40,7 +40,7 @@ const AgriculturalCard = ({ item }) => {
     <Pressable style={styles.card} onPress={handleNavigate}>
       {/* Image slider */}
       <AutoImageSlider
-        images={item.gallery.map((img) => ({ uri: img.url }))}
+        images={item?.gallery?.map((img) => ({ uri: img.url }))}
         height={200}
         width={width - horizontalSpace}
       />

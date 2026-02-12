@@ -162,7 +162,7 @@ const LandProfile = () => {
        )
          .unwrap()
          .then((res) => {
-           console.log("Result :", res);
+          //  console.log("Result :", res);
            dispatch(setPercentage(res?.data?.completion?.percent));
            ToastSuccess("Profile details submitted successfully");
            dispatch(nextStep());

@@ -18,7 +18,7 @@ import { useAuth } from "../../../context/AuthContext";
 const ResidentialCard = ({ item }) => {
   const { width } = useDimensions();
   const navigation = useNavigation();
-  const { isLoggedIn,userDetails } = useAuth();
+  const { isLoggedIn, userDetails } = useAuth();
 
   const handleNavigate = async () => {
     console.log("Checking property id : ", item?.id);
@@ -48,7 +48,7 @@ const ResidentialCard = ({ item }) => {
 
         {/* Top-right like icon */}
         <View style={styles.likeIcon}>
-          <LikedIconContainer />
+          <LikedIconContainer id={item?.id} type={item?.type} />
         </View>
       </View>
       {/* Content */}

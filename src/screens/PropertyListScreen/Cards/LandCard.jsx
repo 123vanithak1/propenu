@@ -19,7 +19,7 @@ import { useAuth } from "../../../context/AuthContext";
 const LandCard = ({ item }) => {
   const { width } = useDimensions();
   const navigation = useNavigation();
-  const { isLoggedIn,userDetails } = useAuth();
+  const { isLoggedIn, userDetails } = useAuth();
 
   const handleNavigate = async () => {
     console.log("Checking property id : ", item.id);
@@ -29,7 +29,6 @@ const LandCard = ({ item }) => {
   };
 
   const handleContact = async () => {
-
     if (!isLoggedIn) {
       ToastInfo("User not authenticated");
     } else {
@@ -37,13 +36,13 @@ const LandCard = ({ item }) => {
     }
   };
 
-   const horizontalSpace = 2 * 2 + 10 * 4; //marginHorizontal is 2, padding is 10 here and parent component is 10, total : 44
+  const horizontalSpace = 2 * 2 + 10 * 4; //marginHorizontal is 2, padding is 10 here and parent component is 10, total : 44
 
   return (
     <Pressable style={styles.card} onPress={handleNavigate}>
       {/* Image slider */}
       <AutoImageSlider
-        images={item.gallery.map((img) => ({ uri: img.url }))}
+        images={item?.gallery?.map((img) => ({ uri: img.url }))}
         height={200}
         width={width - horizontalSpace}
       />

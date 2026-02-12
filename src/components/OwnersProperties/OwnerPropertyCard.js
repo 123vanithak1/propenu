@@ -20,11 +20,10 @@ import defaultImage from "../../../assets/defaultImage.png";
 import { useAuth } from "../../context/AuthContext";
 
 const OwnerPropertyCard = ({ details }) => {
-  // console.log("details :", details._id);
   const navigation = useNavigation();
   const { width, height } = useDimensions();
   const { isLoggedIn } = useAuth();
-  const cardWidth = width * 0.8;
+  const cardWidth = width * 0.75;
   const imageSource =
     details?.gallery?.length > 0
       ? { uri: details.gallery[0].url }
@@ -80,14 +79,13 @@ const OwnerPropertyCard = ({ details }) => {
         ) : (
           <AutoImageSlider
             images={details?.gallery?.map((img) => ({ uri: img.url }))}
-            height={200}
+            height={180}
             width={cardWidth - 20}
           />
         )}
 
-        {/* Top-right like icon */}
         <View style={styles.likeIcon}>
-          <LikedIconContainer />
+          <LikedIconContainer id={details?._id} type={details?.type}/>
         </View>
       </View>
       <View style={styles.detailsSection}>

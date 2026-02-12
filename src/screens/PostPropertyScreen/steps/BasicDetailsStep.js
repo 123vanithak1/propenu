@@ -243,7 +243,7 @@ export default function BasicDetailsStep() {
     )
       .unwrap()
       .then((result) => {
-        // console.log("Thunk result:",result, result.data.completion.percent);
+        console.log("Thunk result:",result, result.data.completion.percent);
         dispatch(setPercentage(result?.data?.completion?.percent));
 
         ToastSuccess("Basic details submitted successfully");
