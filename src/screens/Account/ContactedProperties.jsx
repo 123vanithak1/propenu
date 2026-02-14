@@ -1,75 +1,162 @@
-import {View, Text, FlatList, StyleSheet} from 'react-native';
-import {useEffect, useState} from 'react';
-import {userServices} from '../../services/userServices';
-import * as Keychain from 'react-native-keychain';   
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+} from "react-native";
+import { useEffect, useState } from "react";
+import { userServices } from "../../services/userServices";
+import { LocationIcon } from "../../../assets/svg/Logo";
+import formatINR from "../../utils/FormatINR";
+import { useQuery } from "@tanstack/react-query";
 
 const ContactedProperties = () => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["contactedProperties"],
+    queryFn: userServices.getContactedProperties,
+  });
 
-  const [contactedProperties, setContactedProperties] = useState(null);         
+  const contactedProperties = data?.properties ?? [];
+  const total = data?.total ?? 0;
 
-    const fetchContactedProperties = async () => {
-        try {
-            const credentials = await Keychain.getGenericPassword();
-            if (!credentials) {
-                console.log("No token found in keychain");
-                return;
-            }
-
-            const token = credentials.password;
-            const response = await userServices.getContactedProperties(token);
-            if (response?.status === 200) {
-                setContactedProperties(response?.data?.data);
-            }
-        } catch (error) {
-
-
-            console.log("Error when getting contacted properties:", error);
-        }       
-    };
-    useEffect(() => {
-        fetchContactedProperties();
-    }, []);
-
+  if (isLoading)
+    return <ActivityIndicator size="large" style={{ color: "#27AE60" }} />;
+  if (error) return console.log("failed to get contacted properties :", error);
+  
+  const PropertyCard = ({ item }) => {
     return (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            {contactedProperties?.length > 0 ? (
-                <FlatList
-                    data={contactedProperties}
+      <View style={styles.propertyCard}>
+        {item?.gallery && (
+          <Image source={{ uri: item.gallery }} style={styles.image} />
+        )}
 
-                    keyExtractor={(item) => item._id}
-                    renderItem={({item}) => (
-                        <View style={styles.propertyCard}>
-                            <Text style={styles.propertyTitle}>{item.title}</Text>
-                            <Text style={styles.propertyDetails}>{item.details}</Text>
-                        </View>
-                    )}
-                />
-            ) : (
-                <Text>No contacted properties available</Text>
-            )}
+        <Text style={styles.sale}>{item.listingType}</Text>
+
+        <View style={styles.content}>
+          <Text style={styles.propertyTitle} numberOfLines={1}>
+            {item.title}
+          </Text>
+
+          <View style={styles.price}>
+            <View>
+              <View style={styles.locations}>
+                <LocationIcon width={14} height={14} />
+                <Text style={styles.propertyDetails}>
+                  {item.locality}, {item.city}
+                </Text>
+              </View>
+
+              <Text style={styles.ownerName}>Owner : {item?.owner?.name}</Text>
+            </View>
+
+            {item?.price ? (
+              <Text style={styles.priceText}>{formatINR(item.price)}</Text>
+            ) : null}
+          </View>
         </View>
+      </View>
     );
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>My Contact Listing</Text>
+      <Text style={styles.subTitle}>
+        Properties you have contacted ({total ? total : null})
+      </Text>
+      {contactedProperties?.length > 0 ? (
+        <FlatList
+          data={contactedProperties}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => <PropertyCard item={item} />}
+        />
+      ) : (
+        <Text>No contacted properties available</Text>
+      )}
+    </View>
+  );
 };
 const styles = StyleSheet.create({
-    propertyCard: {
-        backgroundColor: '#f9f9f9',
-
-        padding: 16,
-        marginVertical: 8,
-        borderRadius: 8,    
-        width: '90%',
-
-        elevation: 2,
-
-
-    },    propertyTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 8,
-    },
-    propertyDetails: {  
-        fontSize: 14,
-        color: '#555',
-    },
+  container: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingTop: 3,
+    backgroundColor: "white",
+  },
+  propertyCard: {
+    position: "relative",
+    width: "98%",
+    backgroundColor: "white",
+    alignSelf: "center",
+    marginHorizontal: 2,
+    borderRadius: 8,
+    marginVertical: 12,
+    elevation: 2,
+    padding: 8,
+  },
+  propertyTitle: {
+    fontSize: 14,
+    fontWeight: 500,
+    marginBottom: 8,
+  },
+  sale: {
+    backgroundColor: "#27AE60",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    position: "absolute",
+    top: 18,
+    left: 18,
+    borderRadius: 8,
+    color: "white",
+  },
+  propertyDetails: {
+    fontSize: 12,
+    color: "#555",
+  },
+  title: {
+    fontSize: 14,
+    fontWeight: 600,
+  },
+  subTitle: {
+    fontSize: 12,
+    color: "gray",
+    paddingTop: 4,
+  },
+  image: {
+    height: 150,
+    padding: 10,
+    width: "100%",
+    alignSelf: "center",
+    borderRadius: 8,
+  },
+  content: {
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+  },
+  ownerName: {
+    fontSize: 12,
+    marginTop: 5,
+  },
+  locations: {
+    flexDirection: "row",
+    gap: 5,
+  },
+  price: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  priceText: {
+    fontSize: 14,
+    color: "#27AE60",
+    fontWeight: 600,
+    backgroundColor: "#d7f0e1",
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    borderRadius: 7,
+  },
 });
-export default ContactedProperties;         
+export default ContactedProperties;

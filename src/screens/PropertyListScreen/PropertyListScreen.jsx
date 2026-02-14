@@ -29,7 +29,6 @@ const PropertyListScreen = ({ navigation }) => {
   const { category } = useAppSelector((s) => s.filters);
   const filtersState = useSelector((state) => state.filters);
   const { residential, commercial, land, agricultural } = filtersState;
-  console.log("Filters State in PropertyListScreen :", filtersState);
 
   const [details, setDetails] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -97,6 +96,7 @@ const PropertyListScreen = ({ navigation }) => {
     }
   };
 
+  const total = details?.[0]?.__meta?.total;
   useEffect(() => {
     fetchData();
   }, [category]);
@@ -113,7 +113,7 @@ const PropertyListScreen = ({ navigation }) => {
         case "agricultural":
           return <AgriculturalCard item={item} />;
         default:
-          return <Text>No card found</Text>;
+          return null;
       }
     },
     [category],
@@ -152,6 +152,13 @@ const PropertyListScreen = ({ navigation }) => {
         <View style={styles.loadingContainer}>
           <Text style={styles.empty}>No properties available.</Text>
         </View>
+      )}
+
+      {total != null && (
+        <Text style={styles.lengthText} numberOfLines={1}>
+          {total} Properties for sale{" "}
+          {selectedCity?.city ? `in ${selectedCity.city}` : ""}
+        </Text>
       )}
 
       <FlatList
@@ -210,5 +217,11 @@ const styles = StyleSheet.create({
     // paddingLeft: 10,
     paddingVertical: 7,
     borderColor: "red",
+  },
+  lengthText: {
+    fontSize: 15,
+    fontWeight: 500,
+    paddingVertical: 10,
+    paddingLeft: 5,
   },
 });

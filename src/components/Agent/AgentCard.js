@@ -47,7 +47,7 @@ const AgentCard = ({ details }) => {
         <Text style={{ color: "#27AE60", fontSize: 12, paddingVertical: 2 }}>
           {details.agencyName}
         </Text>
-        <Text style={styles.subtitle}>{details.bio}</Text>
+        <Text style={styles.subtitle} numberOfLines={2}>{details.bio}</Text>
 
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <LocationIcon width={14} height={16} />

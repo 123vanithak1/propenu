@@ -74,7 +74,6 @@ export default function CreateLogin({ navigation }) {
         phone: phone,
         role: role,
       });
-      console.log("response  :", res);
 
       if (res?.status === 200) {
         ToastSuccess("OTP sent successfully");

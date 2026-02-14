@@ -28,13 +28,15 @@ export const userServices = {
           },
         },
       );
+      
       if (!response.ok) {
-        console.log("Failed to fetch shortlisted", error);
+          throw Error("Failed to fetch shortlisted", error); 
       }
+      
       const data = await response.json();
       return data;
     } catch (error) {
-      throw error;
+     console.log("Error :", error)
     }
   },
 
@@ -53,17 +55,20 @@ export const userServices = {
           body: JSON.stringify(payload),
         },
       );
+       if (!response.ok) {
+        throw Error("Failed to post shortlisted", error);
+      }
 
       const data = await response.json();
-      console.log("DATA IN POST SHORTLIST :", data);
 
       return data;
     } catch (error) {
-      throw error;
+      console.log("Error :", error)
     }
   },
 
-  getMyProperties: async (token) => {
+  getMyProperties: async () => {
+     const token = await getToken();
     try {
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.SHORTLIST.MY_PROPERTIES}`,
@@ -75,17 +80,18 @@ export const userServices = {
           },
         },
       );
-
+       if (!response.ok) {
+        throw Error("Failed to fetch Properties", error);
+      }
       const data = await response.json();
-      return {
-        status: response.status,
-        data,
-      };
+
+      return data;
     } catch (error) {
-      throw error;
+      console.log("Error :", error)
     }
   },
-  getContactedProperties: async (token) => {
+  getContactedProperties: async () => {
+    const token = await getToken();
     try {
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.SHORTLIST.CONTACTED_PROP}`,
@@ -97,14 +103,13 @@ export const userServices = {
           },
         },
       );
-
+      if (!response.ok) {
+        throw Error("Failed to fetch contacted", error);
+      }
       const data = await response.json();
-      return {
-        status: response.status,
-        data,
-      };
+      return data;
     } catch (error) {
-      throw error;
+      console.log("Error :", error)
     }
   },
 };

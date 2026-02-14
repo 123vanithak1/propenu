@@ -46,7 +46,35 @@ import { ToastSuccess } from "../utils/Toast";
 import * as Keychain from "react-native-keychain";
 import { useAuth } from "../context/AuthContext";
 import { Image } from "react-native";
-const menuItems = [
+const userMenuItems = [
+  {
+    label: "My Properties",
+    route: "MyProperties",
+    icon: MyProperties,
+  },
+  {
+    label: "Shortlisted Properties",
+    route: "ShortListedProperties",
+    icon: ShortList,
+  },
+  {
+    label: "Contacted Properties",
+    route: "ContactedProperties",
+    icon: calling,
+  },
+  {
+    label: "Membership",
+    route: "Membership",
+    icon: Dollar,
+  },
+];
+
+const agentMenuItems = [
+  {
+    label: "DashBoard   ",
+    route: "Membership",
+    icon: Dollar,
+  },
   {
     label: "My Properties",
     route: "MyProperties",
@@ -58,45 +86,52 @@ const menuItems = [
     icon: Leads,
   },
   {
-    label: "Subsciption",
+    label: "My Plans",
     route: "Membership",
     icon: Dollar,
   },
 ];
-const Search_Activity = [
+
+const builderMenuItems = [
   {
-    label: "Shortlisted",
-    route: "ShortListedProperties",
-    icon: ShortList,
+    label: "DashBoard   ",
+    route: "Membership",
+    icon: Dollar,
   },
   {
-    label: "Contacted",
-    route: "ContactedProperties",
-    icon: calling,
+    label: "My Properties",
+    route: "MyProperties",
+    icon: MyProperties,
+  },
+  {
+    label: "Leads",
+    route: "Membership",
+    icon: Leads,
   },
 ];
+
 const More_Details = [
-   {
+  {
     label: "About Us",
     route: "ShortListedProperties",
     icon: AboutUs,
   },
-   {
+  {
     label: "Safety Guide",
     route: "ShortListedProperties",
     icon: SafetyGuide,
   },
-   {
+  {
     label: "Report an Issue",
     route: "ShortListedProperties",
     icon: ReportIssue,
   },
-   {
+  {
     label: "Terms & Conditions",
     route: "ShortListedProperties",
     icon: TermsAndConditions,
   },
-   {
+  {
     label: "Privacy Policy",
     route: "ShortListedProperties",
     icon: PrivacyPolicy,
@@ -106,7 +141,7 @@ const More_Details = [
     route: "ShortListedProperties",
     icon: calling,
   },
-]
+];
 
 const Drawer = createDrawerNavigator();
 
@@ -199,10 +234,81 @@ const CustomDrawerContent = ({ navigation, state }) => {
 
       {/* <View style={styles.hrline} /> */}
       <ScrollView style={styles.dataContainer}>
-        {/* {userData?.roleName === "user" ? ( */}
+        {userDetails?.roleName === "agent" && (
+          <View style={styles.userDataContainer}>
+            <Text style={[styles.headingData, { paddingTop: 10 }]}>
+              Agent Workspace
+            </Text>
+            {agentMenuItems.map((item, index) => {
+              const Icon = item.icon;
+              // const isActive = route.name === item.route;
+
+              return (
+                <Pressable
+                  key={index}
+                  onPress={() => handleNavigate(item.route)}
+                  style={[styles.menuItem]}
+                >
+                  <Icon />
+
+                  <Text style={[styles.label]}>{item.label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        )}
+
+        {userDetails?.roleName === "builder" && (
+          <View style={styles.userDataContainer}>
+            <Text style={[styles.headingData, { paddingTop: 10 }]}>
+              Builder Workspace
+            </Text>
+            {builderMenuItems.map((item, index) => {
+              const Icon = item.icon;
+              // const isActive = route.name === item.route;
+
+              return (
+                <Pressable
+                  key={index}
+                  onPress={() => handleNavigate(item.route)}
+                  style={[styles.menuItem]}
+                >
+                  <Icon />
+
+                  <Text style={[styles.label]}>{item.label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        )}
+
+        {userDetails == null || userDetails?.roleName === "user" ? (
+          <View style={styles.userDataContainer}>
+            <Text style={[styles.headingData, { paddingTop: 10 }]}>
+              Profile & Activity
+            </Text>
+            {userMenuItems.map((item, index) => {
+              const Icon = item.icon;
+              // const isActive = route.name === item.route;
+
+              return (
+                <Pressable
+                  key={index}
+                  onPress={() => handleNavigate(item.route)}
+                  style={[styles.menuItem]}
+                >
+                  <Icon />
+
+                  <Text style={[styles.label]}>{item.label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        ) : null}
+
         <View style={styles.userDataContainer}>
-          <Text style={styles.headingData}>Manage Property</Text>
-          {menuItems.map((item, index) => {
+          <Text style={[styles.headingData]}>More Details</Text>
+          {More_Details.map((item, index) => {
             const Icon = item.icon;
             // const isActive = route.name === item.route;
 
@@ -218,72 +324,27 @@ const CustomDrawerContent = ({ navigation, state }) => {
               </Pressable>
             );
           })}
-        </View>
-        <View style={styles.userDataContainer}>
-          <Text style={styles.headingData}>Property Search Activity</Text>
-          {Search_Activity.map((item, index) => {
-            const Icon = item.icon;
-            // const isActive = route.name === item.route;
-
-            return (
-              <Pressable
-                key={index}
-                onPress={() => handleNavigate(item.route)}
-                style={[styles.menuItem]}
-              >
-                <Icon />
-
-                <Text style={[styles.label]}>{item.label}</Text>
-              </Pressable>
-            );
-          })}
-
-        
-
-
-          <Text style={[styles.headingData,{marginTop:18}]}>More Details</Text>
-
-           {More_Details.map((item, index) => {
-            const Icon = item.icon;
-            // const isActive = route.name === item.route;
-
-            return (
-              <Pressable
-                key={index}
-                onPress={() => handleNavigate(item.route)}
-                style={[styles.menuItem]}
-              >
-                <Icon />
-
-                <Text style={[styles.label]}>{item.label}</Text>
-              </Pressable>
-            );
-          })}  <View style={[styles.card,{marginTop:25}]}>
-            <View style={{paddingLeft:5}}>
+          <View style={[styles.card, { marginTop: 25 }]}>
+            <View style={{ paddingLeft: 5 }}>
               <Text style={styles.textPost}>Post Property</Text>
-              <Text style={styles.subTitle}>Sell / Rent Faster with Propenu</Text>
+              <Text style={styles.subTitle}>
+                Sell / Rent Faster with Propenu
+              </Text>
             </View>
 
-            <Image
-              source={HouseSell}
-              style={{ width: 40, height: 40 }}
-            />
+            <Image source={HouseSell} style={{ width: 40, height: 40 }} />
           </View>
-
-          
-          <View style={styles.card}>
-            <View style={{paddingLeft:5}}>
+          {/* <View style={styles.card}>
+            <View style={{ paddingLeft: 5 }}>
               <Text style={styles.textPost}>Search Property</Text>
-              <Text style={styles.subTitle}>Explore Properties & find your home</Text>
+              <Text style={styles.subTitle}>
+                Explore Properties & find your home
+              </Text>
             </View>
 
-            <Image
-              source={HouseSearch}
-              style={{ width: 40, height: 40 }}
-            />
-          </View>
-
-           {/* <View style={styles.card}>
+            <Image source={HouseSearch} style={{ width: 40, height: 40 }} />
+          </View> */}
+          {/* <View style={styles.card}>
             <View style={{paddingLeft:5}}>
               <Text style={styles.textPost}>Owner Property</Text>
               <Text style={styles.subTitle}>Connect directly & simplify home</Text>
@@ -294,8 +355,6 @@ const CustomDrawerContent = ({ navigation, state }) => {
               style={{ width: 40, height: 40 }}
             />
           </View> */}
-
-
           {/* <View style={styles.hrline} /> */}
           {/* LOGOUT BUTTON */}
           {/* <Pressable
@@ -351,7 +410,7 @@ const styles = StyleSheet.create({
     paddingLeft: 35,
     // padding: 20,
     paddingTop: 15,
-    paddingBottom:7,
+    paddingBottom: 7,
     gap: 10,
   },
   nameContainer: {
@@ -382,29 +441,30 @@ const styles = StyleSheet.create({
   },
 
   role: {
-    marginTop:3,
+    marginTop: 3,
     fontSize: 12,
     color: "gray",
   },
   userDataContainer: {
-    padding: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
   },
   headingData: {
     fontSize: 15,
     fontWeight: 500,
     paddingLeft: 10,
-    paddingTop: 5,
+    // paddingTop: 5,
     // color:"#6e6e6e"
   },
-textPost:{
+  textPost: {
     fontSize: 14,
     fontWeight: 500,
-    marginBottom:5
-},
-subTitle:{
-fontSize: 12,
-color:"gray"
-},
+    marginBottom: 5,
+  },
+  subTitle: {
+    fontSize: 12,
+    color: "gray",
+  },
   loginButton: {
     alignItems: "center",
     justifyContent: "center",
@@ -440,7 +500,7 @@ color:"gray"
     alignItems: "center",
     gap: 12,
     paddingHorizontal: 23,
-    marginTop: 25,
+    marginTop: 22,
     // paddingVertical: 14,
     borderRadius: 14,
   },
@@ -457,7 +517,7 @@ color:"gray"
     fontWeight: 400,
     // color: "#82868d",
   },
-  
+
   activeLabel: {
     color: "#27A361",
     fontWeight: "600",
@@ -468,15 +528,15 @@ color:"gray"
     marginBottom: 10,
     borderRadius: 8,
     // backgroundColor: "#f6faf6",
-    backgroundColor:"white",
+    backgroundColor: "white",
     shadowColor: "#333232",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 4,
     elevation: 2,
 
-    flexDirection:"row",
-    justifyContent:"space-between"
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   dot: {
     width: 6,

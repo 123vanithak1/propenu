@@ -2,7 +2,6 @@ import {
   View,
   Text,
   Pressable,
-  Image,
   StyleSheet,
   ScrollView,
   ActivityIndicator,
@@ -15,24 +14,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { apiService } from "../../../services/apiService";
 import formatINR from "../../../utils/FormatINR";
 import useDimensions from "../../../components/CustomHooks/UseDimension";
-import Entypo from "@expo/vector-icons/Entypo";
-import { getItem } from "../../../utils/Storage";
 import NearByLocations from "../../PropertyDetails/detailProperty/NearByLocation";
 import AmenitiesWithModal from "../../PropertyDetails/detailProperty/AmenitiesWithModal";
-import {
-  AreaIcon,
-  BedIcon,
-  PhoneIcon,
-  ImageListIcon,
-  LocationIcon,
-} from "../../../../assets/svg/Logo";
+import { PhoneIcon, LocationIcon } from "../../../../assets/svg/Logo";
 import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
 import { useAuth } from "../../../context/AuthContext";
 
 const MoreResidentialDetails = ({ route }) => {
   const { width, height } = useDimensions();
   const { id } = route.params;
-  const { isLoggedIn,userDetails } = useAuth();
+  const { isLoggedIn, userDetails } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [details, setDetails] = useState(null);
@@ -54,8 +45,7 @@ const MoreResidentialDetails = ({ route }) => {
     }
   };
 
-  const handleContactOwner = async()=> {
-  
+  const handleContactOwner = async () => {
     if (!isLoggedIn) {
       ToastInfo("User not authenticated");
     } else ToastSuccess("We will contact you shortly");
@@ -245,7 +235,7 @@ const MoreResidentialDetails = ({ route }) => {
 
         {/* CONTACT OWNER */}
         <Pressable style={styles.contactBtn} onPress={handleContactOwner}>
-          <PhoneIcon width={18} height={18} color="white"/>
+          <PhoneIcon width={18} height={18} color="white" />
           <Text style={styles.contactText}>Contact</Text>
         </Pressable>
       </ScrollView>
