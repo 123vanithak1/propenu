@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Pressable, ScrollView, ActivityIndicator } from "react-native";
 import { userServices } from "../../services/userServices";
 import * as Keychain from "react-native-keychain";
 import ResidentialCard from "../PropertyListScreen/Cards/ResidentialCard";

@@ -7,7 +7,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Platform,
-  FlatList
+  FlatList,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import AutoImageSlider from "../../../components/ui/AutoImageSlider";
@@ -33,7 +33,7 @@ import { useAuth } from "../../../context/AuthContext";
 const MoreAgriculturalDetails = ({ route }) => {
   const { width, height } = useDimensions();
   const { id } = route.params;
-  const { isLoggedIn,userDetails } = useAuth();
+  const { isLoggedIn, userDetails } = useAuth();
 
   //   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -57,7 +57,6 @@ const MoreAgriculturalDetails = ({ route }) => {
   };
 
   const handleContactOwner = async () => {
-
     if (!isLoggedIn) {
       ToastInfo("User not authenticated");
     } else ToastSuccess("We will contact you shortly");
@@ -147,13 +146,12 @@ const MoreAgriculturalDetails = ({ route }) => {
           <DetailRow label="Current Crop" value={details?.currentCrop} />
           <DetailRow label="Suitable For" value={details?.suitableFor} />
         </Section>
-          <AmenitiesWithModal amenities={details.amenities} />
-        
+        <AmenitiesWithModal amenities={details.amenities} />
 
         {details?.nearbyPlaces && (
           <View style={styles.gallery}>
             <Text style={styles.title}>Location & Landmarks</Text>
-           <FlatList
+            <FlatList
               data={details?.nearbyPlaces}
               horizontal
               keyExtractor={(item) => item.order.toString()}
@@ -166,7 +164,7 @@ const MoreAgriculturalDetails = ({ route }) => {
                 </View>
               )}
               showsHorizontalScrollIndicator={false}
-            />  
+            />
             <View style={styles.mapBox}>
               {Platform.OS === "web" ? (
                 <Text>Map is available on mobile only</Text>
@@ -183,10 +181,11 @@ const MoreAgriculturalDetails = ({ route }) => {
         </Section>
 
         {/* DESCRIPTION */}
-        {details?.description ? 
-        <Section title="Description">
-          <Text style={styles.text}>{details?.description}</Text>
-        </Section> :null }
+        {details?.description ? (
+          <Section title="Description">
+            <Text style={styles.text}>{details?.description}</Text>
+          </Section>
+        ) : null}
 
         {/* CONTACT OWNER */}
         <Pressable style={styles.contactBtn} onPress={handleContactOwner}>
@@ -328,7 +327,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   mapBox: {
-    height: 220,
+    height: 180,
     marginHorizontal: 2,
     marginVertical: 10,
     borderWidth: 1,

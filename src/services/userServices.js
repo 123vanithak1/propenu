@@ -28,20 +28,20 @@ export const userServices = {
           },
         },
       );
-      
+
       if (!response.ok) {
-          throw Error("Failed to fetch shortlisted", error); 
+        throw Error("Failed to fetch shortlisted", error);
       }
-      
+
       const data = await response.json();
       return data;
     } catch (error) {
-     console.log("Error :", error)
+      console.log("Error :", error);
     }
   },
 
   postShortlistedProperties: async (payload) => {
-    console.log("Payload :", payload)
+    console.log("Payload :", payload);
     const token = await getToken();
     try {
       const response = await fetch(
@@ -55,7 +55,7 @@ export const userServices = {
           body: JSON.stringify(payload),
         },
       );
-       if (!response.ok) {
+      if (!response.ok) {
         throw Error("Failed to post shortlisted", error);
       }
 
@@ -63,12 +63,12 @@ export const userServices = {
 
       return data;
     } catch (error) {
-      console.log("Error :", error)
+      console.log("Error :", error);
     }
   },
 
   getMyProperties: async () => {
-     const token = await getToken();
+    const token = await getToken();
     try {
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.SHORTLIST.MY_PROPERTIES}`,
@@ -80,14 +80,14 @@ export const userServices = {
           },
         },
       );
-       if (!response.ok) {
+      if (!response.ok) {
         throw Error("Failed to fetch Properties", error);
       }
       const data = await response.json();
 
       return data;
     } catch (error) {
-      console.log("Error :", error)
+      console.log("Error :", error);
     }
   },
   getContactedProperties: async () => {
@@ -109,7 +109,49 @@ export const userServices = {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.log("Error :", error)
+      console.log("Error :", error);
+    }
+  },
+
+  getProjectLeads: async (projectId) => {
+    const token = await getToken();
+    try {
+      if (!token) {
+        console.log("No token found");
+        return null;
+      }
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.SHORTLIST.LEADS}?projectId=${projectId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      // const response = await fetch(
+      //   `${ENV.BASE_URL}${API_ROUTES.SHORTLIST.LEADS}`,
+      //   {
+      //     params: { projectId },
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   },
+      // );
+      if (!response.ok) {
+        throw Error("Error when getting enquiries");
+      }
+
+      return response.json();
+    } catch (error) {
+      console.log(
+        "GET PROJECT LEADS ERROR:",
+        error.response?.data || error.message,
+      );
+      throw error;
     }
   },
 };

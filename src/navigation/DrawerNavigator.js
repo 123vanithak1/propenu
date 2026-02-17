@@ -72,7 +72,7 @@ const userMenuItems = [
 const agentMenuItems = [
   {
     label: "DashBoard   ",
-    route: "Membership",
+    route: "AgentDashBoard",
     icon: Dollar,
   },
   {
@@ -524,8 +524,7 @@ const styles = StyleSheet.create({
   },
   card: {
     padding: 10,
-    marginTop: 10,
-    marginBottom: 10,
+    marginVertical: 10,
     borderRadius: 8,
     // backgroundColor: "#f6faf6",
     backgroundColor: "white",

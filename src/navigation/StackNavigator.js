@@ -7,26 +7,27 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import PropertyListScreen from "../screens/PropertyListScreen/PropertyListScreen";
 import MoreResidentialDetails from "../screens/PropertyListScreen/MoreDetails/MoreResidentialDetails";
 import CategoryFilterScreen from "../screens/SearchFilter/CategoryFilterScreen";
-import SettingsScreen from "../screens/Account/SettingsScreen";
+import SettingsScreen from "../screens/UserAccount/SettingsScreen";
 import LoginModal from "../auth/LoginModal";
 import CreateLogin from "../auth/CreateLogin";
 import OTPLoginModal from "../auth/OTPLoginScreen";
 import MoreCommercialDetails from "../screens/PropertyListScreen/MoreDetails/MoreCommercialDetails";
 import MoreLandDetails from "../screens/PropertyListScreen/MoreDetails/MoreLandDetails";
 import MoreAgriculturalDetails from "../screens/PropertyListScreen/MoreDetails/MoreAgriculturalDetails";
-import ContactedProperties from "../screens/Account/ContactedProperties";
+import ContactedProperties from "../screens/UserAccount/ContactedProperties";
 import { LocationIcon } from "../../assets/svg/Logo";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useSelector, useDispatch } from "react-redux";
 import { toggleDropdown, setCity } from "../redux/slice/DropDownSlice";
 import HomeScreen from "../screens/HomeScreen/HomeScreen";
-import ShortListedScreen from "../screens/ShortListedScreen/ShortListedScreen";
-import MyProperties from "../screens/Account/MyProperties";
-import Membership from "../screens/Account/Membership";
+import ShortListedScreen from "../screens/UserAccount/ShortListedScreen";
+import MyProperties from "../screens/UserAccount/MyProperties";
+import Membership from "../screens/UserAccount/Membership";
 import MoreOwnerPropertyDetail from "../components/OwnersProperties/MoreOwnerPropertyDetails";
 import UpcomingScreen from "../components/ui/UpComingPage";
 import useCity from "../components/CustomHooks/useCity";
 import MoreAgentDetails from "../components/Agent/MoreAgentDetails";
+import AgentDashBoard from "../screens/AgentAccount/AgentDashBoard";
 const Stack = createNativeStackNavigator();
 
 export default function StackNavigator() {
@@ -221,6 +222,11 @@ export default function StackNavigator() {
       <Stack.Screen
         name="upComingScreen"
         component={UpcomingScreen}
+        options={{ headerShown: true }}
+      />
+      <Stack.Screen
+        name="AgentDashBoard"
+        component={AgentDashBoard}
         options={{ headerShown: true }}
       />
     </Stack.Navigator>

@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   },
 
   mapBox: {
-    height: 210,
+    height: 180,
     marginHorizontal: 2,
     marginVertical: 10,
     borderWidth: 1,

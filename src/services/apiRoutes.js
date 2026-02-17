@@ -31,7 +31,12 @@ export const API_ROUTES = {
   SHORTLIST :{
    SHORTLISTED_PROP : "/api/users/shortlist",
    MY_PROPERTIES :"/api/properties/search/my",
+   LEADS:"/api/properties/leads",
    CONTACTED_PROP:"/api/properties/leads/my-contacts"
   },
+
+  AGENT:{
+    AGENT_PROFILE :"/api/users/agent"
+  }
 
 };

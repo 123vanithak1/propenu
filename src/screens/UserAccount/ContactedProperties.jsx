@@ -73,7 +73,10 @@ const ContactedProperties = () => {
           renderItem={({ item }) => <PropertyCard item={item} />}
         />
       ) : (
+        <View style={styles.noContent}>
+
         <Text>No contacted properties available</Text>
+        </View>
       )}
     </View>
   );
@@ -130,6 +133,11 @@ const styles = StyleSheet.create({
     width: "100%",
     alignSelf: "center",
     borderRadius: 8,
+  },
+  noContent:{
+ flex:1,
+ justifyContent:"center",
+ alignItems:"center"
   },
   content: {
     paddingVertical: 10,
