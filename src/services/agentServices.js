@@ -14,13 +14,10 @@ const getToken = async () => {
   const token = credentials.password;
   return token;
 };
+
 export const agentServices = {
   getAgent: async (dateRange = "30") => {
     const token = await getToken();
-    console.log(
-      "Final URL :",
-      `${ENV.BASE_URL}${API_ROUTES.AGENT.AGENT_PROFILE}/my?range=${dateRange}`,
-    );
     try {
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.AGENT.AGENT_PROFILE}/my?range=${dateRange}`,

@@ -32,6 +32,9 @@ import AgentProperties from "../screens/AgentAccount/AgentProperties";
 import AgentLeads from "../screens/AgentAccount/AgentLeads";
 import AgentAccountSettings from "../screens/AgentAccount/AgentAccountSettings";
 import AboutUs from "../screens/MoreDetails/AboutUs";
+import BuilderDashBoard from "../screens/BuilderAccount/BuilderDashBoard";
+import BuilderProperties from "../screens/BuilderAccount/BuiderProperties";
+import BuilderLeads from "../screens/BuilderAccount/BuilderLeads";
 
 const Stack = createNativeStackNavigator();
 
@@ -325,6 +328,48 @@ options={{
         options={{
           title: "About Us",
           headerTitle: "About Us",
+          headerLeft: undefined,
+          headerRight: undefined,
+          headerTitleStyle: {
+            fontSize: 16, 
+            fontWeight: "600",
+          },
+        }}
+      />
+      <Stack.Screen
+        name="BuilderDashBoard"
+        component={BuilderDashBoard}
+        options={{
+          title: "Dashboard",
+          headerTitle: "Dashboard",
+          headerLeft: undefined,
+          headerRight: undefined,
+          headerTitleStyle: {
+            fontSize: 16, 
+            fontWeight: "600",
+          },
+        }}
+      />
+      <Stack.Screen
+        name="BuilderProperties"
+        component={BuilderProperties}
+        options={{
+          title: "My Properties",
+          headerTitle: "My Projects",
+          headerLeft: undefined,
+          headerRight: undefined,
+          headerTitleStyle: {
+            fontSize: 16, 
+            fontWeight: "600",
+          },
+        }}
+      />
+      <Stack.Screen
+        name="BuilderLeads"
+        component={BuilderLeads}
+        options={{
+          // title: "Leads",
+          headerTitle: "My Leads",
           headerLeft: undefined,
           headerRight: undefined,
           headerTitleStyle: {

@@ -2,46 +2,49 @@ import { PROVIDER_DEFAULT } from "react-native-maps";
 
 export const API_ROUTES = {
   AUTH: {
-    LOGIN : "/api/users/auth/request-otp",
-    VERIFY_OTP : "/api/users/auth/verify-otp",
-    VERIFY_TOKEN : "/api/users/auth/me",
-    CREATE_ACCOUNT : "/api/users/auth/request-otp/create",
-    REQUEST_OTP : "/api/users/auth/verify-otp/create"
+    LOGIN: "/api/users/auth/request-otp",
+    VERIFY_OTP: "/api/users/auth/verify-otp",
+    VERIFY_TOKEN: "/api/users/auth/me",
+    CREATE_ACCOUNT: "/api/users/auth/request-otp/create",
+    REQUEST_OTP: "/api/users/auth/verify-otp/create",
   },
   USER: {
-    FEATURED_PROJECTS : "/api/properties/featured-project",
-    HIGHLIGHT_PROJECTS : "/api/properties/highlight-projects",
-    OWNERS_PROPERTIES : "/api/properties/owners-properties",
-    ARGICULTURAL : "/api/properties/agricultural",
-    LAND : "/api/properties/land",
-    COMMERCIAL : "/api/properties/commercial",
-    RESIDENTIAL : "/api/properties/residential",
-    AGENT : "/api/users/agent",
-    LOCATION : "/api/users/location",
+    FEATURED_PROJECTS: "/api/properties/featured-project",
+    HIGHLIGHT_PROJECTS: "/api/properties/highlight-projects",
+    OWNERS_PROPERTIES: "/api/properties/owners-properties",
+    ARGICULTURAL: "/api/properties/agricultural",
+    LAND: "/api/properties/land",
+    COMMERCIAL: "/api/properties/commercial",
+    RESIDENTIAL: "/api/properties/residential",
+    AGENT: "/api/users/agent",
+    LOCATION: "/api/users/location",
   },
-  SEARCH :{
-    CATEGORY_SEARCH :"/api/properties/search",
-    RESIDENTIAL_CATEGORY_SEARCH :  "/api/properties/residential",
-    COMMERCIAL_CATEGORY_SEARCH :  "/api/properties/commercial",
-    LAND_CATEGORY_SEARCH :  "/api/properties/land",
-    AGRICULTURAL_CATEGORY_SEARCH :  "/api/properties/agricultural",
-
-  },
-
-  SHORTLIST :{
-   SHORTLISTED_PROP : "/api/users/shortlist",
-   MY_PROPERTIES :"/api/properties/search/my",
-   LEADS:"/api/properties/leads",
-   CONTACTED_PROP:"/api/properties/leads/my-contacts"
+  SEARCH: {
+    CATEGORY_SEARCH: "/api/properties/search",
+    RESIDENTIAL_CATEGORY_SEARCH: "/api/properties/residential",
+    COMMERCIAL_CATEGORY_SEARCH: "/api/properties/commercial",
+    LAND_CATEGORY_SEARCH: "/api/properties/land",
+    AGRICULTURAL_CATEGORY_SEARCH: "/api/properties/agricultural",
   },
 
-  AGENT:{
-    AGENT_PROFILE :"/api/users/agent", 
-    AGENT_DETAILS:"/api/users/agent/me/profile"
-  
+  SHORTLIST: {
+    SHORTLISTED_PROP: "/api/users/shortlist",
+    MY_PROPERTIES: "/api/properties/search/my",
+    LEADS: "/api/properties/leads",
+    CONTACTED_PROP: "/api/properties/leads/my-contacts",
   },
-  PAYMENTS :{
-   PAYMENTS_HISTORY :"/api/payments/subscriptions/history"
-  }
-    
+
+  AGENT: {
+    AGENT_PROFILE: "/api/users/agent",
+    AGENT_DETAILS: "/api/users/agent/me/profile",
+  },
+
+  BUILDER: {
+    BUILDER_ANALYTICS: "/api/users/builder/analytics",
+    BUILDER_MYPROPERTIES : "/api/properties/highlight-projects/builder/me"
+  },
+
+  PAYMENTS: {
+    PAYMENTS_HISTORY: "/api/payments/subscriptions/history",
+  },
 };

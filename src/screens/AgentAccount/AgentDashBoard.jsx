@@ -10,7 +10,6 @@ import Entypo from "@expo/vector-icons/Entypo";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-
 import HorizontalBarChart from "./ui/HorizontalBarChart";
 import PieChartCard from "./ui/PieChartCard";
 import KpiCard from "./ui/KpiCard";
@@ -18,7 +17,8 @@ import DropdownUI from "../../components/ui/DropDownUI";
 import { agentServices } from "../../services/agentServices";
 import { useQuery } from "@tanstack/react-query";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import TopPropertiesTable from "./ui/TopPropertiesTable"
+import TopPropertiesTable from "./ui/TopPropertiesTable";
+
 const DATE_RANGE_OPTIONS = [
   { label: "Last 7 days", value: "7" },
   { label: "Last 30 days", value: "30" },

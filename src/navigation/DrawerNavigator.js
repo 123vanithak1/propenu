@@ -94,18 +94,18 @@ const agentMenuItems = [
 
 const builderMenuItems = [
   {
-    label: "DashBoard   ",
-    route: "Membership",
+    label: "Dashboard",
+    route: "BuilderDashBoard",
     icon: Dollar,
   },
   {
     label: "My Properties",
-    route: "MyProperties",
+    route: "BuilderProperties",
     icon: MyProperties,
   },
   {
     label: "Leads",
-    route: "Membership",
+    route: "BuilderLeads",
     icon: Leads,
   },
 ];
@@ -176,7 +176,6 @@ const CustomDrawerContent = ({ navigation, state }) => {
         return "Settings";
     }
   };
-
 
   return (
     <SafeAreaView style={styles.drawerContent}>
