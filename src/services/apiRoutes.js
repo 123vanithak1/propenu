@@ -36,7 +36,12 @@ export const API_ROUTES = {
   },
 
   AGENT:{
-    AGENT_PROFILE :"/api/users/agent"
+    AGENT_PROFILE :"/api/users/agent", 
+    AGENT_DETAILS:"/api/users/agent/me/profile"
+  
+  },
+  PAYMENTS :{
+   PAYMENTS_HISTORY :"/api/payments/subscriptions/history"
   }
-
+    
 };

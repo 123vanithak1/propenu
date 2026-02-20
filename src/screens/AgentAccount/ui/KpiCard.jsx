@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   title: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#000",
   },
   value: {

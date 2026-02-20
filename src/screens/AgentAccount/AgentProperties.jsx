@@ -20,7 +20,8 @@ import { Ionicons } from "@expo/vector-icons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { setPropertyType } from "../../redux/slice/PostPropertySlice";
-import ResponsesModal from "./ResponseModal";
+// import ResponsesModal from "./ResponseModal";
+import DropdownUI from "../../components/ui/DropDownUI";
 
 const TAB_KEY_MAP = {
   Residential: "residential",
@@ -30,8 +31,13 @@ const TAB_KEY_MAP = {
 };
 
 const categories = ["Residential", "Commercial", "Plot", "Agriculture"];
+const filterBase = ["All", "Active", "Draft"];
+const listingOptions = [
+  { label: "Sale", value: "sale" },
+  { label: "Rent", value: "rent" },
+];
 
-const MyProperties = () => {
+const AgentProperties = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const dispatch = useDispatch();
@@ -39,14 +45,11 @@ const MyProperties = () => {
   const [activeTab, setActiveTab] = useState("Residential");
   const [search, setSearch] = useState("");
   const [listingType, setListingType] = useState("sale");
-  const [status, setStatus] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState("All");
 
-  // console.log(selectedFilter, "KKKKKKKKKKKKKKKK")
-
-  const { data, isLoading } = useQuery({
+  const { data, isLoading,isError, error, } = useQuery({
     queryKey: ["myProperties"],
     queryFn: userServices.getMyProperties,
   });
@@ -70,12 +73,14 @@ const MyProperties = () => {
       );
     }
 
-    if (status !== "All") {
-      list = list.filter((p) => p.status === status);
+    if (selectedFilter !== "All") {
+      list = list.filter(
+        (p) => p.status === selectedFilter.toLowerCase(),
+      );
     }
 
     return list;
-  }, [data, activeTab, search, status, listingType]);
+  }, [data, activeTab, search, selectedFilter, listingType]);
 
   if (isLoading) {
     return (
@@ -91,8 +96,8 @@ const MyProperties = () => {
   };
 
   const handleResponse = (projectId) => {
-    setSelectedProjectId(projectId); // pass project id
-    setIsModalOpen(true); // open modal
+    setSelectedProjectId(projectId); 
+    setIsModalOpen(true); 
   };
 
   const handleNavigate = (item) => {
@@ -158,7 +163,7 @@ const MyProperties = () => {
                     })
                   : "—"}{" "}
               </Text>
-              <Text style={{ color: "#27AE60" }}>({item.status})</Text>
+              {/* <Text style={{ color: "#27AE60" }}>({item.status})</Text> */}
             </Text>
 
             <Text style={styles.price}>
@@ -185,14 +190,14 @@ const MyProperties = () => {
           </View>
         </View>
 
-        <View style={styles.buttonsContainer}>
-          <Pressable
+        {/* <View style={styles.buttonsContainer}> */}
+          {/* <Pressable
             style={styles.responseOption}
             onPress={() => handleResponse(item._id)}
           >
             <Ionicons name="chatbox-outline" size={16} color="black" />
             <Text style={{ fontSize: 12, fontWeight: 500 }}>Responses</Text>
-          </Pressable>
+          </Pressable> */}
 
           <Pressable style={styles.editOption} onPress={handleEdit}>
             <MaterialIcons name="mode-edit" size={17} color="white" />
@@ -201,12 +206,12 @@ const MyProperties = () => {
             </Text>
           </Pressable>
 
-          <ResponsesModal
+          {/* <ResponsesModal
             open={isModalOpen}
             projectId={selectedProjectId}
             onClose={() => setIsModalOpen(false)}
-          />
-        </View>
+          /> */}
+        {/* </View> */}
       </Pressable>
     );
   };
@@ -243,43 +248,51 @@ const MyProperties = () => {
             />
 
             {/* Horizontal Filters */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filterContainer}
-            >
-              {[
-                "All",
-                "Active",
-                "Reported",
-                "Subscription Expired",
-                "Deactive",
-              ].map((item, index) => {
-                const isSelected = selectedFilter === item;
+            <View style={styles.meta}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.filterContainer}
+              >
+                {filterBase.map((item, index) => {
+                  const isSelected = selectedFilter === item;
 
-                return (
-                  <Pressable
-                    key={index}
-                    onPress={() => setSelectedFilter(item)}
-                    style={[
-                      styles.filterButton,
-                      isSelected && styles.activeFilter,
-                    ]}
-                  >
-                    <Text
+                  return (
+                    <Pressable
+                      key={index}
+                      onPress={() => setSelectedFilter(item)}
                       style={[
-                        styles.filterText,
-                        isSelected && styles.activeFilterText,
+                        styles.filterButton,
+                        isSelected && styles.activeFilter,
                       ]}
                     >
-                      {item}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-            {count ? (
+                      <Text
+                        style={[
+                          styles.filterText,
+                          isSelected && styles.activeFilterText,
+                        ]}
+                      >
+                        {item}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+              <View style={styles.dropDown}>
+                <DropdownUI
+                  value={listingType}
+                  onChange={setListingType}
+                  options={listingOptions}
+                />
+              </View>
+            </View>
+            {/* {count ? (
               <Text style={styles.totalCount}>{count} Properties found</Text>
+            ) : null} */}
+            {filteredProperties?.length ? (
+              <Text style={styles.totalCount}>
+                {filteredProperties.length} Properties found
+              </Text>
             ) : null}
           </View>
         }
@@ -292,20 +305,7 @@ const MyProperties = () => {
     </View>
   );
 };
-export default MyProperties;
-
-/* ================= STATUS COLOR ================= */
-
-const getStatusStyle = (status) => {
-  switch (status) {
-    case "Active":
-      return { backgroundColor: "#DCFCE7", color: "#27AE60" };
-    case "Draft":
-      return { backgroundColor: "#FEF9C3", color: "#a16207" };
-    default:
-      return { backgroundColor: "#eee", color: "#555" };
-  }
-};
+export default AgentProperties;
 
 /* ================= STYLES ================= */
 
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 10,
-    // gap: 2,
+    gap: 5,
   },
 
   menu: {
@@ -358,7 +358,8 @@ const styles = StyleSheet.create({
   totalCount: {
     fontSize: 15,
     fontWeight: 500,
-    marginVertical: 10,
+    marginBottom: 10,
+    marginTop: 5,
     paddingLeft: 3,
   },
   search: {
@@ -438,6 +439,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#27AE60",
     width: "48%",
     alignItems: "center",
+    alignSelf:"flex-end",
     justifyContent: "center",
     paddingVertical: 7,
     borderRadius: 8,
@@ -456,12 +458,18 @@ const styles = StyleSheet.create({
   },
 
   filterContainer: {
-    paddingVertical: 8,
+    marginVertical: 8,
+    alignItems: "center",
     // paddingHorizontal:10
+  },
+  dropDown: {
+    width: "40%",
   },
 
   filterButton: {
     paddingVertical: 6,
+    textAlign: "center",
+    alignItems: "center",
     paddingHorizontal: 14,
     borderRadius: 10,
     backgroundColor: "#F0F0F0",

@@ -16,7 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { userServices } from "../../services/userServices";
 
 const ResponsesModal = ({ open, onClose, projectId }) => {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, } = useQuery({
     queryKey: ["project-leads", projectId],
     queryFn: () => userServices.getProjectLeads(projectId),
     enabled: open && !!projectId,

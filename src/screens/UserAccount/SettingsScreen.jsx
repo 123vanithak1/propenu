@@ -193,7 +193,7 @@ const SettingsScreen = () => {
       {/* LOGOUT BUTTON */}
       <Pressable
         onPress={handleLogout}
-        style={[styles.menuItem, styles.logoutItem]}
+        style={[styles.menuItem]}
       >
         <AntDesign name="logout" size={19} color="#E53935" />
         <Text style={[styles.label, styles.logoutLabel]}>Logout</Text>

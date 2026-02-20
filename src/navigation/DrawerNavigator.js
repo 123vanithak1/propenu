@@ -77,12 +77,12 @@ const agentMenuItems = [
   },
   {
     label: "My Properties",
-    route: "MyProperties",
+    route: "AgentProperties",
     icon: MyProperties,
   },
   {
     label: "Leads",
-    route: "Membership",
+    route: "AgentLeads",
     icon: Leads,
   },
   {
@@ -113,7 +113,7 @@ const builderMenuItems = [
 const More_Details = [
   {
     label: "About Us",
-    route: "ShortListedProperties",
+    route: "AboutUs",
     icon: AboutUs,
   },
   {
@@ -147,6 +147,8 @@ const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = ({ navigation, state }) => {
   const { isLoggedIn, userDetails, refreshAuth } = useAuth();
+  const [selectedRoute, setSelectedRoute] = useState(null);
+
   console.log("is login:", isLoggedIn, userDetails);
 
   const capitalize = (str) =>
@@ -164,26 +166,26 @@ const CustomDrawerContent = ({ navigation, state }) => {
     }
   };
 
-  const handleLogout = async () => {
-    if (userDetails != null) {
-      await clearStorage();
-      await Keychain.resetGenericPassword();
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      await refreshAuth();
-      // setUserData(null);
-      ToastSuccess("Logged out successfully");
-      navigation.navigate("HomeStack", { screen: "Home" });
-    } else {
-      ToastSuccess("You are already logged out");
+  const navigateByRole = () => {
+    switch (userDetails?.roleName) {
+      case "agent":
+        return "AgentAccountSettings";
+      case "user":
+        return "Settings";
+      default:
+        return "Settings";
     }
   };
+
 
   return (
     <SafeAreaView style={styles.drawerContent}>
       {userDetails ? (
         <Pressable
           onPress={() =>
-            navigation.navigate("HomeStack", { screen: "Settings" })
+            navigation.navigate("HomeStack", {
+              screen: navigateByRole(),
+            })
           }
         >
           <View
@@ -236,7 +238,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
       <ScrollView style={styles.dataContainer}>
         {userDetails?.roleName === "agent" && (
           <View style={styles.userDataContainer}>
-            <Text style={[styles.headingData, { paddingTop: 10 }]}>
+            <Text style={[styles.headingData, { paddingVertical: 8 }]}>
               Agent Workspace
             </Text>
             {agentMenuItems.map((item, index) => {
@@ -246,12 +248,25 @@ const CustomDrawerContent = ({ navigation, state }) => {
               return (
                 <Pressable
                   key={index}
-                  onPress={() => handleNavigate(item.route)}
-                  style={[styles.menuItem]}
+                  onPress={() => {
+                    setSelectedRoute(item.route);
+                    handleNavigate(item.route);
+                  }}
+                  style={[
+                    styles.menuItem,
+                    selectedRoute === item.route && styles.activeMenuItem,
+                  ]}
                 >
                   <Icon />
 
-                  <Text style={[styles.label]}>{item.label}</Text>
+                  <Text
+                    style={[
+                      styles.label,
+                      selectedRoute === item.route && styles.activeLabel,
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
                 </Pressable>
               );
             })}
@@ -260,7 +275,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
 
         {userDetails?.roleName === "builder" && (
           <View style={styles.userDataContainer}>
-            <Text style={[styles.headingData, { paddingTop: 10 }]}>
+            <Text style={[styles.headingData, { paddingVertical: 8 }]}>
               Builder Workspace
             </Text>
             {builderMenuItems.map((item, index) => {
@@ -270,12 +285,25 @@ const CustomDrawerContent = ({ navigation, state }) => {
               return (
                 <Pressable
                   key={index}
-                  onPress={() => handleNavigate(item.route)}
-                  style={[styles.menuItem]}
+                  onPress={() => {
+                    setSelectedRoute(item.route);
+                    handleNavigate(item.route);
+                  }}
+                  style={[
+                    styles.menuItem,
+                    selectedRoute === item.route && styles.activeMenuItem,
+                  ]}
                 >
                   <Icon />
 
-                  <Text style={[styles.label]}>{item.label}</Text>
+                  <Text
+                    style={[
+                      styles.label,
+                      selectedRoute === item.route && styles.activeLabel,
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
                 </Pressable>
               );
             })}
@@ -284,7 +312,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
 
         {userDetails == null || userDetails?.roleName === "user" ? (
           <View style={styles.userDataContainer}>
-            <Text style={[styles.headingData, { paddingTop: 10 }]}>
+            <Text style={[styles.headingData, { paddingVertical: 8 }]}>
               Profile & Activity
             </Text>
             {userMenuItems.map((item, index) => {
@@ -294,12 +322,25 @@ const CustomDrawerContent = ({ navigation, state }) => {
               return (
                 <Pressable
                   key={index}
-                  onPress={() => handleNavigate(item.route)}
-                  style={[styles.menuItem]}
+                  onPress={() => {
+                    setSelectedRoute(item.route);
+                    handleNavigate(item.route);
+                  }}
+                  style={[
+                    styles.menuItem,
+                    selectedRoute === item.route && styles.activeMenuItem,
+                  ]}
                 >
                   <Icon />
 
-                  <Text style={[styles.label]}>{item.label}</Text>
+                  <Text
+                    style={[
+                      styles.label,
+                      selectedRoute === item.route && styles.activeLabel,
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
                 </Pressable>
               );
             })}
@@ -307,7 +348,9 @@ const CustomDrawerContent = ({ navigation, state }) => {
         ) : null}
 
         <View style={styles.userDataContainer}>
-          <Text style={[styles.headingData]}>More Details</Text>
+          <Text style={[styles.headingData, { paddingBottom: 7 }]}>
+            More Details
+          </Text>
           {More_Details.map((item, index) => {
             const Icon = item.icon;
             // const isActive = route.name === item.route;
@@ -315,12 +358,25 @@ const CustomDrawerContent = ({ navigation, state }) => {
             return (
               <Pressable
                 key={index}
-                onPress={() => handleNavigate(item.route)}
-                style={[styles.menuItem]}
+                onPress={() => {
+                  setSelectedRoute(item.route);
+                  handleNavigate(item.route);
+                }}
+                style={[
+                  styles.menuItem,
+                  selectedRoute === item.route && styles.activeMenuItem,
+                ]}
               >
                 <Icon />
 
-                <Text style={[styles.label]}>{item.label}</Text>
+                <Text
+                  style={[
+                    styles.label,
+                    selectedRoute === item.route && styles.activeLabel,
+                  ]}
+                >
+                  {item.label}
+                </Text>
               </Pressable>
             );
           })}
@@ -356,14 +412,6 @@ const CustomDrawerContent = ({ navigation, state }) => {
             />
           </View> */}
           {/* <View style={styles.hrline} /> */}
-          {/* LOGOUT BUTTON */}
-          {/* <Pressable
-            onPress={handleLogout}
-            style={[styles.menuItem, styles.logoutItem]}
-          >
-            <AntDesign name="logout" size={19} color="#E53935" />
-            <Text style={[styles.label, styles.logoutLabel]}>Logout</Text>
-          </Pressable> */}
         </View>
 
         {/* ) : null} */}
@@ -500,8 +548,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
     paddingHorizontal: 23,
-    marginTop: 22,
-    // paddingVertical: 14,
+    // marginTop: 5,
+    paddingVertical: 12,
     borderRadius: 14,
   },
   activeItem: {
@@ -519,9 +567,15 @@ const styles = StyleSheet.create({
   },
 
   activeLabel: {
-    color: "#27A361",
-    fontWeight: "600",
+    color: "#27AE60",
+    fontWeight: "500",
   },
+
+  activeMenuItem: {
+    // backgroundColor: "#ecf9f1",
+    borderRadius: 8,
+  },
+
   card: {
     padding: 10,
     marginVertical: 10,

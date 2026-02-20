@@ -28,6 +28,11 @@ import UpcomingScreen from "../components/ui/UpComingPage";
 import useCity from "../components/CustomHooks/useCity";
 import MoreAgentDetails from "../components/Agent/MoreAgentDetails";
 import AgentDashBoard from "../screens/AgentAccount/AgentDashBoard";
+import AgentProperties from "../screens/AgentAccount/AgentProperties";
+import AgentLeads from "../screens/AgentAccount/AgentLeads";
+import AgentAccountSettings from "../screens/AgentAccount/AgentAccountSettings";
+import AboutUs from "../screens/MoreDetails/AboutUs";
+
 const Stack = createNativeStackNavigator();
 
 export default function StackNavigator() {
@@ -103,23 +108,49 @@ export default function StackNavigator() {
       <Stack.Screen
         name="ShortListedProperties"
         component={ShortListedScreen}
-        options={{ headerShown: true }}
-      />
+options={{
+          title: "ShortListed Properties",
+          headerTitle: "ShortListed Properties",
+          headerLeft: undefined,
+          headerRight: undefined,
+          headerTitleStyle: {
+            fontSize: 16, 
+            fontWeight: "600",
+          },
+        }}      />
       <Stack.Screen
         name="MyProperties"
         component={MyProperties}
-        options={{ headerShown: true }}
+        options={{
+          title: "My Properties",
+          headerTitle: "My Properties",
+          headerLeft: undefined,
+          headerRight: undefined,
+          headerTitleStyle: {
+            fontSize: 16, // 👈 decrease this
+            fontWeight: "600",
+          },
+        }}
       />
       <Stack.Screen
         name="Membership"
         component={Membership}
-        options={{ headerShown: true }}
+        options={{
+          title: "Membership",
+          headerTitle: "Membership",
+          headerLeft: undefined,
+          headerRight: undefined,
+          headerTitleStyle: {
+            fontSize: 16, 
+            fontWeight: "600",
+          },
+        }}
       />
 
       <Stack.Screen
         name="PostProperty"
         component={PostProperty}
-         options={{ headerShown: false }}
+        options={{ headerShown: false }}
         // options={({ navigation }) => ({
         //   headerBackVisible: false, // Make this true for back option
         //   headerStyle: {
@@ -217,8 +248,16 @@ export default function StackNavigator() {
       <Stack.Screen
         name="ContactedProperties"
         component={ContactedProperties}
-        options={{ headerShown: true }}
-      />
+        options={{
+          title: "Contacted Properties",
+          headerTitle: "Contacted Properties",
+          headerLeft: undefined,
+          headerRight: undefined,
+          headerTitleStyle: {
+            fontSize: 16, 
+            fontWeight: "600",
+          },
+        }}      />
       <Stack.Screen
         name="upComingScreen"
         component={UpcomingScreen}
@@ -227,7 +266,72 @@ export default function StackNavigator() {
       <Stack.Screen
         name="AgentDashBoard"
         component={AgentDashBoard}
-        options={{ headerShown: true }}
+        options={{
+          title: "DashBoard",
+          headerTitle: "DashBoard",
+          headerLeft: undefined,
+          headerRight: undefined,
+          headerTitleStyle: {
+            fontSize: 16,
+            fontWeight: "600",
+          },
+        }}
+      />
+      <Stack.Screen
+        name="AgentProperties"
+        component={AgentProperties}
+        options={{
+          title: "My Properties",
+          headerTitle: "My Properties",
+          headerLeft: undefined,
+          headerRight: undefined,
+          headerTitleStyle: {
+            fontSize: 16, 
+            fontWeight: "600",
+          },
+        }}
+      />
+      <Stack.Screen
+        name="AgentLeads"
+        component={AgentLeads}
+        options={{
+          title: "Leads",
+          headerTitle: "Leads",
+          headerLeft: undefined,
+          headerRight: undefined,
+          headerTitleStyle: {
+            fontSize: 16, 
+            fontWeight: "600",
+          },
+        }}
+      />
+      <Stack.Screen
+        name="AgentAccountSettings"
+        component={AgentAccountSettings}
+        options={{
+          title: "Account & Settings",
+          headerTitle: "Account & Settings",
+          headerLeft: undefined,
+          headerRight: undefined,
+          headerTitleStyle: {
+            fontSize: 16, 
+            fontWeight: "600",
+          },
+        }}
+      />
+      <Stack.Screen
+        name="AboutUs"
+        component={AboutUs}
+        options={{
+          title: "About Us",
+          headerTitle: "About Us",
+          headerLeft: undefined,
+          headerRight: undefined,
+          headerTitleStyle: {
+            fontSize: 16, 
+            fontWeight: "600",
+          },
+        }}
       />
     </Stack.Navigator>
   );

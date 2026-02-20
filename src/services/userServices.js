@@ -115,6 +115,7 @@ export const userServices = {
 
   getProjectLeads: async (projectId) => {
     const token = await getToken();
+    console.log(projectId,"MyProjectLeadsid")
     try {
       if (!token) {
         console.log("No token found");
@@ -154,4 +155,56 @@ export const userServices = {
       throw error;
     }
   },
+
+
+  getMyAgentProfile : async () => {
+     const token = await getToken();
+  try {
+    const response = await fetch(
+ `${ENV.BASE_URL}${API_ROUTES.AGENT.AGENT_DETAILS}`,      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch profile");
+    }
+
+    const data = await response.json();
+    return data;
+
+  } catch (error) {
+    console.log("Error fetching agent profile:", error);
+    return null;
+  }
+},
+  getMembershipHistory : async () => {
+     const token = await getToken();
+  try {
+    const response = await fetch(
+ `${ENV.BASE_URL}${API_ROUTES.PAYMENTS.PAYMENTS_HISTORY}`,      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch profile");
+    }
+
+    const data = await response.json();
+    return data;
+
+  } catch (error) {
+    console.log("Error fetching agent profile:", error);
+    return null;
+  }
+},
 };
