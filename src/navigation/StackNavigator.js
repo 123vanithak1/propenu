@@ -35,13 +35,22 @@ import AboutUs from "../screens/MoreDetails/AboutUs";
 import BuilderDashBoard from "../screens/BuilderAccount/BuilderDashBoard";
 import BuilderProperties from "../screens/BuilderAccount/BuiderProperties";
 import BuilderLeads from "../screens/BuilderAccount/BuilderLeads";
+import TermsAndConditions from "../screens/MoreDetails/TermsAndConditions";
+import PrivacyPolicy from "../screens/MoreDetails/PrivacyPolicy";
+import SafetyGuide from "../screens/MoreDetails/SafetyGuide";
+import HelpCenter from "../screens/MoreDetails/HelpCenter";
 
 const Stack = createNativeStackNavigator();
 
+const HEADER_TYPES = {
+  HOME: "HOME",
+  INNER: "INNER",
+  NONE: "NONE",
+};
 export default function StackNavigator() {
+  
   const dispatch = useDispatch();
   const isOpen = useSelector((state) => state.dropdown.isOpen);
-  // const selectedCity = useSelector((state) => state.dropdown.selectedCity);
   const { selectedCity } = useCity();
 
   const handleCity = () => {
@@ -78,307 +87,565 @@ export default function StackNavigator() {
     </Pressable>
   );
 
+  const baseHeader = {
+    headerShadowVisible: false,
+    headerStyle: {
+      elevation: 0,
+      shadowColor: "transparent",
+      borderBottomWidth: 0,
+      backgroundColor: "#fff",
+    },
+    headerTitleStyle: {
+      fontSize: 16,
+      fontWeight: "600",
+    },
+  };
+
+  const buildHeaderOptions = (type, navigation, title) => {
+    switch (type) {
+      case "HOME":
+        return {
+          ...baseHeader,
+          headerTitle: () => null,
+          headerLeft: () => renderMenuButton(navigation),
+          headerRight: () => renderPostPropertyButton(navigation),
+        };
+
+      case "INNER":
+        return {
+          ...baseHeader,
+          headerTitle: title,
+          headerBackTitleVisible: false,
+          headerLeft: undefined,
+          headerRight: undefined,
+        };
+
+      case "NONE":
+        return {
+          headerShown: false,
+        };
+
+      default:
+        return baseHeader;
+    }
+  };
+
+  const stackScreens = [
+    { name: "Home", component: HomeScreen, headerType: HEADER_TYPES.HOME },
+
+    {
+      name: "ShortListedProperties",
+      component: ShortListedScreen,
+      headerType: HEADER_TYPES.INNER,
+      title: "ShortListed Properties",
+    },
+
+    {
+      name: "MyProperties",
+      component: MyProperties,
+      headerType: HEADER_TYPES.INNER,
+      title: "My Properties",
+    },
+
+    {
+      name: "Membership",
+      component: Membership,
+      headerType: HEADER_TYPES.INNER,
+      title: "Membership",
+    },
+
+    {
+      name: "PostProperty",
+      component: PostProperty,
+      headerType: HEADER_TYPES.NONE,
+    },
+
+    { name: "Login", component: LoginModal, headerType: HEADER_TYPES.NONE },
+
+    {
+      name: "CreateLogin",
+      component: CreateLogin,
+      headerType: HEADER_TYPES.NONE,
+    },
+
+    {
+      name: "OTPLogin",
+      component: OTPLoginModal,
+      headerType: HEADER_TYPES.NONE,
+    },
+
+    {
+      name: "PropertyDetails",
+      component: PropertyDetailsScreen,
+      headerType: HEADER_TYPES.NONE,
+    },
+
+    {
+      name: "PropertyList",
+      component: PropertyListScreen,
+      headerType: HEADER_TYPES.HOME,
+      title: "Property List",
+    },
+
+    {
+      name: "MoreOwnerProperties",
+      component: MoreOwnerPropertyDetail,
+      headerType: HEADER_TYPES.NONE,
+    },
+
+    {
+      name: "MoreResidentialDetails",
+      component: MoreResidentialDetails,
+      headerType: HEADER_TYPES.NONE,
+    },
+
+    {
+      name: "MoreCommercialDetails",
+      component: MoreCommercialDetails,
+      headerType: HEADER_TYPES.NONE,
+    },
+
+    {
+      name: "MoreLandDetails",
+      component: MoreLandDetails,
+      headerType: HEADER_TYPES.NONE,
+    },
+
+    {
+      name: "MoreAgriculturalDetails",
+      component: MoreAgriculturalDetails,
+      headerType: HEADER_TYPES.NONE,
+    },
+
+    {
+      name: "MoreAgentDetails",
+      component: MoreAgentDetails,
+      headerType: HEADER_TYPES.INNER,
+      title: "Agent Details",
+    },
+
+    {
+      name: "CategoryFilter",
+      component: CategoryFilterScreen,
+      headerType: HEADER_TYPES.HOME,
+      title: "Category Filter",
+    },
+
+    {
+      name: "Settings",
+      component: SettingsScreen,
+      headerType: HEADER_TYPES.INNER,
+      title: "Settings",
+    },
+
+    {
+      name: "ContactedProperties",
+      component: ContactedProperties,
+      headerType: HEADER_TYPES.INNER,
+      title: "Contacted Properties",
+    },
+
+    {
+      name: "upComingScreen",
+      component: UpcomingScreen,
+      headerType: HEADER_TYPES.INNER,
+      title: "Upcoming",
+    },
+
+    {
+      name: "AgentDashBoard",
+      component: AgentDashBoard,
+      headerType: HEADER_TYPES.INNER,
+      title: "Dashboard",
+    },
+
+    {
+      name: "AgentProperties",
+      component: AgentProperties,
+      headerType: HEADER_TYPES.INNER,
+      title: "My Properties",
+    },
+
+    {
+      name: "AgentLeads",
+      component: AgentLeads,
+      headerType: HEADER_TYPES.INNER,
+      title: "Leads",
+    },
+
+    {
+      name: "AgentAccountSettings",
+      component: AgentAccountSettings,
+      headerType: HEADER_TYPES.INNER,
+      title: "Account & Settings",
+    },
+
+    {
+      name: "AboutUs",
+      component: AboutUs,
+      headerType: HEADER_TYPES.INNER,
+      title: "About Us",
+    },
+    {
+      name: "TermsAndConditions",
+      component: TermsAndConditions,
+      headerType: HEADER_TYPES.INNER,
+      title: "Terms & Conditions",
+    },
+    {
+      name: "PrivacyPolicy",
+      component: PrivacyPolicy,
+      headerType: HEADER_TYPES.INNER,
+      title: "Privacy Policy",
+    },
+    {
+      name: "SafetyGuide",
+      component: SafetyGuide,
+      headerType: HEADER_TYPES.INNER,
+      title: "Safety Guide",
+    },
+    {
+      name: "HelpCenter",
+      component: HelpCenter,
+      headerType: HEADER_TYPES.INNER,
+      title: "Help Center"
+    },
+
+    {
+      name: "BuilderDashBoard",
+      component: BuilderDashBoard,
+      headerType: HEADER_TYPES.INNER,
+      title: "Dashboard",
+    },
+
+    {
+      name: "BuilderProperties",
+      component: BuilderProperties,
+      headerType: HEADER_TYPES.INNER,
+      title: "My Projects",
+    },
+
+    {
+      name: "BuilderLeads",
+      component: BuilderLeads,
+      headerType: HEADER_TYPES.INNER,
+      title: "My Leads",
+    },
+  ];
   return (
-    <Stack.Navigator
-      screenOptions={({ navigation }) => ({
-        headerTitle: () => null,
-
-        headerShadowVisible: false,
-
-        headerStyle: {
-          elevation: 0,
-          shadowColor: "transparent",
-          shadowOpacity: 0,
-          borderBottomWidth: 0,
-          backgroundColor: "#fff",
-        },
-
-        headerLeft: () => renderMenuButton(navigation),
-        headerLeftContainerStyle: styles.headerLeft,
-
-        headerRight: () => (
-          <View style={styles.headerRight}>
-            {renderPostPropertyButton(navigation)}
-          </View>
-        ),
-      })}
-    >
-      <Stack.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ headerShown: true }}
-      />
-      <Stack.Screen
-        name="ShortListedProperties"
-        component={ShortListedScreen}
-options={{
-          title: "ShortListed Properties",
-          headerTitle: "ShortListed Properties",
-          headerLeft: undefined,
-          headerRight: undefined,
-          headerTitleStyle: {
-            fontSize: 16, 
-            fontWeight: "600",
-          },
-        }}      />
-      <Stack.Screen
-        name="MyProperties"
-        component={MyProperties}
-        options={{
-          title: "My Properties",
-          headerTitle: "My Properties",
-          headerLeft: undefined,
-          headerRight: undefined,
-          headerTitleStyle: {
-            fontSize: 16, // 👈 decrease this
-            fontWeight: "600",
-          },
-        }}
-      />
-      <Stack.Screen
-        name="Membership"
-        component={Membership}
-        options={{
-          title: "Membership",
-          headerTitle: "Membership",
-          headerLeft: undefined,
-          headerRight: undefined,
-          headerTitleStyle: {
-            fontSize: 16, 
-            fontWeight: "600",
-          },
-        }}
-      />
-
-      <Stack.Screen
-        name="PostProperty"
-        component={PostProperty}
-        options={{ headerShown: false }}
-        // options={({ navigation }) => ({
-        //   headerBackVisible: false, // Make this true for back option
-        //   headerStyle: {
-        //     elevation: 0,
-        //     shadowColor: "transparent",
-        //     borderBottomWidth: 0,
-        //   },
-
-        //   headerLeft: () => (
-        //     <Pressable onPress={() => navigation.openDrawer()} hitSlop={10}>
-        //       <MaterialIcons name="menu" size={26} color="#000" />
-        //     </Pressable>
-        //   ),
-
-        //   headerTitle: () => (
-        //     <View style={{ marginLeft: 20 }}>
-        //       <Text style={{ fontSize: 16, fontWeight: "600" }}>
-        //         Post Your Property
-        //       </Text>
-        //       <Text style={{ fontSize: 12, color: "gray" }}>
-        //         Sell or rent your property
-        //       </Text>
-        //     </View>
-        //   ),
-
-        //   headerRight: () => null,
-        // })}
-      />
-
-      <Stack.Screen
-        name="Login"
-        component={LoginModal}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="CreateLogin"
-        component={CreateLogin}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="OTPLogin"
-        component={OTPLoginModal}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="PropertyDetails"
-        component={PropertyDetailsScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="PropertyList"
-        component={PropertyListScreen}
-        options={{ headerShown: true }}
-      />
-      <Stack.Screen
-        name="MoreOwnerProperties"
-        component={MoreOwnerPropertyDetail}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="MoreResidentialDetails"
-        component={MoreResidentialDetails}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="MoreCommercialDetails"
-        component={MoreCommercialDetails}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="MoreLandDetails"
-        component={MoreLandDetails}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="MoreAgriculturalDetails"
-        component={MoreAgriculturalDetails}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="MoreAgentDetails"
-        component={MoreAgentDetails}
-        // options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="CategoryFilter"
-        component={CategoryFilterScreen}
-        options={{ headerShown: true }}
-      />
-      <Stack.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{ headerShown: true }}
-      />
-      <Stack.Screen
-        name="ContactedProperties"
-        component={ContactedProperties}
-        options={{
-          title: "Contacted Properties",
-          headerTitle: "Contacted Properties",
-          headerLeft: undefined,
-          headerRight: undefined,
-          headerTitleStyle: {
-            fontSize: 16, 
-            fontWeight: "600",
-          },
-        }}      />
-      <Stack.Screen
-        name="upComingScreen"
-        component={UpcomingScreen}
-        options={{ headerShown: true }}
-      />
-      <Stack.Screen
-        name="AgentDashBoard"
-        component={AgentDashBoard}
-        options={{
-          title: "DashBoard",
-          headerTitle: "DashBoard",
-          headerLeft: undefined,
-          headerRight: undefined,
-          headerTitleStyle: {
-            fontSize: 16,
-            fontWeight: "600",
-          },
-        }}
-      />
-      <Stack.Screen
-        name="AgentProperties"
-        component={AgentProperties}
-        options={{
-          title: "My Properties",
-          headerTitle: "My Properties",
-          headerLeft: undefined,
-          headerRight: undefined,
-          headerTitleStyle: {
-            fontSize: 16, 
-            fontWeight: "600",
-          },
-        }}
-      />
-      <Stack.Screen
-        name="AgentLeads"
-        component={AgentLeads}
-        options={{
-          title: "Leads",
-          headerTitle: "Leads",
-          headerLeft: undefined,
-          headerRight: undefined,
-          headerTitleStyle: {
-            fontSize: 16, 
-            fontWeight: "600",
-          },
-        }}
-      />
-      <Stack.Screen
-        name="AgentAccountSettings"
-        component={AgentAccountSettings}
-        options={{
-          title: "Account & Settings",
-          headerTitle: "Account & Settings",
-          headerLeft: undefined,
-          headerRight: undefined,
-          headerTitleStyle: {
-            fontSize: 16, 
-            fontWeight: "600",
-          },
-        }}
-      />
-      <Stack.Screen
-        name="AboutUs"
-        component={AboutUs}
-        options={{
-          title: "About Us",
-          headerTitle: "About Us",
-          headerLeft: undefined,
-          headerRight: undefined,
-          headerTitleStyle: {
-            fontSize: 16, 
-            fontWeight: "600",
-          },
-        }}
-      />
-      <Stack.Screen
-        name="BuilderDashBoard"
-        component={BuilderDashBoard}
-        options={{
-          title: "Dashboard",
-          headerTitle: "Dashboard",
-          headerLeft: undefined,
-          headerRight: undefined,
-          headerTitleStyle: {
-            fontSize: 16, 
-            fontWeight: "600",
-          },
-        }}
-      />
-      <Stack.Screen
-        name="BuilderProperties"
-        component={BuilderProperties}
-        options={{
-          title: "My Properties",
-          headerTitle: "My Projects",
-          headerLeft: undefined,
-          headerRight: undefined,
-          headerTitleStyle: {
-            fontSize: 16, 
-            fontWeight: "600",
-          },
-        }}
-      />
-      <Stack.Screen
-        name="BuilderLeads"
-        component={BuilderLeads}
-        options={{
-          // title: "Leads",
-          headerTitle: "My Leads",
-          headerLeft: undefined,
-          headerRight: undefined,
-          headerTitleStyle: {
-            fontSize: 16, 
-            fontWeight: "600",
-          },
-        }}
-      />
+    <Stack.Navigator>
+      {stackScreens.map((screen, index) => (
+        <Stack.Screen
+          key={index}
+          name={screen.name}
+          component={screen.component}
+          options={({ navigation }) =>
+            buildHeaderOptions(screen.headerType, navigation, screen.title)
+          }
+        />
+      ))}
     </Stack.Navigator>
+
+    // <Stack.Navigator
+    //   screenOptions={({ navigation }) => ({
+    //     headerTitle: () => null,
+
+    //     headerShadowVisible: false,
+
+    //     headerStyle: {
+    //       elevation: 0,
+    //       shadowColor: "transparent",
+    //       shadowOpacity: 0,
+    //       borderBottomWidth: 0,
+    //       backgroundColor: "#fff",
+    //     },
+
+    //     headerLeft: () => renderMenuButton(navigation),
+    //     headerLeftContainerStyle: styles.headerLeft,
+
+    //     headerRight: () => (
+    //       <View style={styles.headerRight}>
+    //         {renderPostPropertyButton(navigation)}
+    //       </View>
+    //     ),
+    //   })}
+    // >
+    //   <Stack.Screen
+    //     name="Home"
+    //     component={HomeScreen}
+    //     options={{ headerShown: true }}
+    //   />
+    //   <Stack.Screen
+    //     name="ShortListedProperties"
+    //     component={ShortListedScreen}
+    //    options={{
+    //       title: "ShortListed Properties",
+    //       headerTitle: "ShortListed Properties",
+    //       headerLeft: undefined,
+    //       headerRight: undefined,
+    //       headerTitleStyle: {
+    //         fontSize: 16,
+    //         fontWeight: "600",
+    //       },
+    //     }}      />
+    //   <Stack.Screen
+    //     name="MyProperties"
+    //     component={MyProperties}
+    //     options={{
+    //       title: "My Properties",
+    //       headerTitle: "My Properties",
+    //       headerLeft: undefined,
+    //       headerRight: undefined,
+    //       headerTitleStyle: {
+    //         fontSize: 16,
+    //         fontWeight: "600",
+    //       },
+    //     }}
+    //   />
+    //   <Stack.Screen
+    //     name="Membership"
+    //     component={Membership}
+    //     options={{
+    //       title: "Membership",
+    //       headerTitle: "Membership",
+    //       headerLeft: undefined,
+    //       headerRight: undefined,
+    //       headerTitleStyle: {
+    //         fontSize: 16,
+    //         fontWeight: "600",
+    //       },
+    //     }}
+    //   />
+
+    //   <Stack.Screen
+    //     name="PostProperty"
+    //     component={PostProperty}
+    //     options={{ headerShown: false }}
+    //     // options={({ navigation }) => ({
+    //     //   headerBackVisible: false, // Make this true for back option
+    //     //   headerStyle: {
+    //     //     elevation: 0,
+    //     //     shadowColor: "transparent",
+    //     //     borderBottomWidth: 0,
+    //     //   },
+
+    //     //   headerLeft: () => (
+    //     //     <Pressable onPress={() => navigation.openDrawer()} hitSlop={10}>
+    //     //       <MaterialIcons name="menu" size={26} color="#000" />
+    //     //     </Pressable>
+    //     //   ),
+
+    //     //   headerTitle: () => (
+    //     //     <View style={{ marginLeft: 20 }}>
+    //     //       <Text style={{ fontSize: 16, fontWeight: "600" }}>
+    //     //         Post Your Property
+    //     //       </Text>
+    //     //       <Text style={{ fontSize: 12, color: "gray" }}>
+    //     //         Sell or rent your property
+    //     //       </Text>
+    //     //     </View>
+    //     //   ),
+
+    //     //   headerRight: () => null,
+    //     // })}
+    //   />
+
+    //   <Stack.Screen
+    //     name="Login"
+    //     component={LoginModal}
+    //     options={{ headerShown: false }}
+    //   />
+    //   <Stack.Screen
+    //     name="CreateLogin"
+    //     component={CreateLogin}
+    //     options={{ headerShown: false }}
+    //   />
+    //   <Stack.Screen
+    //     name="OTPLogin"
+    //     component={OTPLoginModal}
+    //     options={{ headerShown: false }}
+    //   />
+    //   <Stack.Screen
+    //     name="PropertyDetails"
+    //     component={PropertyDetailsScreen}
+    //     options={{ headerShown: false }}
+    //   />
+    //   <Stack.Screen
+    //     name="PropertyList"
+    //     component={PropertyListScreen}
+    //     options={{ headerShown: true }}
+    //   />
+    //   <Stack.Screen
+    //     name="MoreOwnerProperties"
+    //     component={MoreOwnerPropertyDetail}
+    //     options={{ headerShown: false }}
+    //   />
+    //   <Stack.Screen
+    //     name="MoreResidentialDetails"
+    //     component={MoreResidentialDetails}
+    //     options={{ headerShown: false }}
+    //   />
+    //   <Stack.Screen
+    //     name="MoreCommercialDetails"
+    //     component={MoreCommercialDetails}
+    //     options={{ headerShown: false }}
+    //   />
+    //   <Stack.Screen
+    //     name="MoreLandDetails"
+    //     component={MoreLandDetails}
+    //     options={{ headerShown: false }}
+    //   />
+    //   <Stack.Screen
+    //     name="MoreAgriculturalDetails"
+    //     component={MoreAgriculturalDetails}
+    //     options={{ headerShown: false }}
+    //   />
+    //   <Stack.Screen
+    //     name="MoreAgentDetails"
+    //     component={MoreAgentDetails}
+    //     // options={{ headerShown: false }}
+    //   />
+    //   <Stack.Screen
+    //     name="CategoryFilter"
+    //     component={CategoryFilterScreen}
+    //     options={{ headerShown: true }}
+    //   />
+    //   <Stack.Screen
+    //     name="Settings"
+    //     component={SettingsScreen}
+    //     options={{ headerShown: true }}
+    //   />
+    //   <Stack.Screen
+    //     name="ContactedProperties"
+    //     component={ContactedProperties}
+    //     options={{
+    //       title: "Contacted Properties",
+    //       headerTitle: "Contacted Properties",
+    //       headerLeft: undefined,
+    //       headerRight: undefined,
+    //       headerTitleStyle: {
+    //         fontSize: 16,
+    //         fontWeight: "600",
+    //       },
+    //     }}      />
+    //   <Stack.Screen
+    //     name="upComingScreen"
+    //     component={UpcomingScreen}
+    //     options={{ headerShown: true }}
+    //   />
+    //   <Stack.Screen
+    //     name="AgentDashBoard"
+    //     component={AgentDashBoard}
+    //     options={{
+    //       title: "DashBoard",
+    //       headerTitle: "DashBoard",
+    //       headerLeft: undefined,
+    //       headerRight: undefined,
+    //       headerTitleStyle: {
+    //         fontSize: 16,
+    //         fontWeight: "600",
+    //       },
+    //     }}
+    //   />
+    //   <Stack.Screen
+    //     name="AgentProperties"
+    //     component={AgentProperties}
+    //     options={{
+    //       title: "My Properties",
+    //       headerTitle: "My Properties",
+    //       headerLeft: undefined,
+    //       headerRight: undefined,
+    //       headerTitleStyle: {
+    //         fontSize: 16,
+    //         fontWeight: "600",
+    //       },
+    //     }}
+    //   />
+    //   <Stack.Screen
+    //     name="AgentLeads"
+    //     component={AgentLeads}
+    //     options={{
+    //       title: "Leads",
+    //       headerTitle: "Leads",
+    //       headerLeft: undefined,
+    //       headerRight: undefined,
+    //       headerTitleStyle: {
+    //         fontSize: 16,
+    //         fontWeight: "600",
+    //       },
+    //     }}
+    //   />
+    //   <Stack.Screen
+    //     name="AgentAccountSettings"
+    //     component={AgentAccountSettings}
+    //     options={{
+    //       title: "Account & Settings",
+    //       headerTitle: "Account & Settings",
+    //       headerLeft: undefined,
+    //       headerRight: undefined,
+    //       headerTitleStyle: {
+    //         fontSize: 16,
+    //         fontWeight: "600",
+    //       },
+    //     }}
+    //   />
+    //   <Stack.Screen
+    //     name="AboutUs"
+    //     component={AboutUs}
+    //     options={{
+    //       title: "About Us",
+    //       headerTitle: "About Us",
+    //       headerLeft: undefined,
+    //       headerRight: undefined,
+    //       headerTitleStyle: {
+    //         fontSize: 16,
+    //         fontWeight: "600",
+    //       },
+    //     }}
+    //   />
+    //   <Stack.Screen
+    //     name="BuilderDashBoard"
+    //     component={BuilderDashBoard}
+    //     options={{
+    //       title: "Dashboard",
+    //       headerTitle: "Dashboard",
+    //       headerLeft: undefined,
+    //       headerRight: undefined,
+    //       headerTitleStyle: {
+    //         fontSize: 16,
+    //         fontWeight: "600",
+    //       },
+    //     }}
+    //   />
+    //   <Stack.Screen
+    //     name="BuilderProperties"
+    //     component={BuilderProperties}
+    //     options={{
+    //       title: "My Properties",
+    //       headerTitle: "My Projects",
+    //       headerLeft: undefined,
+    //       headerRight: undefined,
+    //       headerTitleStyle: {
+    //         fontSize: 16,
+    //         fontWeight: "600",
+    //       },
+    //     }}
+    //   />
+    //   <Stack.Screen
+    //     name="BuilderLeads"
+    //     component={BuilderLeads}
+    //     options={{
+    //       // title: "Leads",
+    //       headerTitle: "My Leads",
+    //       headerLeft: undefined,
+    //       headerRight: undefined,
+    //       headerTitleStyle: {
+    //         fontSize: 16,
+    //         fontWeight: "600",
+    //       },
+    //     }}
+    //   />
+    // </Stack.Navigator>
   );
 }
 const styles = StyleSheet.create({
@@ -415,7 +682,7 @@ const styles = StyleSheet.create({
     gap: 10,
     alignItems: "center",
     zIndex: 3,
-    elevation: 3, // 👈 ANDROID FIX
+    elevation: 3,
   },
   select: {
     flexDirection: "row",

@@ -16,6 +16,8 @@ import { submitVerificationThunk } from "../../../redux/thunk/SubmitPropertyThun
 import { validatePropertyVerify } from "../../../zod/verificationZod/propertyVerifyZod";
 import { ToastSuccess, ToastInfo, ToastError } from "../../../utils/Toast";
 import Feather from "@expo/vector-icons/Feather";
+import LottieView from "lottie-react-native";
+
 const VerificationStep = () => {
   const dispatch = useAppDispatch();
 
@@ -72,6 +74,7 @@ const VerificationStep = () => {
 
   const [file, setFiles] = useState(null);
   const [showErrors, setShowErrors] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const pickFile = async () => {
     const result = await DocumentPicker.getDocumentAsync({
@@ -131,17 +134,25 @@ const VerificationStep = () => {
     )
       .unwrap()
       .then((res) => {
+        setShowConfetti(true);
+
         dispatch(setPercentage(res?.data?.completion?.percent));
         ToastSuccess("Property posted successfully");
         dispatch(resetPostProperty());
-        navigation.navigate("Home");
+        setTimeout(() => {
+          setShowConfetti(false);
+          navigation.navigate("Home");
+        }, 3000);
       })
       .catch((error) => {
         console.log("error when submitting:", error);
       });
   };
   // const existingDoc = propertyProfile?.verificationDocuments?.[0];
-  console.log("propertyProfile?.verificationDocuments?.[0]",propertyProfile?.verificationDocument )
+  console.log(
+    "propertyProfile?.verificationDocuments?.[0]",
+    propertyProfile?.verificationDocument,
+  );
 
   return (
     <View style={styles.container}>
@@ -247,6 +258,16 @@ const VerificationStep = () => {
           <Text style={styles.buttonText}>Publish</Text>
         </Pressable>
       </View>
+      {showConfetti && (
+        <View style={styles.overlay}>
+          <LottieView
+            source={require("../../../../assets/animations/confetti.json")}
+            autoPlay
+            loop={false}
+            style={styles.animation}
+          />
+        </View>
+      )}
     </View>
   );
 };
@@ -254,6 +275,14 @@ export default VerificationStep;
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 15,
+  },
+  overlay: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  animation: {
+    width: 300,
+    height: 300,
   },
 
   card: {

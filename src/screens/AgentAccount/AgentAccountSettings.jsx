@@ -24,9 +24,8 @@ import { clearStorage } from "../../utils/Storage";
 const AgentAccountSettings = () => {
   const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);
-    const { isLoggedIn, updateUserDetails, userDetails, refreshAuth } = useAuth();
-    const navigation = useNavigation();
-  
+  const { isLoggedIn, updateUserDetails, userDetails, refreshAuth } = useAuth();
+  const navigation = useNavigation();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["my-agent-profile"],
@@ -64,20 +63,20 @@ const AgentAccountSettings = () => {
     }
   };
 
-    const handleLogout = async () => {
-      console.log("hai")
-      if (userDetails != null) {
-        await clearStorage();
-        await Keychain.resetGenericPassword();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await refreshAuth();
-        // setUserData(null);
-        ToastSuccess("Logged out successfully");
-        navigation.navigate("Home");
-      } else {
-        ToastSuccess("You are already logged out");
-      }
-    };
+  const handleLogout = async () => {
+    console.log("hai");
+    if (userDetails != null) {
+      await clearStorage();
+      await Keychain.resetGenericPassword();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await refreshAuth();
+      // setUserData(null);
+      ToastSuccess("Logged out successfully");
+      navigation.navigate("Home");
+    } else {
+      ToastSuccess("You are already logged out");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -101,8 +100,8 @@ const AgentAccountSettings = () => {
     <ScrollView
       style={styles.container}
       contentContainerStyle={{
-    paddingBottom: insets.bottom ,
-  }}
+        paddingBottom: insets.bottom,
+      }}
     >
       {/* COVER */}
       <View>
@@ -183,14 +182,13 @@ const AgentAccountSettings = () => {
           <StatBox label="Exp" value={`${agent.experienceYears} yrs`} />
         </View>
       </Card>
-
-      <Pressable
+      {/* <Pressable
         onPress={handleLogout}
         style={[styles.menuItem, styles.logoutItem]}
       >
         <AntDesign name="logout" size={19} color="#E53935" />
         <Text style={[styles.label, styles.logoutLabel]}>Logout</Text>
-      </Pressable>
+      </Pressable> */}
 
       {/* MEMBERSHIP */}
 
@@ -333,15 +331,15 @@ const styles = StyleSheet.create({
     elevation: 1,
     marginHorizontal: 5,
   },
-   menuItem: {
+  menuItem: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    marginLeft:5,
+    marginLeft: 5,
     paddingVertical: 10,
     borderRadius: 14,
   },
-   label: {
+  label: {
     flex: 1,
     fontSize: 14,
     fontWeight: 400,
@@ -481,7 +479,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderColor: "#eee",
     padding: 13,
-    marginBottom:12
+    marginBottom: 12,
   },
   planName: {
     fontWeight: "600",

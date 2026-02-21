@@ -46,6 +46,10 @@ import { ToastSuccess } from "../utils/Toast";
 import * as Keychain from "react-native-keychain";
 import { useAuth } from "../context/AuthContext";
 import { Image } from "react-native";
+
+{
+  /*--------------------Static menu items---------------------- */
+}
 const userMenuItems = [
   {
     label: "My Properties",
@@ -117,39 +121,40 @@ const More_Details = [
     icon: AboutUs,
   },
   {
-    label: "Safety Guide",
-    route: "ShortListedProperties",
-    icon: SafetyGuide,
-  },
-  {
-    label: "Report an Issue",
-    route: "ShortListedProperties",
-    icon: ReportIssue,
-  },
-  {
-    label: "Terms & Conditions",
-    route: "ShortListedProperties",
-    icon: TermsAndConditions,
-  },
-  {
     label: "Privacy Policy",
-    route: "ShortListedProperties",
+    route: "PrivacyPolicy",
     icon: PrivacyPolicy,
   },
   {
+    label: "Terms & Conditions",
+    route: "TermsAndConditions",
+    icon: TermsAndConditions,
+  },
+  {
+    label: "Safety Guide",
+    route: "SafetyGuide",
+    icon: SafetyGuide,
+  },
+  {
     label: "Help Line",
-    route: "ShortListedProperties",
+    route: "HelpCenter",
     icon: calling,
   },
+  // {
+  //   label: "Report an Issue",
+  //   route: "ShortListedProperties",
+  //   icon: ReportIssue,
+  // },
 ];
 
 const Drawer = createDrawerNavigator();
 
+{
+  /*--------------------Custom Left Menu Component---------------------- */
+}
 const CustomDrawerContent = ({ navigation, state }) => {
   const { isLoggedIn, userDetails, refreshAuth } = useAuth();
   const [selectedRoute, setSelectedRoute] = useState(null);
-
-  console.log("is login:", isLoggedIn, userDetails);
 
   const capitalize = (str) =>
     str
@@ -173,7 +178,21 @@ const CustomDrawerContent = ({ navigation, state }) => {
       case "user":
         return "Settings";
       default:
-        return "Settings";
+        return null;
+    }
+  };
+
+  const handleLogout = async () => {
+    if (userDetails != null) {
+      await clearStorage();
+      await Keychain.resetGenericPassword();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await refreshAuth();
+      // setUserData(null);
+      ToastSuccess("Logged out successfully");
+      navigation.navigate("HomeStack", { screen: "Home" });
+    } else {
+      ToastSuccess("You are already logged out");
     }
   };
 
@@ -195,14 +214,18 @@ const CustomDrawerContent = ({ navigation, state }) => {
           >
             <View style={styles.nameContainer}>
               <View style={styles.icon}>
-                <Text style={styles.nameIcon}>{userDetails?.name[0]}</Text>
+                <Text style={styles.nameIcon}>
+                  {capitalize(userDetails?.name[0])}
+                </Text>
               </View>
               <View>
                 <View style={styles.nameContainer}>
                   <Text style={styles.userName}>
                     {capitalize(userDetails?.name)}
                   </Text>
-                  <Octicons name="pencil" size={15} color="black" />
+                  {userDetails?.roleName !== "builder" ? (
+                    <Octicons name="pencil" size={15} color="black" />
+                  ) : null}
                 </View>
                 <Text style={styles.role}>
                   {capitalize(userDetails?.roleName)}
@@ -233,6 +256,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
         </View>
       )}
 
+      {/*--------------------Based on the role rendering menu items---------------------- */}
       {/* <View style={styles.hrline} /> */}
       <ScrollView style={styles.dataContainer}>
         {userDetails?.roleName === "agent" && (
@@ -346,6 +370,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
           </View>
         ) : null}
 
+        {/*--------------------More Details section---------------------- */}
         <View style={styles.userDataContainer}>
           <Text style={[styles.headingData, { paddingBottom: 7 }]}>
             More Details
@@ -379,7 +404,23 @@ const CustomDrawerContent = ({ navigation, state }) => {
               </Pressable>
             );
           })}
-          <View style={[styles.card, { marginTop: 25 }]}>
+          {userDetails?.roleName !== "user" && (
+            <Pressable
+              onPress={handleLogout}
+              style={[styles.menuItem, styles.logoutItem]}
+            >
+              <AntDesign name="logout" size={19} color="#E53935" />
+              <Text style={[styles.label, styles.logoutLabel]}>Logout</Text>
+            </Pressable>
+          )}
+
+          {/*--------------------Bottom card---------------------- */}
+          <Pressable
+            style={[styles.card, { marginTop: 10 }]}
+            onPress={() =>
+              navigation.navigate("HomeStack", { screen: "PostProperty" })
+            }
+          >
             <View style={{ paddingLeft: 5 }}>
               <Text style={styles.textPost}>Post Property</Text>
               <Text style={styles.subTitle}>
@@ -388,7 +429,7 @@ const CustomDrawerContent = ({ navigation, state }) => {
             </View>
 
             <Image source={HouseSell} style={{ width: 40, height: 40 }} />
-          </View>
+          </Pressable>
           {/* <View style={styles.card}>
             <View style={{ paddingLeft: 5 }}>
               <Text style={styles.textPost}>Search Property</Text>
@@ -419,6 +460,9 @@ const CustomDrawerContent = ({ navigation, state }) => {
   );
 };
 
+{
+  /*--------------------Main menu---------------------- */
+}
 export default function DrawerNavigator() {
   return (
     <Drawer.Navigator
@@ -450,9 +494,6 @@ const styles = StyleSheet.create({
   drawerContent: { flex: 1, backgroundColor: "#DEFAEA" },
   drawerHeader: {
     justifyContent: "center",
-    // borderBottomColor: "gray",
-    // borderBottomWidth: 1,
-    // backgroundColor: "#DEFAEA",
     width: "100%",
     paddingLeft: 35,
     // padding: 20,
@@ -477,8 +518,8 @@ const styles = StyleSheet.create({
   },
   nameIcon: {
     color: "#27AE60",
-    fontWeight: 600,
-    fontSize: 16,
+    fontWeight: 500,
+    fontSize: 15,
   },
   userName: {
     // color: "#27AE60",

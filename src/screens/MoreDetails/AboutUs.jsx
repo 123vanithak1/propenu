@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     // marginBottom: 4,
     marginLeft: 5,
-    marginTop: 7,
+    marginTop: 5,
   },
   bullet: {
     fontSize: 18,

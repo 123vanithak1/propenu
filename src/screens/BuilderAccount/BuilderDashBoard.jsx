@@ -37,6 +37,7 @@ const BuilderDashBoard = () => {
     return (
       <View style={styles.loader}>
         <ActivityIndicator size="large" style={{ color: "#27AE60" }} />
+        <Text>Loading...</Text>
       </View>
     );
   }
