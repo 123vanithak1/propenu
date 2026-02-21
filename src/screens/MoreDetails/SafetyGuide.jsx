@@ -6,12 +6,9 @@ import { useNavigation } from "@react-navigation/native";
 const SafetyGuide = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const features = [
-    "Verified and curated property listings",
-    "Guided buying and enquiry support",
-    "Lead management and analytics for real estate professionals",
-    "Access to home finance and post-purchase services",
-  ];
+
+
+  {/* -----------------------Static data------------------------*/}
   const protection = [
     "Verified Users",
     "Genuine Properties",
@@ -45,6 +42,9 @@ const SafetyGuide = () => {
     "Delay decisions while repeatedly asking for documents",
     "Request property papers for vague “loan” or “verification” reasons",
   ];
+
+
+    {/* -----------------------UI------------------------*/}
 
   return (
     <ScrollView

@@ -10,6 +10,9 @@ import Collapsible from "react-native-collapsible";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+{
+  /*-----------------static data------------------ */
+}
 const FAQ_DATA = [
   {
     id: "1",
@@ -264,6 +267,9 @@ const HelpCenter = () => {
   const [activeSubcategory, setActiveSubcategory] = useState(null);
   const [activeQuestion, setActiveQuestion] = useState(null);
 
+  {
+    /*-----------------UI------------------ */
+  }
   return (
     <ScrollView
       style={styles.container}
@@ -280,7 +286,7 @@ const HelpCenter = () => {
 
         return (
           <View key={category.id} style={styles.card}>
-            {/* CATEGORY */}
+            {/*-----------------Category------------------ */}
             <TouchableOpacity
               onPress={() =>
                 setActiveCategory(isCategoryOpen ? null : category.id)
@@ -309,7 +315,7 @@ const HelpCenter = () => {
 
                 return (
                   <View key={sub.id} style={styles.subContainer}>
-                    {/* SUBCATEGORY */}
+                    {/*{/*-----------------SUBCATEGORY------------------ */}
                     <TouchableOpacity
                       onPress={() =>
                         setActiveSubcategory(isSubOpen ? null : sub.id)
@@ -338,7 +344,7 @@ const HelpCenter = () => {
 
                         return (
                           <View key={faq.id}>
-                            {/* QUESTION */}
+                            {/*{/*-----------------Questions------------------ */}
                             <TouchableOpacity
                               onPress={() =>
                                 setActiveQuestion(

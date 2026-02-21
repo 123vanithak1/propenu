@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const TermsAndConditions = () => {
   const insets = useSafeAreaInsets();
+    {/* -----------------------Static data------------------------*/}
   const features = [
     "Users may create, upload, and manage property listings on the Propenu Platform",
     "All listings must contain accurate, complete, lawful, and up-to-date information",
@@ -35,6 +36,8 @@ const TermsAndConditions = () => {
     "Using automated tools, bots, or scripts to access or interact with the Platform without permission.",
     "Engaging in abusive, harmful, defamatory, or offensive behaviour toward other users or Propenu.",
   ];
+  
+    {/* -----------------------UI------------------------*/}
   return (
     <ScrollView
       style={styles.container}
@@ -355,6 +358,7 @@ const TermsAndConditions = () => {
 };
 export default TermsAndConditions;
 
+  {/* -----------------------Styles-----------------------*/}
 const styles = StyleSheet.create({
   container: {
     flex: 1,

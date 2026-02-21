@@ -4,6 +4,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 
 const PrivacyPolicy = () => {
   const insets = useSafeAreaInsets();
+    {/* -----------------------content------------------------*/}
   const features = [
     "Name, email, phone number",
     "City/area, buyer or seller preferences",
@@ -64,6 +65,8 @@ const PrivacyPolicy = () => {
     "Resolve disputes",
     "Comply with legal obligations",
   ];
+
+    {/* -----------------------UI------------------------*/}
 
   return (
     <ScrollView
@@ -303,6 +306,7 @@ const PrivacyPolicy = () => {
 };
 export default PrivacyPolicy;
 
+  {/* -----------------------Styles------------------------*/}
 const styles = StyleSheet.create({
   container: {
     flex: 1,
