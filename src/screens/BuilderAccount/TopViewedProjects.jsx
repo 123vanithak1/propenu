@@ -38,8 +38,8 @@ const TopViewedProjects = ({ data }) => {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        {/* <Ionicons name="trending-up" size={20} color="#16A34A" /> */}
-        <Text style={styles.headerTitle}>Top Viewed Projects</Text>
+        <Ionicons name="trending-up" size={17} color="#06933a" />
+        <Text style={styles.headerTitle}>  Top Viewed Projects</Text>
       </View>
 
       <View>

@@ -62,7 +62,7 @@ const AvailableProperties = ({ bhk }) => {
       {/* Header */}
 
       <View>
-        <Text style={styles.title}>Available Properties</Text>
+        <Text style={[styles.title,{color : bhk?.color ? bhk?.color : "#000" }]}>Available Properties</Text>
         <Text style={styles.subtitle}>Building excellence in Hyderabad</Text>
       </View>
 
@@ -139,7 +139,7 @@ const AvailableProperties = ({ bhk }) => {
 
           {/* Details */}
           <View style={styles.details}>
-            <View style={styles.priceData}>
+            <View style={styles.infoRow}>
               <Text style={styles.label}>Starting Price :</Text>
               <Text style={styles.price}>
                 {formatINR(activeUnit?.maxPrice)}
@@ -171,8 +171,9 @@ const AvailableProperties = ({ bhk }) => {
 };
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 12,
-    marginVertical: 6,
+    marginTop:10,
+    paddingHorizontal: 10,
+    // marginVertical: 6,
   },
 
   title: {
@@ -183,16 +184,16 @@ const styles = StyleSheet.create({
     color: "#6b7280",
     fontSize: 12,
     marginTop: 5,
-    marginBottom: 10,
+    marginBottom: 7,
   },
   card: {
     marginTop:10,
     borderRadius: 12,
-    padding: 15,
+    padding: 12,
   },
   row: {
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
     marginBottom: 16,
   },
   tab: {
@@ -214,7 +215,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: 300,
+    height: 200,
     borderRadius: 10,
   },
   priceData: {
@@ -225,7 +226,8 @@ const styles = StyleSheet.create({
   },
   details: {
     flex: 1,
-    paddingVertical: 15,
+    paddingTop: 15,
+    paddingBottom:6,
     paddingHorizontal: 10,
   },
   label: {
@@ -250,10 +252,10 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   cta: {
-    width: "70%",
+    width: "65%",
     alignSelf: "center",
-    marginTop: 20,
-    paddingVertical: 12,
+    marginTop: 15,
+    paddingVertical: 10,
     borderRadius: 8,
     alignItems: "center",
   },

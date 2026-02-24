@@ -39,6 +39,7 @@ import TermsAndConditions from "../screens/MoreDetails/TermsAndConditions";
 import PrivacyPolicy from "../screens/MoreDetails/PrivacyPolicy";
 import SafetyGuide from "../screens/MoreDetails/SafetyGuide";
 import HelpCenter from "../screens/MoreDetails/HelpCenter";
+import BuilderFeaturedProperties from "../screens/BuilderAccount/BuilderFeaturedProperties";
 
 const Stack = createNativeStackNavigator();
 
@@ -330,6 +331,12 @@ export default function StackNavigator() {
       component: BuilderLeads,
       headerType: HEADER_TYPES.INNER,
       title: "My Leads",
+    },
+    {
+      name: "BuilderFeaturedProperties",
+      component: BuilderFeaturedProperties,
+      headerType: HEADER_TYPES.INNER,
+      title: "Featured Projects",
     },
   ];
   return (

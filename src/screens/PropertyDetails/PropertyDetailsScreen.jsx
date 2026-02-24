@@ -18,11 +18,14 @@ import AmenitiesWithModal from "./detailProperty/AmenitiesWithModal";
 import NearByLocations from "./detailProperty/NearByLocation";
 import AvailableProperties from "./detailProperty/AvailableProperties";
 import Gallery from "./detailProperty/Gallary";
+import EnquiryModal from "../../components/ui/EnquiryModal";
+import Specifications from "./detailProperty/Specifications";
 
 const PropertyDetailsScreen = ({ route }) => {
   const { propertyId } = route.params;
   const [property, setProperty] = useState(null);
   const [showNav, setShowNav] = useState(false);
+  const [showEnquiryModal, setShowEnquiryModal] = useState(false);
 
   const scrollRef = useRef(null);
   const sectionPositions = useRef({
@@ -146,17 +149,33 @@ const PropertyDetailsScreen = ({ route }) => {
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
       >
-        {property?.heroImage ? (
-          <Image
-            source={{ uri: property.heroImage }}
-            style={[styles.image, { marginTop: showNav ? 40 : 0 }]}
-            resizeMode="cover"
+        <View style={styles.imageWrapper}>
+          {property?.heroImage ? (
+            <Image
+              source={{ uri: property.heroImage }}
+              style={styles.image}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={[styles.image, styles.imagePlaceholder]}>
+              <Text>No Image</Text>
+            </View>
+          )}
+
+          <Pressable
+            style={styles.enquirybtn}
+            onPress={() => setShowEnquiryModal(true)}
+          >
+            <Text style={{ color: "#fff", fontWeight: "500" }}>
+              Enquiry Now
+            </Text>
+          </Pressable>
+          <EnquiryModal
+          propertyId={propertyId}
+            showEnquiry={showEnquiryModal}
+            setShowEnquiry={setShowEnquiryModal}
           />
-        ) : (
-          <View style={[styles.image, styles.imagePlaceholder]}>
-            <Text>No Image</Text>
-          </View>
-        )}
+        </View>
         <View style={styles.row}>
           <View
             style={{
@@ -289,14 +308,22 @@ const PropertyDetailsScreen = ({ route }) => {
         >
           <Gallery property={property} />
         </View>
+           
+           <Specifications property={property} />
+
 
         <View
           onLayout={(e) =>
             (sectionPositions.current.amenities = e.nativeEvent.layout.y)
           }
         >
-          <AmenitiesWithModal amenities={property?.amenities} />
+          <AmenitiesWithModal
+            amenities={property?.amenities}
+            color={property?.color}
+          />
         </View>
+
+
         <View
           onLayout={(e) =>
             (sectionPositions.current.location = e.nativeEvent.layout.y)
@@ -304,7 +331,14 @@ const PropertyDetailsScreen = ({ route }) => {
         >
           {property?.nearbyPlaces && (
             <View style={styles.gallery}>
-              <Text style={styles.aboutUs}>Location & Landmarks</Text>
+              <Text
+                style={[
+                  styles.aboutUs,
+                  { color: property?.color ? property.color : "#000" },
+                ]}
+              >
+                Location & Landmarks
+              </Text>
 
               <FlatList
                 data={property?.nearbyPlaces}
@@ -312,7 +346,7 @@ const PropertyDetailsScreen = ({ route }) => {
                 keyExtractor={(item) => item.order.toString()}
                 renderItem={({ item }) => (
                   <View style={styles.placeRow}>
-                    <LocationIcon color="#FFAC1D" width={16} height={16} />
+                    <LocationIcon color="#FFAC1D" width={18} height={18} />
                     <Text style={styles.placeName}>
                       {item.name} : {item.distanceText}
                     </Text>
@@ -330,12 +364,21 @@ const PropertyDetailsScreen = ({ route }) => {
             </View>
           )}
         </View>
+
+
         <View
           onLayout={(e) =>
             (sectionPositions.current.about = e.nativeEvent.layout.y)
           }
         >
-          <Text style={styles.aboutUs}>Why Choose Us</Text>
+          <Text
+            style={[
+              styles.aboutUs,
+              { color: property?.color ? property.color : "#000" },
+            ]}
+          >
+            About Us
+          </Text>
           {property?.aboutSummary?.map((item, index) => (
             <View key={index} style={styles.homepage}>
               <View style={styles.imageWrapper}>
@@ -359,16 +402,30 @@ export default PropertyDetailsScreen;
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
+    backgroundColor:"white"
   },
   container: {
     paddingBottom: 16,
   },
+  imageWrapper: {
+    position: "relative", // 🔥 IMPORTANT
+  },
+
   image: {
     width: "100%",
     height: 220,
-    // paddingHorizontal: 5,
+    // backgroundColor: "#eee",
+  },
 
-    backgroundColor: "#eee",
+  enquirybtn: {
+    position: "absolute",
+    bottom: 12,
+    right: 10,
+    backgroundColor: "#27AE60",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    elevation: 5,
   },
   imagePlaceholder: {
     alignItems: "center",
@@ -494,6 +551,7 @@ const styles = StyleSheet.create({
   aboutUs: {
     fontSize: 16,
     fontWeight: "600",
+    // color:"green",
     marginTop: 15,
     marginLeft: 16,
   },
@@ -504,8 +562,8 @@ const styles = StyleSheet.create({
     gap: 4,
     // justifyContent: "space-between",
     // paddingVertical: 8,
-    borderBottomWidth: 0.5,
-    borderColor: "#eee",
+    // borderBottomWidth: 0.5,
+    // borderColor: "#eee",
     marginRight: 17,
     marginVertical: 12,
   },
@@ -517,7 +575,7 @@ const styles = StyleSheet.create({
     fontWeight: 500,
   },
   mapBox: {
-    height: 220,
+    height: 190,
     marginHorizontal: 10,
     marginVertical: 10,
     borderWidth: 1,

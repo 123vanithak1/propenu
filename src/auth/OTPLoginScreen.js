@@ -23,7 +23,6 @@ const OTPLoginModal = ({ route, navigation }) => {
   const { phone, name = "", role = "" } = route.params;
   const { refreshAuth } = useAuth();
 
-  console.log("PPPPPPPP", route.params);
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const { width, isLandscape } = useDimensions();

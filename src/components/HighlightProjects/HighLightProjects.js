@@ -39,13 +39,15 @@ const HighLightProjects = () => {
       <Text style={styles.title}>Highlight Projects</Text>
       <Text style={styles.subtitle}>Explore properties across locations</Text>
 
-      {projects.length > 0 ? (
+      {projects?.length > 0 ? (
         <FlatList
           data={projects}
-          keyExtractor={(item) => item._id}
+          keyExtractor={(item) => item?._id}
           horizontal
           showsHorizontalScrollIndicator={false}
           renderItem={({ item }) => <HighLightCard details={item} />}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
         />
       ) : (
         <Text style={styles.emptyText}>

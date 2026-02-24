@@ -41,7 +41,9 @@ export const API_ROUTES = {
 
   BUILDER: {
     BUILDER_ANALYTICS: "/api/users/builder/analytics",
-    BUILDER_MYPROPERTIES : "/api/properties/highlight-projects/builder/me"
+    BUILDER_MYPROPERTIES : "/api/properties/highlight-projects/builder/me",
+    BUILDER_FEATURED_PROPERTIES : "/api/properties/highlight-projects/builder/featured/me",
+    LEADS:"/api/properties/leads/project/lead"
   },
 
   PAYMENTS: {

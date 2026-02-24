@@ -112,6 +112,11 @@ const builderMenuItems = [
     route: "BuilderLeads",
     icon: Leads,
   },
+  {
+    label: "Featured Properties",
+    route: "BuilderFeaturedProperties",
+    icon: Leads,
+  },
 ];
 
 const More_Details = [

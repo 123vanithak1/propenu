@@ -9,17 +9,54 @@ import {
 } from "react-native";
 import { useState } from "react";
 import Entypo from "@expo/vector-icons/Entypo";
+import useCity from "../../../components/CustomHooks/useCity";
+import YoutubePlayer from "react-native-youtube-iframe";
+
+const VideoItem = ({ item }) => {
+  const videoId = getYoutubeId(item.url);
+
+  return (
+      
+
+    <View style={styles.videoContainer}>
+  <View style={{ aspectRatio: 16 / 9 }}>
+    <YoutubePlayer
+      height={200}
+      play={false}
+      videoId={videoId}
+    />
+  </View>
+  <Text style={styles.title}>{item.title}</Text>
+</View>
+  );
+};
+
+const getYoutubeId = (url) => {
+  const regExp = /v=([^&]+)/;
+  const match = url.match(regExp);
+  return match ? match[1] : null;
+};
 
 const Gallery = ({ property }) => {
   const [visible, setVisible] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
+  const { selectedCity } = useCity();
   return (
     <View>
       <View style={styles.gallery}>
-        <Text numberOfLines={1} style={styles.galleryText}>
+        <Text
+          numberOfLines={1}
+          style={[
+            styles.galleryText,
+            { color: property?.color ? property.color : "#000" },
+          ]}
+        >
           Gallery
         </Text>
-
+        <Text style={styles.smallText}>
+          Building excellence in{" "}
+          {selectedCity?.city ? selectedCity.city : "Hyderabad"}
+        </Text>
         <FlatList
           data={property?.gallerySummary}
           horizontal
@@ -41,6 +78,20 @@ const Gallery = ({ property }) => {
               </View>
             </Pressable>
           )}
+        />
+        {/* {property?.youtubeVideos ? <Text style={[
+            styles.galleryText,
+            { marginTop:15,marginBottom:10,paddingLeft:4, color: property?.color ? property.color : "#000" },
+          ]}>Video Tour</Text> : null} */}
+
+
+        <FlatList
+          data={property?.youtubeVideos}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 16 ,marginTop:15}}
+          keyExtractor={(item) => item.order.toString()}
+          renderItem={({ item }) => <VideoItem item={item} />}
         />
       </View>
       <Modal
@@ -81,12 +132,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     fontSize: 16,
     fontWeight: "600",
-    marginBottom: 10,
+    marginBottom: 5,
+  },
+  smallText: {
+    fontSize: 12,
+    color: "gray",
+    marginBottom: 20,
+    marginLeft: 11,
   },
 
   galleryItem: {
     width: 280,
-    height: 220,
+    height: 190,
     marginRight: 18,
     borderRadius: 12,
     overflow: "hidden",
@@ -103,7 +160,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
+  videoContainer: {
+    width: 280,
+    // marginVertical:10,
+    marginRight:15,
+    // height:200,
+    // alignSelf: "center",
+    // gap:3,
+    borderRadius: 12,
+    overflow: "hidden",
+    borderWidth:1,
+    borderColor:"#e5e3e3",
+    backgroundColor:"#fff"
+  },
+title:{
+  fontSize:14,
+  fontWeight:500,
+  padding:10
+},
   fullScreenImageContainer: {
     width: "90%",
     height: "85%",

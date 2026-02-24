@@ -30,6 +30,7 @@ const BuilderDashBoard = () => {
     queryFn: builderServices.getBuilderAnalytics,
   });
 
+  console.log("data", data);
   if (error) {
     console.log("Error when getting builder Data", error);
   }
@@ -49,10 +50,9 @@ const BuilderDashBoard = () => {
     data?.status?.find((s) => s._id === "pending")?.count ?? 0;
 
   const kpis = {
-    totalProperties: data?.totals?.projects ?? 0,
-    featuredProperties: data?.featuredSplit?.length ?? 0,
-    activeListings: activeCount,
-    pendingListings: pendingCount,
+    totalProperties: data?.builderSummary?.totalProjects ?? 0,
+    featuredProjects: data?.builderSummary?.featuredProjects ?? 0,
+    totalViews: data?.builderSummary?.totalViews,
   };
 
   /* ----------------PIE----------------*/
@@ -80,34 +80,21 @@ const BuilderDashBoard = () => {
   ];
 
   /* -----------------city bar chart data----------------*/
-  const cityChartData =
-    data?.location?.cities?.map((item) => ({
-      city: item._id.city,
-      listings: item.count,
-    })) ?? [];
-
-  const formattedChartData = {
-    labels: cityChartData?.map((item) => item.city),
+  const formattedCityData = {
+    labels: data?.locationStats?.cities?.map((item) => item._id) ?? [],
     datasets: [
       {
-        data: cityChartData?.map((item) => item.listings),
+        data: data?.locationStats?.cities?.map((item) => item.count) ?? [],
       },
     ],
   };
 
   /* ------------------State bar chart data----------------*/
-  const stateChartData =
-    data?.location?.states?.map((item) => ({
-      state: item._id,
-      total: item.total,
-      featured: item.featured,
-    })) ?? [];
-
   const formattedStateData = {
-    labels: stateChartData?.map((item) => item.state),
+    labels: data?.locationStats?.states?.map((item) => item._id) ?? [],
     datasets: [
       {
-        data: stateChartData?.map((item) => item.total),
+        data: data?.locationStats?.states?.map((item) => item.count) ?? [],
       },
     ],
   };
@@ -121,8 +108,9 @@ const BuilderDashBoard = () => {
       }}
     >
       <View>
-        <Text style={[styles.title, { paddingVertical: 5 }]}>
-          Builder Analytics Dashboard
+        <Text style={[styles.title]}>Builder Analytics Dashboard</Text>
+        <Text style={styles.small}>
+          Track your property performance and leads
         </Text>
 
         {/*-------------------KPI Section ----------------*/}
@@ -135,20 +123,22 @@ const BuilderDashBoard = () => {
             iconBgColor="#E0ECFF"
           />
           <KpiCard
-            title="Active Listings"
-            value={kpis.activeListings}
-            icon={<FontAwesome name="check-circle" size={16} color="#27AE60" />}
+            title="Total Views"
+            value={kpis.totalViews}
+            icon={
+              <MaterialCommunityIcons name="eye" size={16} color="#27AE60" />
+            }
             bgColor="#F3FBF7"
             iconBgColor="#DFF4E8"
           />
           <KpiCard
-            title="Featured"
-            value={kpis.featuredProperties}
+            title="Featured Projects"
+            value={kpis.featuredProjects}
             icon={<FontAwesome name="star" size={16} color="orange" />}
             bgColor="#FFF7ED"
             iconBgColor="#FFE7CC"
           />
-          <KpiCard
+          {/* <KpiCard
             title="Pending Listings"
             value={kpis.pendingListings}
             icon={
@@ -156,11 +146,11 @@ const BuilderDashBoard = () => {
             }
             bgColor="#FFF5F5"
             iconBgColor="#FFEBEB"
-          />
+          /> */}
         </View>
 
-        {/*--------------------Featured (PieCahrt)----------------*/}
-        <View style={styles.card}>
+        {/*--------------------Featured (PieCahrt) Removed after api changes----------------*/}
+        {/* <View style={styles.card}>
           <Text style={styles.subTitle}>Featured Split</Text>
           <PieChart
             data={featuredPieData}
@@ -177,7 +167,7 @@ const BuilderDashBoard = () => {
             // paddingLeft={"15"}
             absolute
           />
-        </View>
+        </View> */}
         {/*--------------------Top Cities (BarChart)----------------*/}
         <View style={styles.card}>
           <View style={{ marginBottom: 12 }}>
@@ -188,28 +178,30 @@ const BuilderDashBoard = () => {
           </View>
 
           <BarChart
-            data={formattedChartData}
-            width={width - 40}
+            data={formattedCityData}
+            width={width - 60}
             height={220}
             fromZero
-            withInnerLines={true}
-            // showValuesOnTopOfBars
+            withInnerLines
+            yAxisLabelWidth={30}
             chartConfig={{
               backgroundColor: "#ffffff",
               backgroundGradientFrom: "#ffffff",
               backgroundGradientTo: "#ffffff",
               decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(59,130,246,${opacity})`,
+              fillShadowGradient: "#5384db",
+              fillShadowGradientOpacity: 1,
+              color: (opacity = 1) => `rgba(59,130,256,${opacity})`,
               labelColor: (opacity = 1) => `rgba(0,0,0,${opacity})`,
             }}
             style={{
               borderRadius: 12,
+              marginLeft: 15,
             }}
           />
         </View>
 
         {/*---------------------Top states (BarChart)----------------*/}
-
         <View style={styles.card}>
           <View style={{ marginBottom: 12 }}>
             <Text style={styles.subTitle}>Listings by State</Text>
@@ -221,7 +213,7 @@ const BuilderDashBoard = () => {
           {/* <View style={{ transform: [{ rotate: "90deg" }] }}> //To make horizontal view*/}
           <BarChart
             data={formattedStateData}
-            width={width - 40}
+            width={width - 60}
             height={220}
             fromZero
             withInnerLines={true}
@@ -231,11 +223,14 @@ const BuilderDashBoard = () => {
               backgroundGradientFrom: "#ffffff",
               backgroundGradientTo: "#ffffff",
               decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(59,130,246,${opacity})`,
+              fillShadowGradient: "#5384db",
+              fillShadowGradientOpacity: 1,
+              color: (opacity = 1) => `rgba(59,130,256,${opacity})`,
               labelColor: (opacity = 1) => `rgba(0,0,0,${opacity})`,
             }}
             style={{
               borderRadius: 12,
+              marginLeft: 15,
             }}
           />
           {/* </View> */}
@@ -275,7 +270,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 14,
     fontWeight: 600,
-    marginBottom: 15,
+    marginBottom: 5,
+  },
+  small: {
+    fontSize: 12,
+    color: "gray",
+    marginBottom: 20,
   },
   subTitle: {
     fontSize: 14,
