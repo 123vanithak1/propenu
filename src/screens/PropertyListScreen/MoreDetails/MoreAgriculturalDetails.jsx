@@ -2,7 +2,6 @@ import {
   View,
   Text,
   Pressable,
-  Image,
   StyleSheet,
   ScrollView,
   ActivityIndicator,
@@ -16,14 +15,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { apiService } from "../../../services/apiService";
 import formatINR from "../../../utils/FormatINR";
 import useDimensions from "../../../components/CustomHooks/UseDimension";
-import Entypo from "@expo/vector-icons/Entypo";
-import { getItem } from "../../../utils/Storage";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
-  AreaIcon,
-  BedIcon,
   PhoneIcon,
-  ImageListIcon,
 } from "../../../../assets/svg/Logo";
 import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
 import AmenitiesWithModal from "../../PropertyDetails/detailProperty/AmenitiesWithModal";

@@ -26,7 +26,7 @@ const OwnerProperties = () => {
         const response = await apiService.ownersProperties();
         if (response.status === 200) {
           const data = response.data.items;
-         
+
           const filteredData = selectedCity?.city
             ? data.filter(
                 (item) =>
@@ -44,9 +44,9 @@ const OwnerProperties = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Popular Owner Properties</Text>
+      <Text style={styles.title}>Owner Properties</Text>
       <Text style={styles.subTitle}>
-        Building excellence in {selectedCity?.city ?? "Hyderabad"}
+        Simplify your home search in {selectedCity?.city ?? "Hyderabad"}
       </Text>
       {properties?.length > 0 ? (
         <FlatList

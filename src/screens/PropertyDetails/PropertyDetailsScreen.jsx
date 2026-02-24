@@ -8,6 +8,7 @@ import {
   Pressable,
   FlatList,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { apiService } from "../../services/apiService";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -26,6 +27,7 @@ const PropertyDetailsScreen = ({ route }) => {
   const [property, setProperty] = useState(null);
   const [showNav, setShowNav] = useState(false);
   const [showEnquiryModal, setShowEnquiryModal] = useState(false);
+  const [isLoading, setIsLoadiing] = useState(false);
 
   const scrollRef = useRef(null);
   const sectionPositions = useRef({
@@ -54,11 +56,14 @@ const PropertyDetailsScreen = ({ route }) => {
 
   const fetchPropertyDetails = async () => {
     try {
+      setIsLoadiing(true);
       const res = await apiService.featuredProjectById(propertyId);
       // console.log("response :", res.data);
       setProperty(res.data);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoadiing(false);
     }
   };
 
@@ -69,6 +74,15 @@ const PropertyDetailsScreen = ({ route }) => {
   //     </SafeAreaView>
   //   );
   // }
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" style={{ color: "#27AE60" }} />
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   const formatMonthYear = (dateString) => {
     if (!dateString) return "";
@@ -171,7 +185,7 @@ const PropertyDetailsScreen = ({ route }) => {
             </Text>
           </Pressable>
           <EnquiryModal
-          propertyId={propertyId}
+            propertyId={propertyId}
             showEnquiry={showEnquiryModal}
             setShowEnquiry={setShowEnquiryModal}
           />
@@ -308,9 +322,8 @@ const PropertyDetailsScreen = ({ route }) => {
         >
           <Gallery property={property} />
         </View>
-           
-           <Specifications property={property} />
 
+        <Specifications property={property} />
 
         <View
           onLayout={(e) =>
@@ -322,7 +335,6 @@ const PropertyDetailsScreen = ({ route }) => {
             color={property?.color}
           />
         </View>
-
 
         <View
           onLayout={(e) =>
@@ -365,7 +377,6 @@ const PropertyDetailsScreen = ({ route }) => {
           )}
         </View>
 
-
         <View
           onLayout={(e) =>
             (sectionPositions.current.about = e.nativeEvent.layout.y)
@@ -402,7 +413,7 @@ export default PropertyDetailsScreen;
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor:"white"
+    backgroundColor: "white",
   },
   container: {
     paddingBottom: 16,

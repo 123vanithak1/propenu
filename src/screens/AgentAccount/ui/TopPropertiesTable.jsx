@@ -191,8 +191,10 @@ const styles = StyleSheet.create({
     // alignItems: "center",z
     padding: 12,
     borderRadius: 12,
-    backgroundColor: "#F9FAFB",
-    // marginBottom: 10,
+    backgroundColor: "#fff",
+    marginBottom:10,
+    borderWidth:1,
+    borderColor:"#eee"
   },
   leftSection: {
     flexDirection: "row",
@@ -209,9 +211,10 @@ const styles = StyleSheet.create({
   },
   title: {
     marginTop:15,
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 13,
+    fontWeight: "500",
     color: "#111827",
+    marginBottom:2
   },
   city: {
     fontSize: 12,

@@ -1,16 +1,28 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import { apiService } from "../../services/apiService";
 import AgentCard from "./AgentCard";
 import { useQuery } from "@tanstack/react-query";
+import useCity from "../CustomHooks/useCity";
 
 export const fetchAgents = async () => {
   const res = await apiService.agent();
   return res.data.items;
 };
 const AgentProperties = () => {
+   const { selectedCity } = useCity();
   const { data, isLoading, isError, error } = useQuery(["agents"], fetchAgents);
 
+  const filteredData = useMemo(() => {
+  if (!data) return [];
+
+  if (!selectedCity?.city) return data;
+
+  return data.filter(
+    (item) =>
+      item.city?.toLowerCase() === selectedCity.city.toLowerCase()
+  );
+}, [data, selectedCity]);
   if (isError) console.log("Agent api error :", error);
 
   // const [details, setDetails] = useState([]);
@@ -34,9 +46,9 @@ const AgentProperties = () => {
       <Text style={styles.subtitle}>
         Trusted professionals guiding your property journey
       </Text>
-      {data?.length > 0 ? (
+      {filteredData?.length > 0 ? (
         <FlatList
-          data={data}
+          data={filteredData}
           keyExtractor={(item) => item._id}
           horizontal
           showsHorizontalScrollIndicator={false}

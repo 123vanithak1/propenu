@@ -5,7 +5,6 @@ const CardDetails = ({ details, onPress }) => {
   const navigation = useNavigation();
   const { title, city, heroImage, priceFrom, priceTo } = details;
 
-
   const formatPrice = (price) => {
     if (!price) return "";
     if (price >= 10000000) return `₹ ${(price / 10000000).toFixed(1)} Cr`;
@@ -34,8 +33,15 @@ const CardDetails = ({ details, onPress }) => {
           <Text style={styles.city} numberOfLines={1}>
             {city}
           </Text>
+
           <Text style={styles.price}>
-            {formatPrice(priceFrom)} – {formatPrice(priceTo)}
+            {priceFrom && priceTo
+              ? `${formatPrice(priceFrom)} – ${formatPrice(priceTo)}`
+              : priceFrom
+                ? formatPrice(priceFrom)
+                : priceTo
+                  ? formatPrice(priceTo)
+                  : "-"}
           </Text>
         </View>
       </View>

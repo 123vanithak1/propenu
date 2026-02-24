@@ -52,8 +52,20 @@ const OwnerPropertyCard = ({ details }) => {
   };
 
   const handleClick = () => {
-    console.log("getting id when select :", details.slug);
-    navigation.navigate("MoreOwnerProperties", { propertyId: details.slug });
+    const screenMap = {
+      residential: "MoreResidentialDetails",
+      commercial: "MoreCommercialDetails",
+      land: "MoreLandDetails",
+      agricultural: "MoreAgriculturalDetails",
+    };
+
+    const screenName = screenMap[details?.type];
+
+    if (screenName) {
+      navigation.navigate(screenName, { id: details?._id });
+    } else {
+      console.log("Invalid category");
+    }
   };
 
   const MetaItem = ({ label, value, Icon }) => (
@@ -85,7 +97,7 @@ const OwnerPropertyCard = ({ details }) => {
         )}
 
         <View style={styles.likeIcon}>
-          <LikedIconContainer id={details?._id} type={details?.type}/>
+          <LikedIconContainer id={details?._id} type={details?.type} />
         </View>
       </View>
       <View style={styles.detailsSection}>

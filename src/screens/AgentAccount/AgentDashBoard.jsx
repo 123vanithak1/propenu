@@ -100,7 +100,7 @@ const AgentDashBoard = () => {
         </Text>
       </View>
       <FlatList
-        data={topProperties}
+        data={[]}
         keyExtractor={(item) => item._id}
         contentContainerStyle={{
           paddingHorizontal: 5,
@@ -216,8 +216,10 @@ const AgentDashBoard = () => {
             </View>
           </>
         }
-        renderItem={({ item }) => ( < TopPropertiesTable properties={topProperties} />)}
-          
+        ListFooterComponent={<TopPropertiesTable properties={topProperties} />}
+        renderItem={null}
+        // renderItem={({ item }) => ( < TopPropertiesTable properties={topProperties} />)}
+
         //  <View style={styles.section}>
         //      <Text style={styles.sectionTitle}>Top Properties</Text>
         //     <Text style={styles.subSection}>Your best performing listings</Text>
@@ -226,7 +228,7 @@ const AgentDashBoard = () => {
         //       <Text style={styles.propertyMeta}>
         //         {item.city} • Views: {item.views} • Inquiries: {item.inquiries}
         //       </Text>
-        //     </View> 
+        //     </View>
         //   </View>
         ListEmptyComponent={
           <Text style={styles.emptyText}>No properties found</Text>

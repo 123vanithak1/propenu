@@ -34,14 +34,12 @@ const LikedIconContainer = ({ id, type }) => {
     return await userServices.postShortlistedProperties(payload);
   };
 
-  // ✅ MAIN LOGIC
   const handleToggle = async () => {
     if (!isLoggedIn) return;
 
     try {
       const previous = liked;
 
-      // optimistic
       setLiked(!previous);
 
       const res = await PostShortlisted();

@@ -195,26 +195,6 @@ export const apiService = {
     }
   },
 
-  ownerProjectById: async (id) => {
-    try {
-      const response = await fetch(
-        `${ENV.BASE_URL}${API_ROUTES.USER.OWNERS_PROPERTIES}/slug/${id}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
-      console.log("DATA : ", response);
-      // const data = await response.json();
-      // console.log("DATA : ", data)
-
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  },
 
   agricultural: async () => {
     try {
@@ -319,10 +299,9 @@ export const apiService = {
   },
 
   agentDetailsBySlug: async (id) => {
-    const url = `${ENV.BASE_URL}${API_ROUTES.USER.AGENT}/slug/${id}`;
 
     try {
-      const response = await fetch(url, {
+      const response = await fetch(`${ENV.BASE_URL}${API_ROUTES.USER.AGENT}/slug/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

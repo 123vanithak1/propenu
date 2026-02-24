@@ -1,33 +1,18 @@
-import { View, Text, StyleSheet, Image,Pressable } from "react-native";
+import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import HomePageImage from "../../../assets/HomePageImage.png";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Logo, LocationIcon } from "../../../assets/svg/Logo";
-import FallBackImage from "../../../assets/svg/FallBackImage";
 import { useNavigation } from "@react-navigation/native";
 
 const AgentCard = ({ details }) => {
-    const navigation = useNavigation();
+  const navigation = useNavigation();
   const imageSource = details?.coverImage?.url
     ? { uri: details.coverImage.url }
     : HomePageImage;
 
-  const formatPrice = (price) => {
-    if (!price) return "";
-
-    if (price >= 10000000) {
-      return `₹ ${(price / 10000000).toFixed(1)} Cr`;
-    }
-
-    if (price >= 100000) {
-      return `₹ ${(price / 100000).toFixed(0)} L`;
-    }
-
-    return `₹ ${price.toLocaleString("en-IN")}`;
-  };
-
-  const handlePress = () =>{
+  const handlePress = () => {
     navigation.navigate("MoreAgentDetails", { slug: details?.slug });
-  }
+  };
 
   return (
     <Pressable style={styles.card} onPress={handlePress}>
@@ -44,13 +29,24 @@ const AgentCard = ({ details }) => {
       </View>
       <View style={styles.propertyDetails}>
         <Text style={styles.name}>{details.name}</Text>
-        <Text style={{ color: "#27AE60", fontSize: 12, paddingVertical: 2 }}>
+        <Text
+          style={{
+            color: "#27AE60",
+            fontSize: 13,
+            fontWeight: 500,
+            paddingVertical: 2,
+          }}
+        >
           {details.agencyName}
         </Text>
-        <Text style={styles.subtitle} numberOfLines={2}>{details.bio}</Text>
+        <Text style={styles.subtitle} numberOfLines={2}>
+          {details.bio}
+        </Text>
 
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <LocationIcon width={14} height={16} />
+        <View
+          style={{ flexDirection: "row", alignItems: "center", marginTop: 3 }}
+        >
+          <LocationIcon width={17} height={17} />
           <Text style={styles.area}> {details?.areasServed?.join(", ")}</Text>
         </View>
       </View>
@@ -76,7 +72,7 @@ const AgentCard = ({ details }) => {
 
 const styles = StyleSheet.create({
   card: {
-    width: 250,
+    width: 280,
     backgroundColor: "#fff",
     borderRadius: 8,
     marginVertical: 10,
@@ -84,7 +80,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
     marginRight: 15,
     marginLeft: 2,
     paddingBottom: 13,
@@ -97,10 +93,12 @@ const styles = StyleSheet.create({
   },
   color: {
     color: "#27AE60",
+    fontWeight: 500,
   },
   info: { fontSize: 12, color: "#000" },
   area: {
-    fontSize: 12,
+    fontSize: 13,
+    fontWeight: 500,
     color: "#363535ff",
   },
   name: {
@@ -110,10 +108,10 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     alignSelf: "center",
-    backgroundColor: "#E0E0E0",
-    width: 220,
-    marginHorizontal: "30",
-    marginVertical: 13,
+    backgroundColor: "#eee",
+    width: 250,
+    marginHorizontal: 10,
+    marginVertical: 10,
   },
   VerifiedBadge: {
     position: "absolute",
@@ -131,20 +129,21 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 12,
-    color: "#797773ff",
+    // color: "#000",
     marginBottom: 6,
     marginTop: 2,
+    lineHeight: 18,
   },
   imageWrapper: {
     position: "relative",
   },
   propertyDetails: {
-    paddingLeft: 15,
+    paddingHorizontal: 12,
     paddingTop: 40,
   },
   image: {
     width: "100%",
-    height: 160,
+    height: 140,
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
   },
@@ -154,9 +153,9 @@ const styles = StyleSheet.create({
     left: 12,
     top: "100%",
     transform: [{ translateY: -30 }],
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     borderWidth: 3,
     borderColor: "#fff",
     backgroundColor: "#eee",
