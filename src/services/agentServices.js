@@ -145,4 +145,81 @@ export const agentServices = {
   //     );
   //   }
   // },
+
+  getMySubscription: async () => {
+    const token = await getToken();
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.PAYMENTS.MY_SUBSCIPTION}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData?.message || "Something went wrong");
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.log("Error :", error);
+    }
+  },
+
+  getMyPlans: async (params) => {
+    try {
+      const query = new URLSearchParams(params).toString();
+
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.PAYMENTS.PLANS}?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData?.message || "Something went wrong");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.log("Error:", error);
+      throw error;
+    }
+  },
+
+  verifyPayment: async (payload) => {
+    const token = await getToken();
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.PAYMENTS.VERIFY_PAYMENT}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData?.message || "Payment verification failed");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.log("Verify Payment Error:", error);
+      throw error;
+    }
+  },
 };

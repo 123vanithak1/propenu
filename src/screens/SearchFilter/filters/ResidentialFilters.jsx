@@ -151,7 +151,13 @@ const ResidentialFilters = () => {
   };
 
   const removeLocation = (loc) => {
-    setLocations(locations.filter((l) => l !== loc));
+    setLocations((prev) => prev.filter((l) => l !== loc));
+    dispatch(
+      setResidentialFilter({
+        key: "locality",
+        value: loc,
+      }),
+    );
   };
 
   const [activeFilter, setActiveFilter] = useState(moreFilterSections[0]?.key);
@@ -278,23 +284,29 @@ const ResidentialFilters = () => {
             {cityData ? `Localities in ${cityData.city}` : "Select city first"}
           </Text>
 
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
             {[...new Set(localities.map((l) => l.name))].map((name) => (
               <Pressable
                 key={name}
                 style={{
                   paddingHorizontal: 10,
-                  paddingVertical: 6,
+                  paddingVertical: 4,
                   backgroundColor: "#E9F7EF",
-                  borderRadius: 6,
+                  borderRadius: 8,
                 }}
                 onPress={() => {
                   if (!locations.includes(name)) {
                     setLocations([...locations, name]);
+                    dispatch(
+                      setResidentialFilter({
+                        key: "locality",
+                        value: name,
+                      }),
+                    );
                   }
                 }}
               >
-                <Text style={filterStyles.localitiesText}>{name}</Text>
+                <Text style={filterStyles.localitiesText}>+ {name}</Text>
               </Pressable>
             ))}
           </View>

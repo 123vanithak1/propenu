@@ -50,12 +50,12 @@ export const moreFilterSections = [
     options: ["new-sale", "resale"],
     selectionType: "single",
   },
-  {
-    key: "Possession Status",
-    label: "Possession Status",
-    options: ["ready-to-move", "under-construction"],
-    selectionType: "single",
-  },
+  // {
+  //   key: "Possession Status",
+  //   label: "Possession Status",
+  //   options: ["ready-to-move", "under-construction"],
+  //   selectionType: "single",
+  // },
   { key: "Covered Area", label: "Covered Area" },
   {
     key: "Bathroom",
@@ -93,7 +93,7 @@ export const moreFilterSections = [
     options: ["East", "West", "North", "South"],
     selectionType: "multiple",
   },
-  { key: "Verified Properties", label: "Verified Properties" },
+  // { key: "Verified Properties", label: "Verified Properties" },
   {
     key: "Posted Since",
     label: "Posted Since",
@@ -112,7 +112,7 @@ export const moreFilterSections = [
   {
     key: "Posted By",
     label: "Posted By",
-    options: ["owners", "Agents", "Builders"],
+    options: ["User", "Agents", "Builders"],
     selectionType: "multiple",
   },
 ];
@@ -124,13 +124,15 @@ export const commercialMoreFilterSections = [
     key: "Commercial Type",
     label: "Commercial Type",
     options: [
-      "Office Space",
+      "Office",
       "Shop",
       "Showroom",
       "Warehouse",
-      "Industrial Shed",
-      "IT Park",
-      "Co-working Space",
+      "Industrial",
+      "Retail",
+      "Coworking",
+      "Restaurant",
+      "Clinic",
     ],
     selectionType: "multiple",
   },
@@ -208,6 +210,40 @@ export const commercialMoreFilterSections = [
     ],
     selectionType: "multiple",
   },
+  {
+      key: "Flooring Type",
+      label: "Flooring Type",
+      options: ["Vitrified", "Granite", "Marble", "Concrete"],
+      selectionType: "multiple",
+    },
+    {
+      key: "Wall Finish",
+      label: "Wall Finish",
+      options: ["Bare", "Painted", "Finished"],
+      selectionType: "multiple",
+    },
+    // {
+    //   key: "Tenant Available",
+    //   label: "Tenant Available",
+    //   options: ["Yes"],
+    // },
+    {
+      key: "Banks Approved",
+      label: "Banks Approved",
+      options: ["SBI", "HDFC", "ICICI", "Axis"],
+    },
+    // {
+    //   key: "Price Negotiable",
+    //   label: "Price Negotiable",
+    //   options: ["Yes"],
+    // },
+    {
+      key: "Posted Since",
+      label: "Posted Since",
+      options: ["All", "Yesterday", "Last Week", "Last Month", "Last 3 Months"],
+      selectionType: "single",
+    },
+ 
 ];
 
 /* ===================== LAND ===================== */
@@ -217,11 +253,10 @@ export const landMoreFilterSections = [
     key: "Land Type",
     label: "Land Type",
     options: [
-      "Residential Land",
-      "Commercial Land",
-      "Agricultural Land",
-      "Industrial Land",
-      "Farm Land",
+      "Residential Plot",
+      "Commercial Plot",
+      "Industrial Plot",
+      "NA Plot"
     ],
     selectionType: "single",
   },
@@ -229,11 +264,14 @@ export const landMoreFilterSections = [
     key: "Land Sub Type",
     label: "Land Sub Type",
     options: [
-      "Open Plot",
-      "Layout Plot",
-      "Corner Plot",
-      "DTCP Approved Plot",
-      "HMDA Approved Plot",
+      "Gated Community",
+        "Non Gated",
+        "Corner",
+        "Road Facing",
+        "Two Side Open",
+        "Three Side Open",
+        "Resale",
+        "New Plot",
     ],
     selectionType: "multiple",
   },
@@ -325,7 +363,6 @@ export const landMoreFilterSections = [
   //   options: ["Owners", "Agents", "Builders"],
   //   selectionType: "single",
   // },
-
 ];
 
 export const agriculturalMoreFilterSections = [
@@ -333,11 +370,10 @@ export const agriculturalMoreFilterSections = [
     key: "Agricultural Type",
     label: "Agricultural Type",
     options: [
-      "Dry Land",
-      "Wet Land",
-      "Farm Land",
-      "Plantation Land",
-      "Horticulture Land",
+       "Farm Land",
+        "Wet Land",
+        "Dry Land",
+        "Dairy Farm",
     ],
     selectionType: "multiple",
   },
@@ -345,11 +381,16 @@ export const agriculturalMoreFilterSections = [
     key: "Agricultural Sub Type",
     label: "Agricultural Sub Type",
     options: [
-      "Paddy Field",
-      "Coconut Garden",
-      "Mango Orchard",
-      "Palm Plantation",
-      "Mixed Crop Land",
+      "Irrigated",
+        "Non Irrigated",
+        "Fenced",
+        "With Well",
+        "With Borewell",
+        "With Electricity",
+        "Unfenced",
+        "Near Road",
+        "Inside Village",
+        "Farmhouse Permission",
     ],
     selectionType: "multiple",
   },
@@ -389,12 +430,12 @@ export const agriculturalMoreFilterSections = [
     options: ["River", "Canal", "Borewell", "Tank"],
     selectionType: "multiple",
   },
-  // {
-  //   key: "Electricity Connection",
-  //   label: "Electricity Connection",
-  //   options: ["Available"],
-  //   selectionType: "single",
-  // },
+  {
+    key: "Electricity Connection",
+    label: "Electricity Connection",
+    options: ["Available"],
+    selectionType: "single",
+  },
   {
     key: "Current Crop",
     label: "Current Crop",
@@ -419,24 +460,24 @@ export const agriculturalMoreFilterSections = [
     options: ["Mud Road", "BT Road", "CC Road"],
     selectionType: "single",
   },
-  // {
-  //   key: "Boundary Wall",
-  //   label: "Boundary Wall",
-  //   options: ["Yes"],
-  //   selectionType: "single",
-  // },
+  {
+    key: "Boundary Wall",
+    label: "Boundary Wall",
+    options: ["Yes"],
+    selectionType: "single",
+  },
   {
     key: "State Restrictions",
     label: "State Purchase Restrictions",
     options: ["Applicable", "Not Applicable"],
     selectionType: "single",
   },
-  // {
-  //   key: "Price Negotiable",
-  //   label: "Price Negotiable",
-  //   options: ["Yes"],
-  //   selectionType: "single",
-  // },
+  {
+    key: "Price Negotiable",
+    label: "Price Negotiable",
+    options: ["Yes"],
+    selectionType: "single",
+  },
   {
     key: "Posted Since",
     label: "Posted Since",

@@ -91,7 +91,7 @@ const agentMenuItems = [
   },
   {
     label: "My Plans",
-    route: "Membership",
+    route: "AgentPlans",
     icon: Dollar,
   },
 ];

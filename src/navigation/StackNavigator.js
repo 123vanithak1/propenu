@@ -39,6 +39,7 @@ import PrivacyPolicy from "../screens/MoreDetails/PrivacyPolicy";
 import SafetyGuide from "../screens/MoreDetails/SafetyGuide";
 import HelpCenter from "../screens/MoreDetails/HelpCenter";
 import BuilderFeaturedProperties from "../screens/BuilderAccount/BuilderFeaturedProperties";
+import AgentPlans from "../screens/AgentAccount/AgentPlans";
 
 const Stack = createNativeStackNavigator();
 
@@ -272,6 +273,12 @@ export default function StackNavigator() {
       component: AgentAccountSettings,
       headerType: HEADER_TYPES.INNER,
       title: "Account & Settings",
+    },
+    {
+      name: "AgentPlans",
+      component: AgentPlans,
+      headerType: HEADER_TYPES.INNER,
+      title: "My Plans",
     },
 
     {

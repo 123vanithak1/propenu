@@ -240,7 +240,7 @@ const AgriculturalFilters = () => {
             {cityData ? `Localities in ${cityData.city}` : "Select city first"}
           </Text>
 
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
             {[...new Set(localities.map((l) => l.name))].map((name) => (
               <Pressable
                 key={name}
@@ -256,7 +256,7 @@ const AgriculturalFilters = () => {
                   }
                 }}
               >
-                <Text style={filterStyles.localitiesText}>{name}</Text>
+                <Text style={filterStyles.localitiesText}>+ {name}</Text>
               </Pressable>
             ))}
           </View>
@@ -291,7 +291,7 @@ const AgriculturalFilters = () => {
           </View>
         </View>
 
-        <Text style={filterStyles.subTitle}>Plot Area</Text>
+        {/* <Text style={filterStyles.subTitle}>Plot Area</Text>
         <View style={filterStyles.budget}>
           <View style={filterStyles.minMaxBudget}>
             <Dropdownui
@@ -316,7 +316,7 @@ const AgriculturalFilters = () => {
               onChange={(value) => setCarpetRange([carpetRange[0], value])}
             />
           </View>
-        </View>
+        </View> */}
 
         <Text style={filterStyles.subTitle}>Posted By</Text>
         <View style={filterStyles.toggleContainer}>
@@ -420,7 +420,7 @@ const AgriculturalFilters = () => {
                         ios_backgroundColor="#E0E0E0"
                       />
                     </View>
-                  ) : activeSection.key === "Plot Area" ? (
+                  ) : activeSection.key === "Total Area" ? (
                     <View style={filterStyles.budgetArea}>
                       <View style={filterStyles.minMaxBudget}>
                         <Dropdownui

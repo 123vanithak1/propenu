@@ -25,13 +25,7 @@ const TopPropertiesTable = ({ properties = [] }) => {
   }, [properties, sortBy]);
 
   if (!properties.length) {
-    return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>
-          No top performing properties available
-        </Text>
-      </View>
-    );
+    return null;
   }
 
   const renderItem = ({ item }) => {

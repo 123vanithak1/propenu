@@ -97,7 +97,7 @@ const LandFilters = () => {
 
   /* -------------------- POSTED BY -------------------- */
 
-  const postedByOptions = ["Owners", "Agents"];
+  const postedByOptions = ["Owners", "Agents", "Builders"];
 
   const handleSubmit = () => {
     const trimmed = locationInput.trim();
@@ -253,7 +253,7 @@ const LandFilters = () => {
             {cityData ? `Localities in ${cityData.city}` : "Select city first"}
           </Text>
 
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
             {[...new Set(localities.map((l) => l.name))].map((name) => (
               <Pressable
                 key={name}
@@ -269,7 +269,7 @@ const LandFilters = () => {
                   }
                 }}
               >
-                <Text style={filterStyles.localitiesText}>{name}</Text>
+                <Text style={filterStyles.localitiesText}>+ {name}</Text>
               </Pressable>
             ))}
           </View>
@@ -304,7 +304,7 @@ const LandFilters = () => {
           </View>
         </View>
 
-        <Text style={filterStyles.subTitle}>Plot Area</Text>
+        {/* <Text style={filterStyles.subTitle}>Plot Area</Text>
         <View style={filterStyles.budget}>
           <View style={filterStyles.minMaxBudget}>
             <Dropdownui
@@ -329,7 +329,7 @@ const LandFilters = () => {
               onChange={(value) => setCarpetRange([carpetRange[0], value])}
             />
           </View>
-        </View>
+        </View> */}
 
         <Text style={filterStyles.subTitle}>Posted By</Text>
         <View style={filterStyles.toggleContainer}>

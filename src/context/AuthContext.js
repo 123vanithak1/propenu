@@ -30,9 +30,9 @@ const updateUserDetails = async (newData) => {
   try {
     const updatedUser = { ...userDetails, ...newData };
 
-    setUserDetails(updatedUser); // update UI immediately
+    setUserDetails(updatedUser); 
 
-    await setItem("user", JSON.stringify(updatedUser)); // ⭐ persist
+    await setItem("user", JSON.stringify(updatedUser)); 
   } catch (e) {
     console.log("Update user error:", e);
   }

@@ -48,5 +48,9 @@ export const API_ROUTES = {
 
   PAYMENTS: {
     PAYMENTS_HISTORY: "/api/payments/subscriptions/history",
+    MY_SUBSCIPTION : "/api/payments/subscriptions/me",
+    PLANS :"/api/payments/plans",
+    PAYMENT_CREATE :"/api/payments/create",
+    VERIFY_PAYMENT :"/api/payments/verify"
   },
 };

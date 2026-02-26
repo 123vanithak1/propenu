@@ -1,5 +1,3 @@
-// EditAgentModal.js
-
 import React, { useEffect, useState, useCallback } from "react";
 import {
   Modal,
@@ -22,6 +20,7 @@ import DateInputField from "../../../components/ui/DateInputField";
 import TextArea from "../../../components/ui/TextArea";
 import { useAuth } from "../../../context/AuthContext";
 import { agentServices } from "../../../services/agentServices";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ALLOWED_PROFILE_FIELDS = [
   "name",
@@ -39,9 +38,10 @@ const ALLOWED_PROFILE_FIELDS = [
 ];
 
 const EditAgentModal = ({ visible, onClose, agent }) => {
-  const { userDetails } = useAuth();
+  const { userDetails, updateUserDetails } = useAuth();
+  const queryClient = useQueryClient();
 
-  const [avatar, setAvatar] = useState( null);
+  const [avatar, setAvatar] = useState(null);
   const [coverImage, setCoverImage] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -54,13 +54,13 @@ const EditAgentModal = ({ visible, onClose, agent }) => {
     licenseNumber: "",
     licenseValidTill: "",
     city: "",
-    coverImage:""
+    coverImage: "",
   });
 
   useEffect(() => {
     if (agent) {
       setFormData({
-        name: agent?.name || "",
+        name: agent?.user?.name || "",
         bio: agent?.bio || "",
         agencyName: agent?.agencyName || "",
         experienceYears: agent?.experienceYears || "",
@@ -70,8 +70,8 @@ const EditAgentModal = ({ visible, onClose, agent }) => {
         licenseNumber: agent?.licenseNumber || "",
         licenseValidTill: agent?.licenseValidTill || "",
         city: agent?.city || "",
-        avatar :agent?.avatar?.url || "",
-        coverImage: agent?.coverImage?.url ||  "",
+        avatar: agent?.avatar?.url || "",
+        coverImage: agent?.coverImage?.url || "",
       });
     }
   }, [agent, visible]);
@@ -96,13 +96,18 @@ const EditAgentModal = ({ visible, onClose, agent }) => {
       }, {});
   }, []);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const payload = {
       ...formData,
       areasServed: formData.areasServed?.filter(Boolean),
       languages: formData.languages?.filter(Boolean),
     };
     patchAgent(cleanPayload(payload));
+    await updateUserDetails(payload);
+    queryClient.invalidateQueries({
+      queryKey: ["my-agent-profile"],
+    });
+
     onClose();
   };
 
@@ -125,10 +130,10 @@ const EditAgentModal = ({ visible, onClose, agent }) => {
 
         if (type === "cover") {
           setFormData({ ...formData, coverImage: formattedImage });
-          setCoverImage(formattedImage)
+          setCoverImage(formattedImage);
         } else {
           setFormData({ ...formData, avatar: formattedImage });
-          setAvatar(formattedImage)
+          setAvatar(formattedImage);
         }
       }
     } catch (error) {

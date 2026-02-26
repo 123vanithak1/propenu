@@ -28,7 +28,10 @@ import {
   formatBudget,
   commercialMoreFilterSections,
 } from "../../../data/constants";
-import { setCommercialFilter, resetCommercialFilters } from "../../../redux/slice/FilterSlice";
+import {
+  setCommercialFilter,
+  resetCommercialFilters,
+} from "../../../redux/slice/FilterSlice";
 import Dropdownui from "../../../components/ui/DropDownUI";
 import { useAppSelector } from "../../../redux/store/store";
 import { ToastInfo, ToastSuccess } from "../../../utils/Toast";
@@ -36,7 +39,7 @@ import filterStyles from "./filterStyles";
 
 const CommercialFilters = () => {
   const insets = useSafeAreaInsets();
-    const navigation = useNavigation();
+  const navigation = useNavigation();
   const [locationInput, setLocationInput] = useState("");
   const [selectedOptions, setSelectedOptions] = useState({});
   const [locations, setLocations] = useState([]);
@@ -51,13 +54,14 @@ const CommercialFilters = () => {
   const { selectedCity } = useCity();
 
   const { minBudget, maxBudget, commercial } = filtersState;
-  const { postedBy } = commercial;
+  const { postedBy, commercialType } = commercial;
 
   const inputRef = useRef(null);
   const TOTAL_STEPS = 3;
   const localityNames = [
     ...new Set(cityData.localities.map((item) => item.name)),
   ];
+  console.log("commercial filters :", commercial);
 
   /* -------------------- BUDGET -------------------- */
   const BUDGET_MIN = 5;
@@ -113,6 +117,28 @@ const CommercialFilters = () => {
     "Posted Since": "postedSince",
     "Posted By": "postedBy",
   };
+
+  const COMMERCIAL_SUBTYPE_MAP = {
+    office: ["BARE SHELL", "WARM SHELL", "BUSINESS CENTER"],
+    retail: ["HIGH STREET-SHOP", "MALL SHOP", "KIOSK", "FOOD COURT-UNIT"],
+    shop: ["HIGH STREET-SHOP", "SHUTTER SHOP", "MALL SHOP"],
+    showroom: ["HIGH STREET-SHOP", "SHOWROOM SPACE"],
+    warehouse: ["WAREHOUSE GODOWN", "LOGISTICS HUB", "COLD STORAGE"],
+    industrial: ["INDUSTRIAL SHED"],
+    coworking: ["COWORKING DEDICATED-DESK", "COWORKING HOT-DESK"],
+    restaurant: ["FOOD COURT-UNIT"],
+    clinic: ["CLINIC SPACE"],
+  };
+
+  const selectedTypes = commercial?.commercialType || [];
+
+  const subTypes = [
+    ...new Set(
+      selectedTypes.flatMap(
+        (type) => COMMERCIAL_SUBTYPE_MAP[type?.toLowerCase()] || [],
+      ),
+    ),
+  ];
 
   /* -------------------- POSTED BY -------------------- */
 
@@ -199,19 +225,19 @@ const CommercialFilters = () => {
   };
 
   const handleSearch = () => {
-      console.log("Searching with commercial filters...");
-      navigation.navigate("PropertyList");
+    console.log("Searching with commercial filters...");
+    navigation.navigate("PropertyList");
   };
   const handleClearButton = () => {
     setLocations([]);
-    setLocationInput(""); 
+    setLocationInput("");
     setBudgetRange([BUDGET_MIN, BUDGET_MAX]);
     setSelectedOptions({});
     setVerifiedOnly(false);
     setCarpetRange([CARPET_MIN, CARPET_MAX]);
     dispatch(resetCommercialFilters());
     ToastInfo("All filters have been cleared.");
-  }
+  };
 
   const activeSection = commercialMoreFilterSections.find(
     (section) => section.key === activeFilter,
@@ -259,12 +285,10 @@ const CommercialFilters = () => {
           </View>
 
           <Text style={filterStyles.localitiesHeading}>
-            {cityData
-              ? `Localities in ${cityData.city}`
-              : "Select city first"}
+            {cityData ? `Localities in ${cityData.city}` : "Select city first"}
           </Text>
 
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
             {[...new Set(localities.map((l) => l.name))].map((name) => (
               <Pressable
                 key={name}
@@ -280,7 +304,7 @@ const CommercialFilters = () => {
                   }
                 }}
               >
-                <Text style={filterStyles.localitiesText}>{name}</Text>
+                <Text style={filterStyles.localitiesText}>+ {name}</Text>
               </Pressable>
             ))}
           </View>
@@ -315,8 +339,41 @@ const CommercialFilters = () => {
           </View>
         </View>
 
-        <Text style={filterStyles.subTitle}>Area</Text>
-        <View style={filterStyles.budget}>
+        {/* <Text style={filterStyles.subTitle}>Property Type</Text>
+        <View style={filterStyles.toggleContainer}>
+          {TypeOptions.map((opt) => {
+            const isActive = opt === commercial?.commercialType;
+
+            return (
+              <Pressable
+                key={opt}
+                onPress={() => {
+                  dispatch(
+                    setCommercialFilter({
+                      key: "commercialType",
+                      value: opt,
+                    }),
+                  );
+                }}
+                style={[
+                  filterStyles.bhkData,
+                  isActive && filterStyles.activeChip,
+                ]}
+              >
+                <Text
+                  style={[
+                    filterStyles.labelText,
+                    isActive && filterStyles.activeChipText,
+                  ]}
+                >
+                  {opt}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View> */}
+
+        {/*<View style={filterStyles.budget}>
           <View style={filterStyles.minMaxBudget}>
             <Dropdownui
               label="Minimum"
@@ -340,7 +397,7 @@ const CommercialFilters = () => {
               onChange={(value) => setCarpetRange([carpetRange[0], value])}
             />
           </View>
-        </View>
+        </View> */}
         <Text style={filterStyles.subTitle}>Posted By</Text>
         <View style={filterStyles.toggleContainer}>
           {postedByOptions.map((item) => (
@@ -466,6 +523,48 @@ const CommercialFilters = () => {
                         />
                       </View>
                     </View>
+                  ) : activeSection.key === "Commercial Sub Type" ? (
+                    <View>
+                      {selectedTypes.length > 0 ? (
+                        subTypes.map((item) => {
+                          const isChecked =
+                            commercial?.commercialSubType?.includes(item);
+
+                          return (
+                            <Pressable
+                              key={item}
+                              style={filterStyles.optionRow}
+                              onPress={() =>
+                                toggleOption(
+                                  activeSection.key,
+                                  item,
+                                  activeSection.selectionType,
+                                )
+                              }
+                            >
+                              <View
+                                style={[
+                                  filterStyles.checkbox,
+                                  isChecked && filterStyles.checkedBox,
+                                ]}
+                              >
+                                {isChecked && (
+                                  <Entypo name="check" size={12} color="#fff" />
+                                )}
+                              </View>
+
+                              <Text style={filterStyles.optionText}>
+                                {item}
+                              </Text>
+                            </Pressable>
+                          );
+                        })
+                      ) : (
+                        <Text style={filterStyles.optionText}>
+                          Select Commercial Type first
+                        </Text>
+                      )}
+                    </View>
                   ) : (
                     <View>
                       {activeSection.options?.map((opt) => {
@@ -524,24 +623,20 @@ const CommercialFilters = () => {
         </View>
       )}
 
-   {/* BOTTOM BAR */}
-         <View
-           style={[
-             filterStyles.buttonBar,
-             { marginBottom: insets.bottom + 10 },
-           ]}
-         >
-           <Pressable style={filterStyles.clearButton} onPress={handleClearButton}
-           >
-             <Text style={filterStyles.clearText}>Clear</Text> 
-           </Pressable>
-           <Pressable style={[filterStyles.nextButton]} onPress={handleSearch}>
-             <Text style={filterStyles.nextText}>
-               Search
-               {/* {step === TOTAL_STEPS ? "Search" : "Next"} */}
-             </Text>
-           </Pressable>
-         </View>
+      {/* BOTTOM BAR */}
+      <View
+        style={[filterStyles.buttonBar, { marginBottom: insets.bottom + 10 }]}
+      >
+        <Pressable style={filterStyles.clearButton} onPress={handleClearButton}>
+          <Text style={filterStyles.clearText}>Clear</Text>
+        </Pressable>
+        <Pressable style={[filterStyles.nextButton]} onPress={handleSearch}>
+          <Text style={filterStyles.nextText}>
+            Search
+            {/* {step === TOTAL_STEPS ? "Search" : "Next"} */}
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 };

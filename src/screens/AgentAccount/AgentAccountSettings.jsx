@@ -64,7 +64,6 @@ const AgentAccountSettings = () => {
   };
 
   const handleLogout = async () => {
-    console.log("hai");
     if (userDetails != null) {
       await clearStorage();
       await Keychain.resetGenericPassword();

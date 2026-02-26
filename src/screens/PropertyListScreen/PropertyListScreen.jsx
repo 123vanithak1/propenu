@@ -85,7 +85,7 @@ const PropertyListScreen = ({ navigation }) => {
                 : {};
 
       const params = buildSearchParams(category, filters);
-      console.log("Search Params :", params);
+      console.log("Search Params :", params, filters);
 
       const result = await apiService.category_search(params);
       setDetails(Array.isArray(result) ? result : []);
@@ -97,6 +97,8 @@ const PropertyListScreen = ({ navigation }) => {
   };
 
   const total = details?.[0]?.__meta?.total;
+  const properties = details?.filter(item => !item.__meta);
+
   useEffect(() => {
     fetchData();
   }, [category]);
@@ -148,26 +150,27 @@ const PropertyListScreen = ({ navigation }) => {
         </View>
       </Pressable>
 
-      {details.length === 0 && (
+      {total === 0 && (
         <View style={styles.loadingContainer}>
           <Text style={styles.empty}>No properties available.</Text>
         </View>
       )}
 
-      {total != null && (
+      {total > 0 && (
         <Text style={styles.lengthText} numberOfLines={1}>
           {total} Properties for sale{" "}
           {selectedCity?.city ? `in ${selectedCity.city}` : ""}
         </Text>
       )}
-
-      <FlatList
-        data={details}
-        keyExtractor={(item, index) => String(item.id || item._id || index)}
-        renderItem={renderPropertyCard}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-      />
+      {total > 0 && (
+        <FlatList
+          data={properties}
+          keyExtractor={(item, index) => String(item.id || item._id || index)}
+          renderItem={renderPropertyCard}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </View>
   );
 };

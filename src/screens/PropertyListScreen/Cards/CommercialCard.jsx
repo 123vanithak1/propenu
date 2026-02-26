@@ -29,7 +29,6 @@ const CommercialCard = ({ item }) => {
   };
 
 const handleContact = async () => {
-
   if (!isLoggedIn) {
     ToastInfo("User not authenticated");
   } else {

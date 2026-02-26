@@ -52,9 +52,34 @@ const filterSlice = createSlice({
 
     /* -------- Residential -------- */
 
+    // setResidentialFilter(state, action) {
+    //   const { key, value } = action.payload;
+    //   state.residential[key] = value;
+    // },
+
     setResidentialFilter(state, action) {
       const { key, value } = action.payload;
-      state.residential[key] = value;
+
+      const existingValue = state.residential[key];
+
+      // if already array → handle multiple selection
+      if (Array.isArray(existingValue)) {
+        if (existingValue.includes(value)) {
+          // remove (unselect)
+          state.residential[key] = existingValue.filter(
+            (item) => item !== value,
+          );
+        } else {
+          // add
+          state.residential[key] = [...existingValue, value];
+        }
+      } else if (existingValue) {
+        // convert single value → array
+        state.residential[key] = [existingValue, value];
+      } else {
+        // first value
+        state.residential[key] = [value];
+      }
     },
 
     /* -------- Commercial -------- */

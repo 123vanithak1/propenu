@@ -192,11 +192,7 @@ const AgentDashBoard = () => {
               </Text>
               {propertyTypePie.length > 0 ? (
                 <PieChartCard data={propertyTypePie} />
-              ) : (
-                <Text style={styles.emptyText}>
-                  No property type data available
-                </Text>
-              )}
+              ) : null}
             </View>
 
             <View style={styles.section}>
@@ -209,7 +205,7 @@ const AgentDashBoard = () => {
               ) : (
                 <View style={styles.center}>
                   <Text style={styles.emptyText}>
-                    No city data available for selected range
+                    No city data available
                   </Text>
                 </View>
               )}
@@ -229,10 +225,8 @@ const AgentDashBoard = () => {
         //         {item.city} • Views: {item.views} • Inquiries: {item.inquiries}
         //       </Text>
         //     </View>
-        //   </View>
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>No properties found</Text>
-        }
+        //   </View>. 
+        ListEmptyComponent={()=> null }
       />
     </View>
   );

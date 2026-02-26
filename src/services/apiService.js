@@ -505,7 +505,6 @@ export const apiService = {
         throw new Error(`HTTP error ${response.status}`);
       }
 
-      // 🔥 NDJSON handling
       const text = await response.text();
 
       if (!text) return [];
