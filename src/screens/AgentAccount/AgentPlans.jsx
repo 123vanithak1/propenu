@@ -1,17 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { agentServices } from "../../services/agentServices";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Pressable,
-} from "react-native";
+import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import PromoBanner from "../../components/ui/PromoBanner";
 
 const AgentPlans = () => {
+    const navigation = useNavigation();
+
   const { data: plans, isLoading: PlansLoading } = useQuery({
     queryKey: ["agent-plan-table"],
     queryFn: () =>
@@ -24,9 +20,6 @@ const AgentPlans = () => {
     queryKey: ["my-subscrpition"],
     queryFn: agentServices.getMySubscription,
   });
-  // console.log("PLANS ::::::::::", plans, "my_subscription ::::::::::", my_subscription);
-
-  const navigation = useNavigation();
 
   const categoryLabelMap = {
     buy: "Buy view",
@@ -47,7 +40,7 @@ const AgentPlans = () => {
   if (PlansLoading || subsciptionLoading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" style={{ color: "#27AE60" }} />
+        <ActivityIndicator size="large" color="#27AE60" />
         <Text>Loading...</Text>
       </View>
     );
@@ -127,24 +120,10 @@ const AgentPlans = () => {
             <Text style={styles.dateText}>
               Purchased on {formatDate(plan.startDate)}
             </Text>
-
-            <Pressable
-              style={styles.upgradeButton}
-              //   onPress={() => {
-              //     if (plan.category === "buy") {
-              //       navigation.navigate("BuyPlans");
-              //     } else if (plan.category === "rent_view") {
-              //       navigation.navigate("RentPlans");
-              //     } else {
-              //       navigation.navigate("Pricing");
-              //     }
-              //   }}
-            >
-              <Text style={styles.upgradeText}>Upgrade Plan</Text>
-            </Pressable>
           </View>
         </View>
 
+        <View style={styles.hrline} />
         {/* Right Section (Progress Panel) */}
         <View style={styles.progressPanel}>
           {/* Duration */}
@@ -164,10 +143,12 @@ const AgentPlans = () => {
 
           {/* Usage */}
           <View style={styles.progressBlock}>
-            <Text style={styles.progressLabel}>
-              {isPropertyPlan ? "Property listings" : "Owner contacts"} (
-              {plan.used}/{plan.total})
-            </Text>
+            <View style={styles.progressHeader}>
+              <Text style={styles.progressLabel}>
+                {isPropertyPlan ? "Property listings" : "Owner contacts"} (
+                {plan.used}/{plan.total})
+              </Text>
+            </View>
 
             <View style={styles.progressBarBg}>
               <View
@@ -186,6 +167,20 @@ const AgentPlans = () => {
             </Text>
           </View>
         </View>
+        <Pressable
+          style={styles.upgradeButton}
+          onPress={() => navigation.navigate("BuyPlans")}
+          //     if (plan.category === "buy") {
+          //       navigation.navigate("BuyPlans");
+          //     } else if (plan.category === "rent_view") {
+          //       navigation.navigate("RentPlans");
+          //     } else {
+          //       navigation.navigate("Pricing");
+          //     }
+          //   }}
+        >
+          <Text style={styles.upgradeText}>Upgrade Plan</Text>
+        </Pressable>
       </View>
     );
   };
@@ -196,7 +191,7 @@ const AgentPlans = () => {
         data={my_subscription.plans}
         keyExtractor={(item) => item.code}
         renderItem={renderPlanCard}
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 5 }}
       />
     </View>
   );
@@ -219,12 +214,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     borderWidth: 1,
+    marginBottom: 15,
     borderColor: "#E0F2E9",
     // elevation: 2,
   },
   row: {
     flexDirection: "row",
-    marginBottom: 16,
+    marginBottom: 10,
+  },
+  hrline: {
+    height: 1,
+    marginBottom: 7,
+    backgroundColor: "#faf3f3",
   },
   iconBox: {
     height: 56,
@@ -248,43 +249,45 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 11,
     color: "gray",
-    marginTop: 4,
+    marginTop: 3,
   },
   upgradeButton: {
-    backgroundColor: "#27AE60",
+    // width:"60%",
+    // alignSelf:"flex-end",
+    backgroundColor: "#e7f8ec",
     paddingVertical: 8,
     borderRadius: 6,
-    marginTop: 10,
+    marginTop: 5,
     alignItems: "center",
   },
   upgradeText: {
-    color: "#fff",
+    color: "#27AE60",
     fontWeight: "600",
-    fontSize: 13,
+    fontSize: 15,
   },
   progressPanel: {
-    backgroundColor: "#F4FBF6",
+    // backgroundColor: "#F4FBF6",
     borderRadius: 8,
-    padding: 12,
+    // padding: 12,
   },
   progressBlock: {
     marginBottom: 12,
   },
   progressHeader: {
-    marginBottom: 4,
+    marginBottom: 6,
   },
   progressLabel: {
     fontSize: 12,
     color: "#555",
   },
   progressBarBg: {
-    height: 6,
+    height: 3,
     backgroundColor: "#ddd",
     borderRadius: 10,
     overflow: "hidden",
   },
   progressBar: {
-    height: 6,
+    height: 3,
     backgroundColor: "#27AE60",
   },
   remainingText: {
@@ -301,16 +304,17 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   active: {
-    backgroundColor: "#DFF5E8",
+    backgroundColor: "#edf7f1",
   },
   expired: {
-    backgroundColor: "#FDE2E2",
+    backgroundColor: "#fdf1f1",
   },
   expiring: {
-    backgroundColor: "#FFF4D6",
+    backgroundColor: "#fcf9f2",
   },
   statusText: {
     fontSize: 10,
+    color: "#27AE60",
     fontWeight: "600",
   },
 });

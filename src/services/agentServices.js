@@ -199,6 +199,7 @@ export const agentServices = {
 
   verifyPayment: async (payload) => {
     const token = await getToken();
+    console.log("PAYMENT payload :", payload)
     try {
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.PAYMENTS.VERIFY_PAYMENT}`,
@@ -219,6 +220,33 @@ export const agentServices = {
       return await response.json();
     } catch (error) {
       console.log("Verify Payment Error:", error);
+      throw error;
+    }
+  },
+
+  createPaymentOrder: async (payload) => {
+    const token = await getToken();
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.PAYMENTS.PAYMENT_CREATE}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData?.message || "Something went wrong");
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.log("Create Payment Order Error:", error.message);
       throw error;
     }
   },

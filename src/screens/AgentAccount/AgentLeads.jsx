@@ -143,7 +143,6 @@ const AgentLeads = () => {
       </View>
     );
   }
-
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* CATEGORY TABS */}
@@ -160,15 +159,17 @@ const AgentLeads = () => {
       </View>
 
       {/* PROPERTY LIST */}
-      <View style={{ height: 110 }}>
-        <FlatList
-          data={properties}
-          renderItem={renderProperty}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 12 }}
-        />
-      </View>
+      {properties.length > 0 && (
+        <View style={{ height: 110 }}>
+          <FlatList
+            data={properties}
+            renderItem={renderProperty}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 12 }}
+          />
+        </View>
+      )}
 
       {/* STATUS FILTER */}
       <FlatList
@@ -193,6 +194,11 @@ const AgentLeads = () => {
           );
         }}
       />
+      {properties.length < 1 && (
+        <Text style={[styles.center, { textAlign: "center" }]}>
+          No properties found
+        </Text>
+      )}
 
       {/* LEADS LIST */}
       {leadsLoading ? (

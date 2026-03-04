@@ -40,6 +40,7 @@ import SafetyGuide from "../screens/MoreDetails/SafetyGuide";
 import HelpCenter from "../screens/MoreDetails/HelpCenter";
 import BuilderFeaturedProperties from "../screens/BuilderAccount/BuilderFeaturedProperties";
 import AgentPlans from "../screens/AgentAccount/AgentPlans";
+import BuyPlans from "../screens/Plans/BuyPlans";
 
 const Stack = createNativeStackNavigator();
 
@@ -279,6 +280,12 @@ export default function StackNavigator() {
       component: AgentPlans,
       headerType: HEADER_TYPES.INNER,
       title: "My Plans",
+    },
+    {
+      name: "BuyPlans",
+      component: BuyPlans,
+      headerType: HEADER_TYPES.NONE,
+      title: "Plans",
     },
 
     {

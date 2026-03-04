@@ -13,7 +13,7 @@ const formatDate = (date) => {
   if (!date) return "";
   const d = new Date(date);
   return `${String(d.getDate()).padStart(2, "0")}/${String(
-    d.getMonth() + 1
+    d.getMonth() + 1,
   ).padStart(2, "0")}/${d.getFullYear()}`;
 };
 
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     borderColor: "#d1d5db",
     borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 5,
     fontSize: 14,
     backgroundColor: "#ffffff",
   },

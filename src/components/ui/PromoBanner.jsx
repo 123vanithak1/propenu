@@ -7,18 +7,24 @@ import {
   Image,
   Dimensions,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 
-const  PromoBanner = () =>{
+const PromoBanner = () => {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       <View style={styles.leftSection}>
         <Text style={styles.title}>
-          Unlock more owner contacts & more opportunities with subscriptions
+          Haven’t subscribed yet? Upgrade now to unlock more leads and grow your
+          property reach.
         </Text>
 
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("BuyPlans")}
+        >
           <Text style={styles.buttonText}>Upgrade your Plan</Text>
         </TouchableOpacity>
       </View>
@@ -34,21 +40,19 @@ const  PromoBanner = () =>{
       </View>
     </View>
   );
-}
+};
 
 export default PromoBanner;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#E8F5EE",
-    borderRadius: 12,
+    flex: 1,
+    backgroundColor: "white",
     paddingHorizontal: 16,
     paddingVertical: 14,
-    borderWidth: 1,
-    borderColor: "#D1E7DD",
-    flexDirection: width > 768 ? "row" : "column",
-    justifyContent: "space-between",
+    // flexDirection: width > 768 ? "row" : "column",
     alignItems: "center",
+    justifyContent: "center",
     marginBottom: 16,
   },
   leftSection: {
@@ -56,14 +60,16 @@ const styles = StyleSheet.create({
     alignItems: width > 768 ? "flex-start" : "center",
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
     color: "#1F2937",
     textAlign: width > 768 ? "left" : "center",
-    marginBottom: 10,
+    marginBottom: 20,
+    paddingHorizontal: 20,
+    lineHeight: 23,
   },
   button: {
-    backgroundColor: "#10B981",
+    backgroundColor: "#27AE60",
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderRadius: 8,
@@ -79,7 +85,7 @@ const styles = StyleSheet.create({
     height: 100,
   },
   image: {
-    height: "100%",
+    height: "90%",
     width: 120,
   },
 });

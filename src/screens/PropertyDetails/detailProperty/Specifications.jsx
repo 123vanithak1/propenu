@@ -1,4 +1,3 @@
-// components/AvailableProperties.js
 import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
@@ -38,7 +37,7 @@ const Specifications = ({ property }) => {
       {/* Card */}
       <View style={[styles.mainCard, { backgroundColor: `${color}1A` }]}>
         {/* BHK Tabs */}
-        {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}> */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={styles.row}>
           {items.map((b, i) => {
             const active = i === activeBhkIndex;
@@ -58,6 +57,7 @@ const Specifications = ({ property }) => {
                     color: active ? "#fff" : "#2c2c2c",
                     fontWeight: "500",
                     fontSize: 12,
+                   
                   }}
                 >
                   {b.category}
@@ -66,7 +66,7 @@ const Specifications = ({ property }) => {
             );
           })}
         </View>
-
+        </ScrollView>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}> 
           {activeBhk?.items?.map((item, index) => (
             <View key={index} style={styles.card}>
@@ -103,7 +103,8 @@ fontSize: 14,
   },
   description:{
  fontSize:12,
- lineHeight:17
+ lineHeight:20,
+ textAlign:"justify"
 
   },
   mainCard: {
@@ -124,14 +125,14 @@ fontSize: 14,
   },
   row: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
+    // flexWrap: "wrap",
     marginBottom: 7,
   },
   tab: {
-    paddingVertical: 6,
+    paddingVertical: 7,
     paddingHorizontal: 12,
     borderRadius: 8,
+    marginRight:8
   },
   chip: {
     paddingVertical: 6,

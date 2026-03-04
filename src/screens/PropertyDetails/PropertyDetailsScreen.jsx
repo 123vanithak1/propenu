@@ -180,7 +180,7 @@ const PropertyDetailsScreen = ({ route }) => {
             style={styles.enquirybtn}
             onPress={() => setShowEnquiryModal(true)}
           >
-            <Text style={{ color: "#fff", fontWeight: "500" }}>
+            <Text style={{ color: "#fff",fontSize:12, fontWeight: "500" }}>
               Enquiry Now
             </Text>
           </Pressable>
@@ -433,9 +433,9 @@ const styles = StyleSheet.create({
     bottom: 12,
     right: 10,
     backgroundColor: "#27AE60",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 5,
     elevation: 5,
   },
   imagePlaceholder: {

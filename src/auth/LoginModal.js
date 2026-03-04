@@ -12,17 +12,12 @@ import {
 } from "react-native";
 import { apiService } from "../services/apiService";
 import useDimension from "../components/CustomHooks/UseDimension";
-import OTPLoginModal from "./OTPLoginScreen";
-import Entypo from "@expo/vector-icons/Entypo";
 import { SafeAreaView } from "react-native-safe-area-context";
-import InputField from "../components/ui/InputField";
-import Dropdownui from "../components/ui/DropDownUI";
 import { BigLogo } from "../../assets/svg/LogoPropenu";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import CountryPicker from "react-native-country-picker-modal";
 import { ToastError, ToastSuccess } from "../utils/Toast";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import AntDesign from "@expo/vector-icons/AntDesign";
 
 export default function LoginModal({ navigation }) {
   const [email, setEmail] = useState("");
