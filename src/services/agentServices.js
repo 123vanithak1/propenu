@@ -199,7 +199,6 @@ export const agentServices = {
 
   verifyPayment: async (payload) => {
     const token = await getToken();
-    console.log("PAYMENT payload :", payload)
     try {
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.PAYMENTS.VERIFY_PAYMENT}`,

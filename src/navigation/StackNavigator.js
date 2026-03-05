@@ -41,6 +41,10 @@ import HelpCenter from "../screens/MoreDetails/HelpCenter";
 import BuilderFeaturedProperties from "../screens/BuilderAccount/BuilderFeaturedProperties";
 import AgentPlans from "../screens/AgentAccount/AgentPlans";
 import BuyPlans from "../screens/Plans/BuyPlans";
+import OwnerSellPlans from "../screens/Plans/OwnerSellPlans";
+import OwnerRentPlans from "../screens/Plans/OwnerRentPlans";
+import RentViewPlans from "../screens/Plans/RentViewPlans";
+import BuyViewPlans from "../screens/Plans/BuyViewPlans";
 
 const Stack = createNativeStackNavigator();
 
@@ -239,6 +243,26 @@ export default function StackNavigator() {
       component: ContactedProperties,
       headerType: HEADER_TYPES.INNER,
       title: "Contacted Properties",
+    },
+    {
+      name: "OwnerSellPlans",
+      component: OwnerSellPlans,
+      headerType: HEADER_TYPES.NONE,
+    },
+    {
+      name: "OwnerRentPlans",
+      component: OwnerRentPlans,
+      headerType: HEADER_TYPES.NONE,
+    },
+    {
+      name: "BuyViewPlans",
+      component: BuyViewPlans,
+      headerType: HEADER_TYPES.NONE,
+    },
+    {
+      name: "RentViewPlans",
+      component: RentViewPlans,
+      headerType: HEADER_TYPES.NONE,
     },
 
     {

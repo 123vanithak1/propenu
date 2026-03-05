@@ -4,9 +4,11 @@ import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import PromoBanner from "../../components/ui/PromoBanner";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const AgentPlans = () => {
     const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   const { data: plans, isLoading: PlansLoading } = useQuery({
     queryKey: ["agent-plan-table"],
@@ -186,7 +188,7 @@ const AgentPlans = () => {
   };
 
   return (
-    <View style={styles.mainContainer}>
+    <View style={[styles.mainContainer,{paddingBottom:insets.bottom}]}>
       <FlatList
         data={my_subscription.plans}
         keyExtractor={(item) => item.code}

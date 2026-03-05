@@ -17,14 +17,24 @@ import RazorpayCheckout from "react-native-razorpay";
 import { ToastSuccess } from "../../utils/Toast";
 import { useAuth } from "../../context/AuthContext";
 
-// for agent onlyyyyyyyyyy
-const BuyPlans = ({ navigation }) => {
+const RentViewPlans = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { userDetails } = useAuth();
   const flatListRef = useRef(null);
 
+  const { data: plans, isLoading } = useQuery({
+    queryKey: ["rent_view"],
+    queryFn: () =>
+      agentServices.getMyPlans({
+        userType: "owner",
+        category: "rent_view",
+      }),
+  });
+
+  console.log("PLANSSSSSSSSSSSSSSSSSSSSSSSS:", plans);
+
   useEffect(() => {
-    if (plans.length > 1) {
+    if (plans?.length > 1) {
       setTimeout(() => {
         flatListRef.current?.scrollToOffset({
           offset: 250,
@@ -33,13 +43,6 @@ const BuyPlans = ({ navigation }) => {
       }, 0);
     }
   }, [plans]);
-  const { data: plans, isLoading } = useQuery({
-    queryKey: ["agent-plan-table"],
-    queryFn: () =>
-      agentServices.getMyPlans({
-        userType: "agent",
-      }),
-  });
 
   if (isLoading) {
     return (
@@ -59,8 +62,8 @@ const BuyPlans = ({ navigation }) => {
         });
 
         if (order?.free) {
-          ToastSuccess("Plan activated successfully 🎉");
-          navigation.navigate("AgentPlans");
+          ToastSuccess("Plan activated successfully");
+          navigation.navigate("Membership");
           return;
         }
 
@@ -70,7 +73,7 @@ const BuyPlans = ({ navigation }) => {
           currency: order.currency,
           order_id: order.orderId,
           name: "Propenu",
-          description: `${plan.name} Plan Subscription (${"agent"})`,
+          description: `${plan.name} Plan Subscription (${"user"})`,
 
           prefill: {
             name: userDetails?.name || "",
@@ -88,7 +91,7 @@ const BuyPlans = ({ navigation }) => {
               razorpay_signature: response.razorpay_signature,
             });
 
-            navigation.navigate("AgentPlans");
+            navigation.navigate("Membership");
           })
           .catch((error) => {
             console.log("Payment Error:", error);
@@ -99,77 +102,60 @@ const BuyPlans = ({ navigation }) => {
     };
     return (
       <View style={styles.card}>
-        <Text style={styles.planName}>{item.name}</Text>
-        <Text style={styles.price}>
-          ₹ {item.price}/-{" "}
-          <Text style={styles.validity}>{item.durationDays} Days validity</Text>
-        </Text>
-        <View style={[styles.subComponent, { marginTop: 8 }]}>
-          <Verified width={16} height={16} />
-          <Text style={styles.text}>
-            {item?.features?.BUYER_REACH_PERCENT}% Buyer Reach
+        <View style={styles.planSection}>
+          <Text style={styles.planName}>{item.name}</Text>
+          <Text style={styles.price}>
+            ₹ {item.price}/-{" "}
+            {/* <Text style={styles.validity}>
+                    {item.durationDays} Days validity
+                  </Text> */}
           </Text>
         </View>
-        <View style={styles.subComponent}>
-          <Verified width={16} height={16} />
-          <Text style={styles.text}>
-            {item?.features?.PROPERTY_LISTING_LIMIT} Property Listings
-          </Text>
-        </View>
-        <View style={styles.subComponent}>
-          <Verified width={16} height={16} />
-          <Text style={styles.text}>
-            UP to {item?.features?.ENQUIRY_LIMIT} Enquires
-          </Text>
-        </View>
-        {item?.features?.TOP_LISTING_DAYS > 0 ? (
-          <View style={styles.subComponent}>
+        <View style={styles.features}>
+          <View style={[styles.subComponent, { marginTop: 8 }]}>
+            <Verified width={16} height={16} />
+            <Text style={styles.text}>{item.durationDays} Days validity</Text>
+          </View>
+          <View style={[styles.subComponent]}>
             <Verified width={16} height={16} />
             <Text style={styles.text}>
-              {item?.features?.TOP_LISTING_DAYS} Days Top Visibility
+              Up to {item?.features?.CONTACT_OWNER_LIMIT} property owners
             </Text>
           </View>
-        ) : (
-          <View style={styles.subComponent}>
-            <NotVerified width={16} height={16} />
-            <Text
-              style={[
-                styles.text,
-                { color: "gray", textDecorationLine: "line-through" },
-              ]}
-            >
-              Top Visibility
-            </Text>
-          </View>
-        )}
-        {item?.features?.TEAM_MEMBERS > 0 ? (
-          <View style={styles.subComponent}>
-            <Verified width={16} height={16} />
-            <Text style={styles.text}>
-              Manage Account : {item?.features?.TEAM_MEMBERS}
-              {item?.features?.TEAM_MEMBERS > 1 ? " Members" : " Member"}
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.subComponent}>
-            <NotVerified width={16} height={16} />
-            <Text
-              style={[
-                styles.text,
-                { color: "gray", textDecorationLine: "line-through" },
-              ]}
-            >
-              Manage Account
-            </Text>
-          </View>
-        )}
+          {item?.features?.LEAD_DASHBOARD ? (
+            <View style={styles.subComponent}>
+              <Verified width={16} height={16} />
+              <Text style={styles.text}>Access Lead Dashboard</Text>
+            </View>
+          ) : (
+            <View style={styles.subComponent}>
+              <NotVerified width={16} height={16} />
+              <Text style={[styles.text, { color: "gray" }]}>
+                Access Lead Dashboard
+              </Text>
+            </View>
+          )}
+          {item?.features?.PROPERTY_COMPARISON ? (
+            <View style={styles.subComponent}>
+              <Verified width={16} height={16} />
+              <Text style={styles.text}>Compare Properties</Text>
+            </View>
+          ) : (
+            <View style={styles.subComponent}>
+              <NotVerified width={16} height={16} />
+              <Text style={[styles.text, { color: "gray" }]}>
+                Compare Properties
+              </Text>
+            </View>
+          )}
 
-        <Pressable
-          style={styles.buyButton}
-          onPress={() => handleSubscribe(item)}
-        >
-          <Text style={styles.buyText}>Buy Now</Text>
-        </Pressable>
+          <Pressable
+            style={styles.buyButton}
+            onPress={() => handleSubscribe(item)}
+          >
+            <Text style={styles.buyText}>Buy Now</Text>
+          </Pressable>
+        </View>
       </View>
     );
   };
@@ -180,12 +166,11 @@ const BuyPlans = ({ navigation }) => {
     >
       <Text style={styles.heading}>Get Premium</Text>
       <Text style={styles.subText}>
-        Scale Your real estate business with our flexible pricing. From
-        individual agent to agencies.
+        Get quick access to more owner contacts and rental properties.
       </Text>
       <View style={styles.container}>
         <FlatList
-          ref={flatListRef} // Directly second item is visible
+          ref={flatListRef}
           data={plans}
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -200,7 +185,6 @@ const BuyPlans = ({ navigation }) => {
           contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 5 }}
         />
       </View>
-
       <Text style={styles.subText}>
         Call or Whatsapp with us -{" "}
         <Text style={{ color: "#27Ae60", fontWeight: 500 }}>
@@ -214,7 +198,7 @@ const BuyPlans = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-export default BuyPlans;
+export default RentViewPlans;
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -235,7 +219,7 @@ const styles = StyleSheet.create({
     color: "#818080",
     fontSize: 12,
     textAlign: "center",
-    paddingHorizontal: 25,
+    paddingHorizontal: 30,
     paddingTop: 20,
     lineHeight: 22,
   },
@@ -243,13 +227,28 @@ const styles = StyleSheet.create({
     // paddingHorizontal: 10,
     marginVertical: 40,
   },
+  planSection: {
+    backgroundColor: "#F4FBF6",
+    paddingBottom: 5,
+    paddingLeft: 14,
+    paddingRight: 14,
+    paddingTop: 14,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  features: {
+    paddingBottom: 14,
+    paddingLeft: 14,
+    paddingRight: 14,
+    paddingTop: 7,
+  },
   card: {
     width: 270,
     // height: 300,
     backgroundColor: "white",
     marginRight: 18,
-    padding: 14,
-    borderRadius: 8,
+    // padding: 14,
+    borderRadius: 10,
     elevation: 2,
   },
   planName: {
