@@ -32,7 +32,10 @@ import KidsPool from "../../../../assets/Amenities/Kid's Pool.svg";
 import SubWayPower from "../../../../assets/Amenities/Power Backup.svg";
 import SolarHeaters from "../../../../assets/Amenities/Solar power provision.svg";
 import TennisCourt from "../../../../assets/Amenities/Tennis Court(s).svg";
-import { PartyIcon,SecurityIconn } from "../../../../assets/svg/AmenitiesIcons";
+import {
+  PartyIcon,
+  SecurityIconn,
+} from "../../../../assets/svg/AmenitiesIcons";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const AMENITY_ICON_MAP = {
@@ -72,7 +75,7 @@ const AmenitiesWithModal = ({ amenities, color }) => {
           Amenities
         </Text>
 
-        {amenities?.length > 3 && (
+        {amenities?.length > 6 && (
           <Pressable
             onPress={() => setShowAllAmenities(true)}
             style={styles.viewMoreBtn}
@@ -88,29 +91,30 @@ const AmenitiesWithModal = ({ amenities, color }) => {
             Amenities information not available
           </Text>
         )}
-        {amenities?.slice(0, 3).map((item, index) => {
-          const IconComponent = AMENITY_ICON_MAP[item.key];
-          return (
-            <View key={`${item.key}-${index}`} style={styles.amenityCard}>
-              {IconComponent ? (
-                <IconComponent width={18} height={18} />
-              ) : (
-                <SecurityIconn width={18} height={18} />
-              )}
-              <Text style={styles.amenityText}>{item.title}</Text>
-            </View>
-          );
-        })}
+        <View style={styles.amenitiesContainer}>
+          {amenities?.slice(0, 6).map((item, index) => {
+            const IconComponent = AMENITY_ICON_MAP[item.key];
+
+            return (
+              <View key={`${item.key}-${index}`} style={styles.amenityCard}>
+                {IconComponent ? (
+                  <IconComponent width={17} height={17} />
+                ) : (
+                  <SecurityIconn width={17} height={17} />
+                )}
+                <Text style={styles.amenityText}>{item.title}</Text>
+              </View>
+            );
+          })}
+        </View>
       </View>
 
-      {/* Modal */}
       <Modal
         animationType="slide"
         transparent
         visible={showAllAmenities}
         onRequestClose={() => setShowAllAmenities(false)}
       >
-        {/* Transparent overlay to dismiss on outside click */}
         <Pressable
           style={styles.modalOverlay}
           onPress={() => setShowAllAmenities(false)}
@@ -129,9 +133,9 @@ const AmenitiesWithModal = ({ amenities, color }) => {
                   {IconComponent ? (
                     <IconComponent width={22} height={22} />
                   ) : (
-                   <SecurityIconn width={22} height={22} />
+                    <SecurityIconn width={22} height={22} />
                   )}
-                  <Text style={styles.amenityText}>{item.title}</Text>
+                  <Text style={{ fontSize: 14 }}>{item.title}</Text>
                 </View>
               );
             }}
@@ -164,6 +168,18 @@ const styles = StyleSheet.create({
     color: "#27AE60",
     fontWeight: "600",
   },
+  amenitiesContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+
+  amenityCard: {
+    width: "45%",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
   amenitiesGrid: {
     backgroundColor: "#FFFCF6",
     paddingHorizontal: 16,
@@ -172,14 +188,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     borderRadius: 10,
   },
-  amenityCard: {
-    flexDirection: "row",
-    gap: 8,
-    borderRadius: 10,
-    paddingVertical: 5,
-  },
+  // amenityCard: {
+  //   flexDirection: "row",
+  //   gap: 8,
+  //   borderRadius: 10,
+  //   paddingVertical: 5,
+  // },
   amenityText: {
-    fontSize: 14,
+    fontSize: 13,
     // fontWeight:500
   },
   // Modal

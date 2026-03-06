@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { getItem } from "../../../utils/Storage";
 import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
 import useDimensions from "../../../components/CustomHooks/UseDimension";
 import formatINR from "../../../utils/FormatINR";
@@ -21,9 +20,9 @@ const ResidentialCard = ({ item }) => {
   const { isLoggedIn, userDetails } = useAuth();
 
   const handleNavigate = async () => {
-    console.log("Checking property id : ", item?.id);
+    // console.log("Checking property id : ", item.slug);
     navigation.navigate("MoreResidentialDetails", {
-      id: item?.id,
+      slug: item?.slug,
     });
   };
 
@@ -48,7 +47,7 @@ const ResidentialCard = ({ item }) => {
 
         {/* Top-right like icon */}
         <View style={styles.likeIcon}>
-          <LikedIconContainer id={item?.id} type={item?.type} />
+          <LikedIconContainer id={item?.id} slug={item?.slug} type={item?.type} />
         </View>
       </View>
       {/* Content */}

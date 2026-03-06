@@ -5,28 +5,27 @@ import { userServices } from "../../services/userServices";
 import { useAuth } from "../../context/AuthContext";
 import { ToastSuccess } from "../../utils/Toast";
 
-const LikedIconContainer = ({ id, type }) => {
+const LikedIconContainer = ({ slug, id, type }) => {
   const [liked, setLiked] = useState(false);
-  const { isLoggedIn, userDetails } = useAuth();
+  const { isLoggedIn } = useAuth();
 
-  // ✅ get initial liked state when card loads
   useEffect(() => {
     checkInitialStatus();
-  }, [id]);
+  }, [slug]);
 
   const checkInitialStatus = async () => {
     try {
       const res = await userServices.getShortlistedProperties();
-      const exists = res?.data?.some((item) => item._id === id);
+
+      const exists = res?.data?.some((item) => item?.property?.slug === slug);
       setLiked(exists);
     } catch (error) {
       console.log("Error fetching shortlist:", error);
     }
   };
 
-  const PostShortlisted = async () => {
+  const postShortlisted = async () => {
     const payload = {
-      userId: userDetails.id,
       propertyId: id,
       propertyType: type,
     };
@@ -34,28 +33,36 @@ const LikedIconContainer = ({ id, type }) => {
     return await userServices.postShortlistedProperties(payload);
   };
 
+  const deleteShortlisted = async () => {
+    return await userServices.deleteShortlistedProperty(id);
+  };
+
   const handleToggle = async () => {
     if (!isLoggedIn) return;
 
-    try {
-      const previous = liked;
+    const previous = liked;
 
+    try {
       setLiked(!previous);
 
-      const res = await PostShortlisted();
+      let res;
+
+      if (previous) {
+        res = await deleteShortlisted();
+      } else {
+        res = await postShortlisted();
+      }
 
       if (res?.success) {
-        console.log("res:", res)
         ToastSuccess(
           previous ? "Property removed from shortlist" : "Property shortlisted",
         );
       } else {
-        // rollback
         setLiked(previous);
       }
     } catch (error) {
-      setLiked((prev) => !prev);
-      console.log(error);
+      console.log("Shortlist error:", error);
+      setLiked(previous);
     }
   };
 

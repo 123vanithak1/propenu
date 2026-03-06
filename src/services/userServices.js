@@ -43,9 +43,9 @@ export const userServices = {
   },
 
   postShortlistedProperties: async (payload) => {
-    console.log("Payload :", payload);
-    const token = await getToken();
     try {
+      const token = await getToken();
+
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.SHORTLIST.SHORTLISTED_PROP}`,
         {
@@ -57,21 +57,52 @@ export const userServices = {
           body: JSON.stringify(payload),
         },
       );
+
       if (!response.ok) {
-        throw Error("Failed to post shortlisted", error);
+        throw new Error("Failed to post shortlisted property");
       }
 
       const data = await response.json();
+      console.log("Response when posting:", data);
+      return data;
+    } catch (error) {
+      console.error("Post shortlist error:", error);
+      throw error; // important for React Query
+    }
+  },
+
+  deleteShortlistedProperty: async (propertyId) => {
+    try {
+      const token = await getToken();
+
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.SHORTLIST.SHORTLISTED_PROP}/${propertyId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete shortlisted property");
+      }
+
+      const data = await response.json();
+      console.log("Response when deleting:", data);
 
       return data;
     } catch (error) {
-      console.log("Error :", error);
+      console.error("Delete shortlist error:", error);
+      throw error;
     }
   },
 
   getMyProperties: async () => {
     const token = await getToken();
-   
+
     try {
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.SHORTLIST.MY_PROPERTIES}`,

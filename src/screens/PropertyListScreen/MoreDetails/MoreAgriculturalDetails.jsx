@@ -25,7 +25,7 @@ import { useAuth } from "../../../context/AuthContext";
 
 const MoreAgriculturalDetails = ({ route }) => {
   const { width, height } = useDimensions();
-  const { id } = route.params;
+  const { slug } = route.params;
   const { isLoggedIn, userDetails } = useAuth();
 
   //   const [details, setDetails] = useState(null);
@@ -35,7 +35,7 @@ const MoreAgriculturalDetails = ({ route }) => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await apiService.agricultural_category_search(id);
+      const res = await apiService.agricultural_category_search(slug);
       const data = res?.[0]?.data;
       if (!data) {
         ToastInfo("Property details not found");

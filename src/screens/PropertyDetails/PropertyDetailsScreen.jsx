@@ -21,8 +21,11 @@ import AvailableProperties from "./detailProperty/AvailableProperties";
 import Gallery from "./detailProperty/Gallary";
 import EnquiryModal from "../../components/ui/EnquiryModal";
 import Specifications from "./detailProperty/Specifications";
+import RenderHTML from "react-native-render-html";
+import useDimensions from "../../components/CustomHooks/UseDimension";
 
 const PropertyDetailsScreen = ({ route }) => {
+  const { width } = useDimensions();
   const { propertyId } = route.params;
   const [property, setProperty] = useState(null);
   const [showNav, setShowNav] = useState(false);
@@ -180,7 +183,7 @@ const PropertyDetailsScreen = ({ route }) => {
             style={styles.enquirybtn}
             onPress={() => setShowEnquiryModal(true)}
           >
-            <Text style={{ color: "#fff",fontSize:12, fontWeight: "500" }}>
+            <Text style={{ color: "#fff", fontSize: 12, fontWeight: "500" }}>
               Enquiry Now
             </Text>
           </Pressable>
@@ -355,7 +358,7 @@ const PropertyDetailsScreen = ({ route }) => {
               <FlatList
                 data={property?.nearbyPlaces}
                 horizontal
-                keyExtractor={(item) => item.order.toString()}
+                keyExtractor={(item, index) => `${item.name}-${index}`}
                 renderItem={({ item }) => (
                   <View style={styles.placeRow}>
                     <LocationIcon color="#FFAC1D" width={18} height={18} />
@@ -392,6 +395,7 @@ const PropertyDetailsScreen = ({ route }) => {
           </Text>
           {property?.aboutSummary?.map((item, index) => (
             <View key={index} style={styles.homepage}>
+              <Text style={styles.about}>{item?.aboutDescription}</Text>
               <View style={styles.imageWrapper}>
                 <Image
                   source={{ uri: item?.url }}
@@ -399,8 +403,23 @@ const PropertyDetailsScreen = ({ route }) => {
                 />
                 {/* <Text style={styles.overlayText}>Why Choose Us</Text> */}
               </View>
-
-              <Text style={styles.about}>{item?.aboutDescription}</Text>
+              <View>
+                <RenderHTML
+                  contentWidth={width * 0.9}
+                  source={{ html: item?.rightContent }}
+                  tagsStyles={{
+                    ul: { marginLeft: 10, marginTop: 15 },
+                    li: { marginBottom: 8 },
+                    p: {
+                      fontSize: 12,
+                      color: "#000",
+                      lineHeight: 20,
+                      paddingLeft: 5,
+                      textAlign: "justify",
+                    },
+                  }}
+                />
+              </View>
             </View>
           ))}
         </View>
@@ -534,8 +553,8 @@ const styles = StyleSheet.create({
   homepage: {
     alignItems: "center",
     width: "93%",
-    margin: 12,
-    marginVertical: 18,
+    margin: 10,
+    // marginVertical: 18,
   },
 
   imageWrapper: {
@@ -552,10 +571,10 @@ const styles = StyleSheet.create({
     top: 12,
   },
   about: {
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 22,
     color: "#444",
-    marginTop: 17,
+    marginBottom: 10,
     paddingHorizontal: 7,
     textAlign: "justify",
   },

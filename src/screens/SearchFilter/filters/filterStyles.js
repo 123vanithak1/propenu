@@ -14,6 +14,22 @@ export default StyleSheet.create({
     fontWeight: "600",
     marginBottom: 8,
   },
+  filterCount: {
+    width: 20,
+    height: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: "white",
+  },
+
+  filterCountText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: 500,
+    textAlign: "center",
+  },
   moreFilterHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -159,7 +175,7 @@ export default StyleSheet.create({
     color: "#1E8449",
     fontSize: 13,
     fontWeight: "500",
-    paddingRight:3
+    paddingRight: 3,
   },
 
   buttonBar: {
@@ -180,11 +196,11 @@ export default StyleSheet.create({
     width: "40%",
     alignItems: "center",
     justifyContent: "center",
-    borderWidth:1,
-    borderColor:"#27AE60",
-    paddingHorizontal:10,
-    paddingVertical:7,
-    borderRadius:8,
+    borderWidth: 1,
+    borderColor: "#27AE60",
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 8,
   },
 
   nextButton: {
@@ -195,6 +211,8 @@ export default StyleSheet.create({
     alignSelf: "center",
     alignItems: "center",
     justifyContent: "center",
+    flexDirection: "row",
+    gap: 5,
     paddingHorizontal: 10,
     paddingVertical: 8,
     borderRadius: 8,

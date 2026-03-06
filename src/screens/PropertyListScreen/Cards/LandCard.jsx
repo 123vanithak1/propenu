@@ -1,20 +1,18 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { getItem } from "../../../utils/Storage";
 import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
 import useDimensions from "../../../components/CustomHooks/UseDimension";
 import formatINR from "../../../utils/FormatINR";
-import { apiService } from "../../../services/apiService";
 import {
   AreaIcon,
-  BedIcon,
   ReadyToMoveIcon,
   PhoneIcon,
 } from "../../../../assets/svg/Logo";
 import AutoImageSlider from "../../../components/ui/AutoImageSlider";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useAuth } from "../../../context/AuthContext";
+import LikedIconContainer from "../../../components/ui/LikedIconContainer";
 
 const LandCard = ({ item }) => {
   const { width } = useDimensions();
@@ -22,9 +20,9 @@ const LandCard = ({ item }) => {
   const { isLoggedIn, userDetails } = useAuth();
 
   const handleNavigate = async () => {
-    console.log("Checking property id : ", item.id);
+    console.log("Checking property id : ", item.slug);
     navigation.navigate("MoreLandDetails", {
-      id: item.id,
+      slug: item.slug,
     });
   };
 
@@ -41,11 +39,20 @@ const LandCard = ({ item }) => {
   return (
     <Pressable style={styles.card} onPress={handleNavigate}>
       {/* Image slider */}
-      <AutoImageSlider
-        images={item?.gallery?.map((img) => ({ uri: img.url }))}
-        height={200}
-        width={width - horizontalSpace}
-      />
+      <View style={styles.imageWrapper}>
+        <AutoImageSlider
+          images={item?.gallery?.map((img) => ({ uri: img.url }))}
+          height={200}
+          width={width - horizontalSpace}
+        />
+        <View style={styles.likeIcon}>
+          <LikedIconContainer
+            id={item?.id}
+            slug={item?.slug}
+            type={item?.type}
+          />
+        </View>
+      </View>
 
       {/* Content */}
       <View style={styles.content}>
@@ -131,6 +138,16 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 180,
     borderRadius: 10,
+  },
+  imageWrapper: {
+    position: "relative",
+  },
+
+  likeIcon: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 10,
   },
   content: {
     padding: 12,

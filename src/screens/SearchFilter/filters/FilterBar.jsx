@@ -2,7 +2,7 @@ import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "../../../redux/store/store";
 import { useNavigation } from "@react-navigation/native";
-import { setListingType,} from "../../../redux/slice/FilterSlice";
+import { setListingType} from "../../../redux/slice/FilterSlice";
 
 const FilterBar = () => {
   const dispatch = useDispatch();

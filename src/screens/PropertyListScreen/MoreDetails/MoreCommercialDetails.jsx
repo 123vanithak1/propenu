@@ -33,7 +33,7 @@ import { useAuth } from "../../../context/AuthContext";
 
 const MoreCommercialDetails = ({ route }) => {
   const { width, height } = useDimensions();
-  const { id } = route.params;
+  const { slug } = route.params;
   const { isLoggedIn, userDetails } = useAuth();
 
   //   const [details, setDetails] = useState(null);
@@ -43,7 +43,7 @@ const MoreCommercialDetails = ({ route }) => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await apiService.commercial_category_search(id);
+      const res = await apiService.commercial_category_search(slug);
       const data = res?.[0]?.data;
       if (!data) {
         ToastInfo("Property details not found");

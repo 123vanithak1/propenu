@@ -22,8 +22,9 @@ import { useAuth } from "../../../context/AuthContext";
 
 const MoreResidentialDetails = ({ route }) => {
   const { width, height } = useDimensions();
-  const { id } = route.params;
+  const { slug } = route.params;
   const { isLoggedIn, userDetails } = useAuth();
+  console.log("Checking slug :", slug)
 
   const [loading, setLoading] = useState(true);
   const [details, setDetails] = useState(null);
@@ -31,7 +32,7 @@ const MoreResidentialDetails = ({ route }) => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await apiService.residential_category_search(id);
+      const res = await apiService.residential_category_search(slug);
       const data = res?.[0]?.data;
       if (!data) {
         ToastInfo("Property details not found");
@@ -53,7 +54,7 @@ const MoreResidentialDetails = ({ route }) => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [slug]);
 
   if (loading) {
     return (

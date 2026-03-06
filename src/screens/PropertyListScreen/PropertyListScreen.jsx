@@ -28,7 +28,7 @@ const PropertyListScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { category } = useAppSelector((s) => s.filters);
   const filtersState = useSelector((state) => state.filters);
-  const { residential, commercial, land, agricultural } = filtersState;
+  const { residential, commercial, land, agricultural,listingTypeValue } = filtersState;
 
   const [details, setDetails] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,7 +71,7 @@ const PropertyListScreen = ({ navigation }) => {
   const fetchData = async () => {
     try {
       setLoading(true);
-
+      
       // filters can be residential / commercial / land / agricultural
       const filters =
         category === "Residential"
@@ -88,6 +88,7 @@ const PropertyListScreen = ({ navigation }) => {
       console.log("Search Params :", params, filters);
 
       const result = await apiService.category_search(params);
+      console.log("Result :", result)
       setDetails(Array.isArray(result) ? result : []);
     } catch (error) {
       console.log("Error occurred:", error);

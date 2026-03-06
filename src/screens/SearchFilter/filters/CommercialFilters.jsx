@@ -53,8 +53,8 @@ const CommercialFilters = () => {
   const { category } = useAppSelector((s) => s.filters);
   const { selectedCity } = useCity();
 
-  const { minBudget, maxBudget, commercial } = filtersState;
-  const { postedBy, commercialType } = commercial;
+  const { minBudget, maxBudget, commercial, listingTypeValue } = filtersState;
+  const { postedBy, commercialType,locality } = commercial;
 
   const inputRef = useRef(null);
   const TOTAL_STEPS = 3;
@@ -143,6 +143,30 @@ const CommercialFilters = () => {
   /* -------------------- POSTED BY -------------------- */
 
   const postedByOptions = ["Owners", "Agents", "Builders"];
+
+   const getSelectedMoreFiltersCount = () => {
+    let count = 0;
+
+    Object.values(keyMapping).forEach((key) => {
+      const value = commercial[key];
+
+      if (Array.isArray(value)) {
+        count += value.length;
+      } else if (typeof value === "boolean") {
+        if (value) count += 1;
+      } else if (value !== undefined && value !== null && value !== "") {
+        count += 1;
+      }
+    });
+
+    return count;
+  };
+  const selectedMoreFiltersCount = getSelectedMoreFiltersCount();
+  const localityCount = locality ? 1 : 0;
+  const listingTypeCount = listingTypeValue ? 1 : 0;
+  const moreFiltersBadgeCount =
+    selectedMoreFiltersCount + localityCount + listingTypeCount;
+  const displayedMoreFiltersBadgeCount = moreFiltersBadgeCount || 2;
 
   const handleSubmit = () => {
     const trimmed = locationInput.trim();
@@ -631,6 +655,11 @@ const CommercialFilters = () => {
           <Text style={filterStyles.clearText}>Clear</Text>
         </Pressable>
         <Pressable style={[filterStyles.nextButton]} onPress={handleSearch}>
+           <View style={filterStyles.filterCount}>
+                      <Text style={filterStyles.filterCountText}>
+                        {displayedMoreFiltersBadgeCount}
+                      </Text>
+                    </View>
           <Text style={filterStyles.nextText}>
             Search
             {/* {step === TOTAL_STEPS ? "Search" : "Next"} */}

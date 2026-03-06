@@ -9,9 +9,7 @@ import {
   ScrollView,
   Keyboard,
 } from "react-native";
-import {
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,7 +29,11 @@ import {
   formatBudget,
   landMoreFilterSections,
 } from "../../../data/constants";
-import { setLandFilter, resetLandFilters} from "../../../redux/slice/FilterSlice";
+import {
+  setLandFilter,
+  setBudget,
+  resetLandFilters,
+} from "../../../redux/slice/FilterSlice";
 import Dropdownui from "../../../components/ui/DropDownUI";
 import { ToastInfo, ToastSuccess } from "../../../utils/Toast";
 import filterStyles from "./filterStyles";
@@ -51,9 +53,9 @@ const LandFilters = () => {
 
   const { selectedCity } = useCity();
 
-  const { minBudget, maxBudget, land } = filtersState;
+  const { minBudget, maxBudget, land, listingTypeValue } = filtersState;
 
-  const { postedBy } = land;
+  const { postedBy, locality } = land;
 
   const rightPanelRef = useRef(null);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
@@ -84,6 +86,7 @@ const LandFilters = () => {
 
   const BUDGET_MIN = 0;
   const BUDGET_MAX = 100000000;
+  const [budgetTouched, setBudgetTouched] = useState(false);
 
   const [budgetRange, setBudgetRange] = useState([
     minBudget || BUDGET_MIN,
@@ -98,6 +101,29 @@ const LandFilters = () => {
   /* -------------------- POSTED BY -------------------- */
 
   const postedByOptions = ["Owners", "Agents", "Builders"];
+  const getSelectedMoreFiltersCount = () => {
+    let count = 0;
+
+    Object.values(keyMapping).forEach((key) => {
+      const value = land[key];
+
+      if (Array.isArray(value)) {
+        count += value.length;
+      } else if (typeof value === "boolean") {
+        if (value) count += 1;
+      } else if (value !== undefined && value !== null && value !== "") {
+        count += 1;
+      }
+    });
+
+    return count;
+  };
+  const selectedMoreFiltersCount = getSelectedMoreFiltersCount();
+  const localityCount = locality ? 1 : 0;
+  const listingTypeCount = listingTypeValue ? 1 : 0;
+  const moreFiltersBadgeCount =
+    selectedMoreFiltersCount + localityCount + listingTypeCount;
+  const displayedMoreFiltersBadgeCount = moreFiltersBadgeCount || 2;
 
   const handleSubmit = () => {
     const trimmed = locationInput.trim();
@@ -140,6 +166,16 @@ const LandFilters = () => {
       rightPanelRef.current.scrollTo({ y, animated: true });
     });
   };
+  useEffect(() => {
+    if (!budgetTouched) return;
+
+    dispatch(
+      setBudget({
+        min: budgetRange[0] ?? null,
+        max: budgetRange[1] ?? null,
+      }),
+    );
+  }, [budgetRange, budgetTouched, dispatch]);
 
   const toggleArrayValue = (arr, value) => {
     const safeArr = Array.isArray(arr) ? arr : [];
@@ -185,7 +221,7 @@ const LandFilters = () => {
     console.log("Searching with land filters...");
     navigation.navigate("PropertyList");
   };
-   const handleClearButton = () => {
+  const handleClearButton = () => {
     setLocations([]);
     setLocationInput("");
     setBudgetRange([BUDGET_MIN, BUDGET_MAX]);
@@ -194,7 +230,7 @@ const LandFilters = () => {
     setCarpetRange([CARPET_MIN, CARPET_MAX]);
     dispatch(resetLandFilters());
     ToastInfo("All filters have been cleared.");
-  }
+  };
 
   const activeSection = landMoreFilterSections.find(
     (section) => section.key === activeFilter,
@@ -287,7 +323,10 @@ const LandFilters = () => {
                 label: formatBudget(t),
                 value: t,
               }))}
-              onChange={(value) => setBudgetRange([value, budgetRange[1]])}
+              onChange={(value) => {
+                (setBudgetTouched(true),
+                  setBudgetRange([value, budgetRange[1]]));
+              }}
             />
           </View>
 
@@ -299,7 +338,10 @@ const LandFilters = () => {
                 label: formatBudget(t),
                 value: t,
               }))}
-              onChange={(value) => setBudgetRange([budgetRange[0], value])}
+              onChange={(value) => {
+                (setBudgetTouched(true),
+                  setBudgetRange([budgetRange[0], value]));
+              }}
             />
           </View>
         </View>
@@ -524,24 +566,25 @@ const LandFilters = () => {
         </View>
       )}
 
-   {/* BOTTOM BAR */}
-         <View
-           style={[
-             filterStyles.buttonBar,
-             { marginBottom: insets.bottom + 10 },
-           ]}
-         >
-           <Pressable style={filterStyles.clearButton} onPress={handleClearButton}
-           >
-             <Text style={filterStyles.clearText}>Clear</Text> 
-           </Pressable>
-           <Pressable style={[filterStyles.nextButton]} onPress={handleSearch}>
-             <Text style={filterStyles.nextText}>
-               Search
-               {/* {step === TOTAL_STEPS ? "Search" : "Next"} */}
-             </Text>
-           </Pressable>
-         </View>
+      {/* BOTTOM BAR */}
+      <View
+        style={[filterStyles.buttonBar, { marginBottom: insets.bottom + 10 }]}
+      >
+        <Pressable style={filterStyles.clearButton} onPress={handleClearButton}>
+          <Text style={filterStyles.clearText}>Clear</Text>
+        </Pressable>
+        <Pressable style={[filterStyles.nextButton]} onPress={handleSearch}>
+          <View style={filterStyles.filterCount}>
+            <Text style={filterStyles.filterCountText}>
+              {displayedMoreFiltersBadgeCount}
+            </Text>
+          </View>
+          <Text style={filterStyles.nextText}>
+            Search
+            {/* {step === TOTAL_STEPS ? "Search" : "Next"} */}
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 };

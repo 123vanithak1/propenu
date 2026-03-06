@@ -31,7 +31,7 @@ import NearByLocations from "../../PropertyDetails/detailProperty/NearByLocation
 import { useAuth } from "../../../context/AuthContext";
 const MoreLandDetails = ({ route }) => {
   const { width, height } = useDimensions();
-  const { id } = route.params;
+  const { slug } = route.params;
   const { isLoggedIn,userDetails } = useAuth();
 
   //   const [details, setDetails] = useState(null);
@@ -41,7 +41,7 @@ const MoreLandDetails = ({ route }) => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await apiService.land_category_search(id);
+      const res = await apiService.land_category_search(slug);
       const data = res?.[0]?.data;
       if (!data) {
         ToastInfo("Property details not found");

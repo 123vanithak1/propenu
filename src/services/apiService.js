@@ -459,10 +459,11 @@ export const apiService = {
       throw error;
     }
   },
-  residential_category_search: async (id) => {
+  residential_category_search: async (slug) => {
+    console.log(slug, "IDddddddddddddddddddddddddddd")
     try {
       const response = await fetch(
-        `${ENV.BASE_URL}${API_ROUTES.SEARCH.RESIDENTIAL_CATEGORY_SEARCH}/${id}`,
+        `${ENV.BASE_URL}${API_ROUTES.SEARCH.RESIDENTIAL_CATEGORY_SEARCH}/slug/${slug}`,
         {
           method: "GET",
           headers: {
@@ -493,7 +494,7 @@ export const apiService = {
   commercial_category_search: async (id) => {
     try {
       const response = await fetch(
-        `${ENV.BASE_URL}${API_ROUTES.SEARCH.COMMERCIAL_CATEGORY_SEARCH}/${id}`,
+        `${ENV.BASE_URL}${API_ROUTES.SEARCH.COMMERCIAL_CATEGORY_SEARCH}/slug/${id}`,
         {
           method: "GET",
           headers: {
@@ -520,10 +521,10 @@ export const apiService = {
       throw error;
     }
   },
-  land_category_search: async (id) => {
+  land_category_search: async (slug) => {
     try {
       const response = await fetch(
-        `${ENV.BASE_URL}${API_ROUTES.SEARCH.LAND_CATEGORY_SEARCH}/${id}`,
+        `${ENV.BASE_URL}${API_ROUTES.SEARCH.LAND_CATEGORY_SEARCH}/slug/${slug}`,
         {
           method: "GET",
           headers: {
@@ -551,10 +552,10 @@ export const apiService = {
       throw error;
     }
   },
-  agricultural_category_search: async (id) => {
+  agricultural_category_search: async (slug) => {
     try {
       const response = await fetch(
-        `${ENV.BASE_URL}${API_ROUTES.SEARCH.AGRICULTURAL_CATEGORY_SEARCH}/${id}`,
+        `${ENV.BASE_URL}${API_ROUTES.SEARCH.AGRICULTURAL_CATEGORY_SEARCH}/slug/${slug}`,
         {
           method: "GET",
           headers: {

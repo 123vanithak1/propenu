@@ -5,7 +5,6 @@ import {
   Text,
   Pressable,
   TextInput,
-  StyleSheet,
   ScrollView,
   Keyboard,
 } from "react-native";
@@ -34,7 +33,7 @@ import {
   resetResidentialFilters,
 } from "../../../redux/slice/FilterSlice";
 import Dropdownui from "../../../components/ui/DropDownUI";
-import { ToastError, ToastInfo, ToastSuccess } from "../../../utils/Toast";
+import { ToastInfo } from "../../../utils/Toast";
 import filterStyles from "./filterStyles";
 
 const ResidentialFilters = () => {
@@ -52,10 +51,10 @@ const ResidentialFilters = () => {
 
   const { selectedCity } = useCity();
 
-  const { minBudget, maxBudget, residential } = filtersState;
-  console.log("residential filters :", residential);
+  const { minBudget, maxBudget, residential, listingTypeValue } = filtersState;
 
   const { locality, bhk, postedBy } = residential;
+  console.log("residential filters :", bhk, residential);
 
   const inputRef = useRef(null);
   const TOTAL_STEPS = 3;
@@ -125,6 +124,31 @@ const ResidentialFilters = () => {
   /* -------------------- POSTED BY -------------------- */
 
   const postedByOptions = ["Owners", "Agents", "Builders"];
+
+  const getSelectedMoreFiltersCount = () => {
+    let count = 0;
+
+    Object.values(keyMapping).forEach((key) => {
+      const value = residential[key];
+
+      if (Array.isArray(value)) {
+        count += value.length;
+      } else if (typeof value === "boolean") {
+        if (value) count += 1;
+      } else if (value !== undefined && value !== null && value !== "") {
+        count += 1;
+      }
+    });
+
+    return count;
+  };
+  const selectedMoreFiltersCount = getSelectedMoreFiltersCount();
+  const localityCount = locality ? 1 : 0;
+  const listingTypeCount = listingTypeValue ? 1 : 0;
+  const moreFiltersBadgeCount =
+    selectedMoreFiltersCount + localityCount + listingTypeCount;
+  const displayedMoreFiltersBadgeCount = moreFiltersBadgeCount || 2;
+  console.log("displayedMoreFiltersBadgeCount", displayedMoreFiltersBadgeCount);
 
   const handleSubmit = () => {
     const trimmed = locationInput.trim();
@@ -608,6 +632,13 @@ const ResidentialFilters = () => {
           <Text style={filterStyles.clearText}>Clear</Text>
         </Pressable>
         <Pressable style={[filterStyles.nextButton]} onPress={handleSearch}>
+          {/* <Text style={filterStyles.filterCount}>{displayedMoreFiltersBadgeCount}</Text> */}
+
+          <View style={filterStyles.filterCount}>
+            <Text style={filterStyles.filterCountText}>
+              {displayedMoreFiltersBadgeCount}
+            </Text>
+          </View>
           <Text style={filterStyles.nextText}>
             Search
             {/* {step === TOTAL_STEPS ? "Search" : "Next"} */}

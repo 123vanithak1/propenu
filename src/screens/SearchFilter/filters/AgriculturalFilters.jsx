@@ -52,9 +52,9 @@ const AgriculturalFilters = () => {
 
   const { selectedCity } = useCity();
 
-  const { minBudget, maxBudget, agricultural } = filtersState;
+  const { minBudget, maxBudget, agricultural, listingTypeValue } = filtersState;
 
-  const { postedBy } = agricultural;
+  const { postedBy, locality } = agricultural;
 
   const rightPanelRef = useRef(null);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
@@ -95,6 +95,29 @@ const AgriculturalFilters = () => {
   /* -------------------- POSTED BY -------------------- */
 
   const postedByOptions = ["Owners", "Agents"];
+   const getSelectedMoreFiltersCount = () => {
+    let count = 0;
+
+    Object.values(keyMapping).forEach((key) => {
+      const value = agricultural[key];
+
+      if (Array.isArray(value)) {
+        count += value.length;
+      } else if (typeof value === "boolean") {
+        if (value) count += 1;
+      } else if (value !== undefined && value !== null && value !== "") {
+        count += 1;
+      }
+    });
+
+    return count;
+  };
+  const selectedMoreFiltersCount = getSelectedMoreFiltersCount();
+  const localityCount = locality ? 1 : 0;
+  const listingTypeCount = listingTypeValue ? 1 : 0;
+  const moreFiltersBadgeCount =
+    selectedMoreFiltersCount + localityCount + listingTypeCount;
+  const displayedMoreFiltersBadgeCount = moreFiltersBadgeCount || 2;
 
   const handleSubmit = () => {
     const trimmed = locationInput.trim();
@@ -516,6 +539,11 @@ const AgriculturalFilters = () => {
           <Text style={filterStyles.clearText}>Clear</Text>
         </Pressable>
         <Pressable style={[filterStyles.nextButton]} onPress={handleSearch}>
+           <View style={filterStyles.filterCount}>
+                      <Text style={filterStyles.filterCountText}>
+                        {displayedMoreFiltersBadgeCount}
+                      </Text>
+                    </View>
           <Text style={filterStyles.nextText}>
             Search
             {/* {step === TOTAL_STEPS ? "Search" : "Next"} */}
