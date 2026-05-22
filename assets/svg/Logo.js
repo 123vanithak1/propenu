@@ -110,6 +110,7 @@ export const HomeLoans = ({ width = 16, height = 16, ...props }) => (
 export const HomeCare = ({ width = 16, height = 16, ...props }) => (
   <Svg width={width} height={height} viewBox="0 0 24 24" fill="none" {...props}>
     <Mask
+      id="a"
       width={width}
       height={height}
       x={0}

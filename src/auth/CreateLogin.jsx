@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -28,19 +28,119 @@ export default function CreateLogin({ navigation }) {
   const [role, setRole] = useState("User");
   const [errors, setErrors] = useState({});
   const { width, height, isLandscape } = useDimension();
+  const [otp, setOtp] = useState(["", "", "", ""]);
 
   const [countryCode, setCountryCode] = useState("IN");
   const [callingCode, setCallingCode] = useState("91");
   const [phone, setPhone] = useState("");
   const [withCountryNameButton, setWithCountryNameButton] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const inputs = useRef([]);
 
   const Roles = [
-    { value: "User", key: "user", icon:"user-o" },
-    { value: "Builder", key: "builder", icon:"building-o"},
-    { value: "Agent", key: "agent" , icon:"vcard-o" },
+    { value: "User", key: "user", icon: "user-o" },
+    { value: "Builder", key: "builder", icon: "building-o" },
+    { value: "Agent", key: "agent", icon: "vcard-o" },
   ];
 
+  const handleOtpChange = (value, index) => {
+    if (!/^\d?$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    if (value && index < 3) {
+      inputs.current[index + 1]?.focus();
+    }
+  };
+  const handleVerifyOtp = async () => {
+    const otpValue = otp.join("");
+    let otpResult = null;
+
+    if (!/^\d{4}$/.test(otpValue)) {
+      ToastError("Enter a valid 4-digit OTP");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      if (name && role) {
+        otpResult = await apiService.requestOTP({
+          name: name,
+          phone: phone,
+          role: role,
+          otp: otpValue,
+        });
+
+        // console.log("otp Result :", otpValue, otpResult);
+
+        if (otpResult?.status !== 201) {
+          throw new Error("OTP verification failed");
+        }
+      }
+
+      if (!role) {
+        otpResult = await apiService.verifyOtp({
+          phone: phone,
+          otp: otpValue,
+        });
+        console.log("otp Result :", phone, otpValue, otpResult);
+        if (otpResult?.status !== 200) {
+          throw new Error("OTP verification failed");
+        }
+      }
+
+      const token = otpResult?.data?.token;
+      if (!token) {
+        throw new Error("Token not received");
+      }
+
+      const tokenResult = await apiService.verifyToken(token);
+
+      if (tokenResult?.status !== 200) {
+        throw new Error("Token verification failed");
+      }
+
+      // console.log("token result :", tokenResult, tokenResult.data)
+      let data = tokenResult?.data;
+
+      // await setItem("user", tokenResult?.data);
+      // Store token securely
+      if (data?.token) {
+        await Keychain.setGenericPassword("token", tokenResult.data?.token);
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        await refreshAuth();
+      }
+
+      // Store user info in AsyncStorage
+      await setItem(
+        "user",
+        JSON.stringify({
+          id: data?.user?.id,
+          name: data?.user?.name,
+          phone: data?.user?.phone,
+          roleName: data?.user?.roleName,
+        }),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await refreshAuth();
+      // ToastSuccess("OTP verified successfully");
+      console.log("Login successful......");
+      navigation.pop(2);
+
+      //  To get the token
+      // const credentials = await Keychain.getGenericPassword();
+      // if (credentials) {
+      //   console.log('Token:', credentials.password);
+      // }
+    } catch (error) {
+      console.log("OTP verification error:", error);
+      ToastInfo(error.message || "Failed to verify OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
   const validate = () => {
     let newErrors = {};
 
@@ -125,6 +225,15 @@ export default function CreateLogin({ navigation }) {
               <Text style={styles.errorText}>{errors.username}</Text>
             )} */}
 
+            <InputField
+              label="Email Address"
+              placeholder="Enter Email"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChange={setEmail}
+            />
+
             <Text style={[styles.whatsappText]}>Enter Whatsapp Number</Text>
             <View style={styles.phoneRow}>
               <View style={styles.sheet}>
@@ -155,6 +264,20 @@ export default function CreateLogin({ navigation }) {
                 placeholderTextColor="#9ca3af"
               />
             </View>
+
+            <View style={styles.otpContainer}>
+              {otp.map((digit, index) => (
+                <TextInput
+                  key={index}
+                  ref={(ref) => (inputs.current[index] = ref)}
+                  style={styles.otpInput}
+                  value={digit}
+                  onChangeText={(value) => handleOtpChange(value, index)}
+                  keyboardType="number-pad"
+                  maxLength={1}
+                />
+              ))}
+            </View>
             {/* {errors.email && (
               <Text style={styles.errorText}>{errors.email}</Text>
             )} */}
@@ -181,7 +304,11 @@ export default function CreateLogin({ navigation }) {
                     ]}
                     onPress={() => setRole(option.value)}
                   >
-                    <FontAwesome name={option.icon} size={16} color= {isActive ? "#27AE60"  : "#374151" }/>
+                    <FontAwesome
+                      name={option.icon}
+                      size={16}
+                      color={isActive ? "#27AE60" : "#374151"}
+                    />
                     <Text
                       style={[
                         styles.optionText,
@@ -294,9 +421,9 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   optionBtn: {
-    flexDirection:"row",
-    alignItems:"center",
-    gap:6,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
     paddingHorizontal: 10,
     paddingVertical: 7,
     borderRadius: 8,
@@ -319,6 +446,21 @@ const styles = StyleSheet.create({
   phoneinput: {
     flex: 1,
     // height: 50,
+  },
+  otpContainer: {
+    flexDirection: "row",
+    gap: 10,
+    marginVertical: 8,
+  },
+  otpInput: {
+    width: 40,
+    height: 40,
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: "#ccc",
+    backgroundColor: "white",
+    textAlign: "center",
+    fontSize: 16,
   },
   roleName: {
     paddingHorizontal: 5,

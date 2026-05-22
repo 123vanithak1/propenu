@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Image,
   ActivityIndicator,
+  Pressable,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { userServices } from "../../services/userServices";
@@ -12,7 +13,14 @@ import { LocationIcon } from "../../../assets/svg/Logo";
 import formatINR from "../../utils/FormatINR";
 import { useQuery } from "@tanstack/react-query";
 
+const tabTypes = [
+  { label: "Plots", value: "landplots" },
+  { label: "Projects", value: "featuredprojects" },
+];
+
 const ContactedProperties = () => {
+  const [selectedTab, setSelectedTab] = useState("landplots");
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["contactedProperties"],
     queryFn: userServices.getContactedProperties,
@@ -20,16 +28,25 @@ const ContactedProperties = () => {
 
   const contactedProperties = data?.properties ?? [];
   const total = data?.total ?? 0;
+  // console.log("Properties : ", JSON.stringify(contactedProperties, null, 2));
 
   if (isLoading)
     return <ActivityIndicator size="large" style={{ color: "#27AE60" }} />;
   if (error) return console.log("failed to get contacted properties :", error);
-  
+
+  const filteredProperties = contactedProperties.filter(
+    (item) => item?.propertyType === selectedTab,
+  );
+
   const PropertyCard = ({ item }) => {
+    console.log("item.propetry : ", JSON.stringify(item?.heroImage, null, 2));
     return (
       <View style={styles.propertyCard}>
-        {item?.gallery && (
-          <Image source={{ uri: item.gallery }} style={styles.image} />
+        {(item?.heroImage || item?.gallery) && (
+          <Image
+            source={{ uri: item?.heroImage || item?.gallery }}
+            style={styles.image}
+          />
         )}
 
         <Text style={styles.sale}>{item.listingType}</Text>
@@ -62,20 +79,40 @@ const ContactedProperties = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>My Contact Listing</Text>
+      {/* <Text style={styles.title}>My Contact Listing</Text>
       <Text style={styles.subTitle}>
-        Properties you have contacted ({total ? total : null})
-      </Text>
-      {contactedProperties?.length > 0 ? (
+        Properties you have contacted ({filteredProperties?.length ?? 0})
+      </Text> */}
+
+      <View style={styles.tabsContainer}>
+        {tabTypes.map((item) => {
+          const active = selectedTab === item.value;
+          return (
+            <Pressable
+              key={item.value}
+              onPress={() => setSelectedTab(item.value)}
+              style={[styles.chip, active && styles.activeChip]}
+            >
+              <Text style={[styles.tabText, active && styles.activeTabText]}>
+                {item.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      {filteredProperties?.length > 0 ? (
         <FlatList
-          data={contactedProperties}
-          keyExtractor={(item) => item._id}
+          data={filteredProperties}
+          keyExtractor={(item) => {
+            console.log("item : ", JSON.stringify(item, null, 2));
+            return item.leadId;
+          }}
           renderItem={({ item }) => <PropertyCard item={item} />}
         />
       ) : (
         <View style={styles.noContent}>
-
-        <Text>No contacted properties available</Text>
+          <Text>No contacted properties available</Text>
         </View>
       )}
     </View>
@@ -87,6 +124,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingTop: 3,
     backgroundColor: "white",
+  },
+  tabsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  chip: {
+    paddingVertical: 7,
+    paddingHorizontal: 8,
+    backgroundColor: "#fff",
+  },
+  activeChip: {
+    borderColor: "#27AE60",
+  },
+  tabText: {
+    fontSize: 13,
+  },
+  activeTabText: {
+    borderBottomWidth: 1,
+    borderColor: "#27AE60",
+    color: "#27AE60",
+    fontSize: 14,
+    fontWeight: "500",
+    paddingBottom: 5,
   },
   propertyCard: {
     position: "relative",
@@ -134,10 +197,10 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     borderRadius: 8,
   },
-  noContent:{
- flex:1,
- justifyContent:"center",
- alignItems:"center"
+  noContent: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   content: {
     paddingVertical: 10,
