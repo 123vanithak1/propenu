@@ -8,7 +8,7 @@ import {
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import HomePageImage from "../../../assets/HomePageImage.png";
-import defaultImage from "../../../assets/defaultImage.png"
+import defaultImage from "../../../assets/defaultImage.png";
 
 const HighLightCard = ({ details }) => {
   const navigation = useNavigation();
@@ -30,7 +30,7 @@ const HighLightCard = ({ details }) => {
   };
 
   const handleClick = () => {
-    console.log("getting id when select", details._id, details.slug);
+    // console.log("getting id when select", details._id, details.slug);
     navigation.navigate("PropertyDetails", { propertyId: details._id });
   };
 

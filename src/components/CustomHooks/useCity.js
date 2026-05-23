@@ -14,18 +14,17 @@ import {
 const DEFAULT_CITY_NAME = "Hyderabad";
 const STORAGE_KEY = "selectedCityId";
 
-const useCity = () =>{
+const useCity = () => {
   const dispatch = useAppDispatch();
 
   const selectedCity = useSelector(selectSelectedCity);
   const localities = useSelector(selectLocalitiesByCity);
   const locations = useSelector((state) => state.city.locations);
-  
 
   // ✅ Select city
   const selectCity = async (city) => {
     dispatch(setCityId(city._id));
-    console.log(city._id)
+    // console.log(city._id)
     await setItem(STORAGE_KEY, city._id);
   };
 
@@ -43,7 +42,7 @@ const useCity = () =>{
   // ✅ Restore saved city from storage
   useEffect(() => {
     const restoreCity = async () => {
-      const savedCityId = await  getItem(STORAGE_KEY);
+      const savedCityId = await getItem(STORAGE_KEY);
       if (savedCityId && !selectedCity) {
         dispatch(setCityId(savedCityId));
       }
@@ -58,8 +57,7 @@ const useCity = () =>{
     if (!locations.length) return;
 
     const defaultCity = locations.find(
-      (c) =>
-        c.city?.toLowerCase() === DEFAULT_CITY_NAME.toLowerCase()
+      (c) => c.city?.toLowerCase() === DEFAULT_CITY_NAME.toLowerCase(),
     );
 
     if (defaultCity) {
@@ -69,11 +67,11 @@ const useCity = () =>{
   }, [locations, selectedCity, dispatch]);
 
   return {
-    selectedCity,   // selected city object
-    localities,     // localities of selected city
-    locations,      // all cities
-    selectCity,     // call this to change city
+    selectedCity, // selected city object
+    localities, // localities of selected city
+    locations, // all cities
+    selectCity, // call this to change city
     clearSelectedCity,
   };
-}
+};
 export default useCity;
