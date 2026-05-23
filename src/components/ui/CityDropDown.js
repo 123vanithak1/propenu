@@ -42,7 +42,10 @@ export default function CityDropdown() {
               {popularCities.map((item) => (
                 <Pressable
                   key={item._id ?? item.city}
-                  onPress={() => dispatch(setCity(item), selectCity(item))}
+                  onPress={() => {
+                    dispatch(setCity(item));
+                    selectCity(item);
+                  }}
                   style={[
                     styles.cityItem,
                     selectedCity?._id === item._id && styles.selectedCityItem,
@@ -72,7 +75,10 @@ export default function CityDropdown() {
                   cities.map((c) => (
                     <Pressable
                       key={c._id}
-                      onPress={() => dispatch(setCity(c), selectCity(c))}
+                      onPress={() => {
+                        dispatch(setCity(c));
+                        selectCity(c);
+                      }}
                       style={[
                         styles.cityItem,
                         selectedCity?._id === c._id && styles.selectedCityItem,

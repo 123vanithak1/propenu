@@ -1,9 +1,15 @@
-import { Pressable, View, Text, StyleSheet } from "react-native";
+import {
+  Pressable,
+  View,
+  Text,
+  StyleSheet,
+  Platform,
+  ActionSheetIOS,
+} from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import PostProperty from "../screens/PostPropertyScreen/PostProperty";
 import PropertyDetailsScreen from "../screens/PropertyDetails/PropertyDetailsScreen";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-// import DrawerNavigator from "./DrawerNavigator";
 import PropertyListScreen from "../screens/PropertyListScreen/PropertyListScreen";
 import MoreResidentialDetails from "../screens/PropertyListScreen/MoreDetails/MoreResidentialDetails";
 import CategoryFilterScreen from "../screens/SearchFilter/CategoryFilterScreen";
@@ -53,54 +59,83 @@ const HEADER_TYPES = {
   INNER: "INNER",
   NONE: "NONE",
 };
+
 export default function StackNavigator() {
-  
   const dispatch = useDispatch();
+
   const isOpen = useSelector((state) => state.dropdown.isOpen);
-  const { selectedCity } = useCity();
+
+  const { selectedCity, locations, selectCity } = useCity();
+  const cities = locations || [];
 
   const handleCity = () => {
+    if (Platform.OS === "ios") {
+      const cityNames = cities.map((item) => item.city);
+
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: [...cityNames, "Cancel"],
+          cancelButtonIndex: cityNames.length,
+        },
+        (buttonIndex) => {
+          if (buttonIndex !== cityNames.length) {
+            const chosenCity = cities[buttonIndex];
+            dispatch(setCity(chosenCity));
+            selectCity(chosenCity);
+          }
+        },
+      );
+
+      return;
+    }
+
+    // Android custom dropdown
     dispatch(toggleDropdown());
   };
 
   const renderMenuButton = (navigation) => (
-    <View style={styles.locationBar}>
-      <Pressable onPress={navigation.openDrawer} hitSlop={10}>
-        <MaterialIcons name="menu" size={26} color="#000" />
-      </Pressable>
-
-      <Pressable style={styles.select} onPress={handleCity}>
-        <LocationIcon width={20} height={20} />
-        <Text>
-          {selectedCity?.city
-            ? selectedCity.city.length > 13
-              ? selectedCity.city.slice(0, 13) + "..."
-              : selectedCity.city
-            : "Hyderabad"}
-        </Text>
-        <AntDesign name={isOpen ? "up" : "down"} size={10} />
+    <View style={styles.menuContainer}>
+      <Pressable
+        onPress={navigation.openDrawer}
+        hitSlop={10}
+        style={styles.menuButton}
+      >
+        <MaterialIcons
+          name="menu"
+          size={28}
+          color="#000"
+          style={{ textAlignVertical: "center" }}
+        />
       </Pressable>
     </View>
   );
 
-  const renderPostPropertyButton = (navigation) => (
-    <Pressable
-      onPress={() => navigation.navigate("PostProperty")}
-      style={styles.postBtn}
-    >
-      <Text style={styles.postText}>Post Property</Text>
-      <Text style={styles.freeBadge}>Free</Text>
+  const renderLocationDropdown = () => (
+    <Pressable style={styles.select} onPress={handleCity}>
+      <LocationIcon width={20} height={20} />
+
+      <Text style={styles.locationText}>
+        {selectedCity?.city
+          ? selectedCity.city.length > 13
+            ? selectedCity.city.slice(0, 13) + "..."
+            : selectedCity.city
+          : "Hyderabad"}
+      </Text>
+
+      <AntDesign name={isOpen ? "up" : "down"} size={10} />
     </Pressable>
   );
 
   const baseHeader = {
     headerShadowVisible: false,
+
     headerStyle: {
       elevation: 0,
       shadowColor: "transparent",
       borderBottomWidth: 0,
       backgroundColor: "#fff",
     },
+
     headerTitleStyle: {
       fontSize: 16,
       fontWeight: "600",
@@ -114,18 +149,18 @@ export default function StackNavigator() {
           ...baseHeader,
           headerTitle: () => null,
           headerLeft: () => renderMenuButton(navigation),
-          headerRight: () => renderPostPropertyButton(navigation),
+          headerRight: () => renderLocationDropdown(),
+          // headerRight: () => renderPostPropertyButton(navigation),
         };
 
       case "INNER":
         return {
           ...baseHeader,
           headerTitle: title,
+          headerTitleAlign: "left",
           headerBackTitleVisible: false,
-          headerLeft: undefined,
           headerRight: undefined,
         };
-
       case "NONE":
         return {
           headerShown: false,
@@ -138,14 +173,12 @@ export default function StackNavigator() {
 
   const stackScreens = [
     { name: "Home", component: HomeScreen, headerType: HEADER_TYPES.HOME },
-
     {
       name: "ShortListedProperties",
       component: ShortListedScreen,
       headerType: HEADER_TYPES.INNER,
       title: "ShortListed Properties",
     },
-
     {
       name: "MyProperties",
       component: MyProperties,
@@ -244,21 +277,25 @@ export default function StackNavigator() {
       headerType: HEADER_TYPES.INNER,
       title: "Contacted Properties",
     },
+
     {
       name: "OwnerSellPlans",
       component: OwnerSellPlans,
       headerType: HEADER_TYPES.NONE,
     },
+
     {
       name: "OwnerRentPlans",
       component: OwnerRentPlans,
       headerType: HEADER_TYPES.NONE,
     },
+
     {
       name: "BuyViewPlans",
       component: BuyViewPlans,
       headerType: HEADER_TYPES.NONE,
     },
+
     {
       name: "RentViewPlans",
       component: RentViewPlans,
@@ -299,12 +336,14 @@ export default function StackNavigator() {
       headerType: HEADER_TYPES.INNER,
       title: "Account & Settings",
     },
+
     {
       name: "AgentPlans",
       component: AgentPlans,
       headerType: HEADER_TYPES.INNER,
       title: "My Plans",
     },
+
     {
       name: "BuyPlans",
       component: BuyPlans,
@@ -318,29 +357,33 @@ export default function StackNavigator() {
       headerType: HEADER_TYPES.INNER,
       title: "About Us",
     },
+
     {
       name: "TermsAndConditions",
       component: TermsAndConditions,
       headerType: HEADER_TYPES.INNER,
       title: "Terms & Conditions",
     },
+
     {
       name: "PrivacyPolicy",
       component: PrivacyPolicy,
       headerType: HEADER_TYPES.INNER,
       title: "Privacy Policy",
     },
+
     {
       name: "SafetyGuide",
       component: SafetyGuide,
       headerType: HEADER_TYPES.INNER,
       title: "Safety Guide",
     },
+
     {
       name: "HelpCenter",
       component: HelpCenter,
       headerType: HEADER_TYPES.INNER,
-      title: "Help Center"
+      title: "Help Center",
     },
 
     {
@@ -363,6 +406,7 @@ export default function StackNavigator() {
       headerType: HEADER_TYPES.INNER,
       title: "My Leads",
     },
+
     {
       name: "BuilderFeaturedProperties",
       component: BuilderFeaturedProperties,
@@ -370,6 +414,7 @@ export default function StackNavigator() {
       title: "Featured Projects",
     },
   ];
+
   return (
     <Stack.Navigator>
       {stackScreens.map((screen, index) => (
@@ -383,9 +428,9 @@ export default function StackNavigator() {
         />
       ))}
     </Stack.Navigator>
-
   );
 }
+
 const styles = StyleSheet.create({
   headerLeft: {
     paddingLeft: 15,
@@ -419,13 +464,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
-    zIndex: 3,
-    elevation: 3,
+    // zIndex: 3,
+    // elevation: 3,
   },
+
   select: {
     flexDirection: "row",
     gap: 6,
     alignItems: "center",
+    marginRight: 10,
+  },
+
+  locationText: {
+    fontSize: 14,
+    fontWeight: "500",
   },
 
   headerRight: {
@@ -450,11 +502,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "500",
   },
+
   stateHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    // paddingVertical: 5,
   },
 
   arrow: {
@@ -466,18 +518,19 @@ const styles = StyleSheet.create({
     width: "100%",
     marginTop: 12,
   },
+
   stateTitle: {
     fontSize: 13,
     fontWeight: "600",
     color: "#000",
     marginBottom: 2,
-    // marginTop: 10,
   },
+
   cityItem: {
     paddingVertical: 5,
     paddingHorizontal: 12,
-    // alignItems: "center",
   },
+
   cityText: {
     fontSize: 12,
     color: "#000",
@@ -489,5 +542,18 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     color: "#fff",
     fontSize: 12,
+  },
+
+  menuContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+
+  menuButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 4,
+    height: 40,
   },
 });

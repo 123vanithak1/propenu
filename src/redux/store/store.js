@@ -10,7 +10,7 @@ export const store = configureStore({
     city: cityReducer,
     filters: filterSlice,
     postProperty: postPropertyReducer,
-     dropdown: dropdownSlice,
+    dropdown: dropdownSlice,
   },
 });
 

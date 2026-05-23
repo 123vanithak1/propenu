@@ -84,7 +84,10 @@ const PropertyListScreen = ({ navigation }) => {
                 ? agricultural
                 : {};
 
-      const params = buildSearchParams(category, filters);
+      const params = buildSearchParams(category, {
+        ...filters,
+        city: selectedCity?.city,
+      });
       console.log("Search Params :", params, filters);
 
       const result = await apiService.category_search(params);
@@ -102,7 +105,7 @@ const PropertyListScreen = ({ navigation }) => {
 
   useEffect(() => {
     fetchData();
-  }, [category]);
+  }, [category, selectedCity, residential, commercial, land, agricultural]);
 
   const renderPropertyCard = useCallback(
     ({ item }) => {
