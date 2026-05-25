@@ -120,8 +120,6 @@ const ShortListedScreen = ({ navigation }) => {
         <>
           {activeCategories.length > 1 && (
             <>
-              <Text style={styles.label}>Property Type</Text>
-
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -152,7 +150,9 @@ const ShortListedScreen = ({ navigation }) => {
             data={displayProperties}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => {
-              const normalizedVal = normalizeCategory(item?.propertyType)?.value;
+              const normalizedVal = normalizeCategory(
+                item?.propertyType,
+              )?.value;
               const Card = CARD_COMPONENT[normalizedVal];
 
               if (!Card || !item?.property) return null;
