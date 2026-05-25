@@ -34,8 +34,8 @@ export default function PostProperty({ navigation }) {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
-      {/* <StepIndicator steps={STEPS} currentStep={currentStep - 1} /> */}
-      {/* <StepRenderer /> */}
+      <StepIndicator steps={STEPS} currentStep={currentStep - 1} />
+      <StepRenderer />
     </SafeAreaView>
   );
 }

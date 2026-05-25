@@ -71,12 +71,13 @@ export default function LoginModal({ navigation }) {
 
       const res = await apiService.login({
         // name: username,
-        phone : fullNumber,
+        phone: fullNumber,
       });
 
       if (res?.status === 200) {
         ToastSuccess("OTP sent successfully");
-        navigation.navigate("OTPLogin", { phone: fullNumber });
+        console.log(phone, email);
+        navigation.navigate("OTPLogin", { phone: fullNumber, email });
         // onOtpSuccess({
         //   email,
         //   // username,

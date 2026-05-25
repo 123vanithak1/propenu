@@ -23,32 +23,19 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import { normalizeCity, normalizeState } from "../../utils/locationNormalizer";
 
 const PropertyListScreen = ({ navigation }) => {
   // const { id, title } = route.params;
   const insets = useSafeAreaInsets();
   const { category } = useAppSelector((s) => s.filters);
   const filtersState = useSelector((state) => state.filters);
-  const { residential, commercial, land, agricultural,listingTypeValue } = filtersState;
+  const { residential, commercial, land, agricultural, listingTypeValue } = filtersState;
 
   const [details, setDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const { selectedCity } = useCity();
   const [value, setValue] = useState("");
-
-  // const fetchData = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const result = await apiService.category_search({
-  //       category: category,
-  //     });
-  //     setDetails(Array.isArray(result) ? result : []);
-  //   } catch (error) {
-  //     console.log("Error occurred:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const buildSearchParams = (category, filters) => {
     const params = { category };
@@ -72,8 +59,8 @@ const PropertyListScreen = ({ navigation }) => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      
-      // filters can be residential / commercial / land / agricultural
+
+      // 1. Resolve category-specific filters
       const filters =
         category === "Residential"
           ? residential
@@ -85,14 +72,24 @@ const PropertyListScreen = ({ navigation }) => {
                 ? agricultural
                 : {};
 
+      // 2. Normalize city and state from the selected city object
+      const rawCity  = selectedCity?.city  ?? "";
+      const rawState = selectedCity?.state ?? "";
+      const city     = normalizeCity(rawCity);    // trims + title-cases + alias resolves
+      const state    = normalizeState(rawState);  // fuzzy matches to canonical Indian state
+
+      // 3. Build params — omit empty/null values
       const params = buildSearchParams(category, {
         ...filters,
-        city: selectedCity?.city,
+        listingType: listingTypeValue,  // "sale" or "rent"
+        ...(city  ? { city }  : {}),
+        ...(state ? { state } : {}),
       });
-      console.log("Search Params :", params, filters);
+
+      console.log("Search Params :", params);
 
       const result = await apiService.category_search(params);
-      console.log("Result :", result)
+      console.log("Result :", result);
       setDetails(Array.isArray(result) ? result : []);
     } catch (error) {
       console.log("Error occurred:", error);
@@ -106,7 +103,8 @@ const PropertyListScreen = ({ navigation }) => {
 
   useEffect(() => {
     fetchData();
-  }, [category, selectedCity, residential, commercial, land, agricultural]);
+  }, [category, selectedCity, residential, commercial, land, agricultural, listingTypeValue]);
+
 
   const renderPropertyCard = useCallback(
     ({ item }) => {
@@ -166,7 +164,7 @@ const PropertyListScreen = ({ navigation }) => {
 
       {total > 0 && (
         <Text style={styles.lengthText} numberOfLines={1}>
-          {total} Properties for sale{" "}
+          {total} Properties for {listingTypeValue}{" "}
           {selectedCity?.city ? `in ${selectedCity.city}` : ""}
         </Text>
       )}

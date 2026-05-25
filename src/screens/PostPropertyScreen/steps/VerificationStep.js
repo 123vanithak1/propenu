@@ -146,6 +146,7 @@ const VerificationStep = () => {
       })
       .catch((error) => {
         console.log("error when submitting:", error);
+        ToastError(error?.message || String(error));
       });
   };
   // const existingDoc = propertyProfile?.verificationDocuments?.[0];
@@ -221,19 +222,33 @@ const VerificationStep = () => {
         </Text>
       )} */}
 
-      <Pressable style={styles.uploadBox} onPress={pickFile}>
-        <ImageListIcon width={50} height={40} color="#82D1A3" />
-
-        <View style={styles.uploadContent}>
-          <Text style={styles.uploadText}>
-            Tap here to upload your document.
-          </Text>
-
-          <Text style={styles.uploadText}>Max 1 image : upto 5 MB</Text>
+      {file ? (
+        <View style={styles.uploadedDocContainer}>
+          <View style={styles.docInfoRow}>
+            <Ionicons name="document-text-outline" size={24} color="#27AE60" />
+            <Text style={styles.uploadedDocText} numberOfLines={1}>
+              {file.name || "document.pdf"}
+            </Text>
+          </View>
+          <Pressable style={styles.replaceButton} onPress={pickFile}>
+            <Text style={styles.replaceButtonText}>Replace Document</Text>
+          </Pressable>
         </View>
+      ) : (
+        <Pressable style={styles.uploadBox} onPress={pickFile}>
+          <ImageListIcon width={50} height={40} color="#82D1A3" />
 
-        <Text style={styles.uploadButton}>Upload document</Text>
-      </Pressable>
+          <View style={styles.uploadContent}>
+            <Text style={styles.uploadText}>
+              Tap here to upload your document.
+            </Text>
+
+            <Text style={styles.uploadText}>Max 1 image : upto 5 MB</Text>
+          </View>
+
+          <Text style={styles.uploadButton}>Upload document</Text>
+        </Pressable>
+      )}
 
       {fieldErrors?.verificationDocuments?.[0] && (
         <Text style={styles.error}>{fieldErrors.verificationDocuments[0]}</Text>
@@ -442,6 +457,39 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 16,
+    fontWeight: "600",
+  },
+  uploadedDocContainer: {
+    backgroundColor: "#F1FCF5",
+    borderWidth: 1,
+    borderColor: "#82D1A3",
+    borderRadius: 8,
+    padding: 16,
+    marginTop: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  docInfoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 12,
+  },
+  uploadedDocText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#374151",
+    maxWidth: 250,
+  },
+  replaceButton: {
+    backgroundColor: "#22C55E",
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  replaceButtonText: {
+    color: "white",
+    fontSize: 13,
     fontWeight: "600",
   },
 });

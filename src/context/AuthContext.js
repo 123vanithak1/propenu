@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import * as Keychain from "react-native-keychain";
-import { getItem,setItem } from "../utils/Storage";
+import { getItem, setItem } from "../utils/Storage";
 
 const AuthContext = createContext(null);
 
@@ -26,17 +26,49 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-const updateUserDetails = async (newData) => {
-  try {
-    const updatedUser = { ...userDetails, ...newData };
+  const updateUserDetails = async (newData) => {
+    try {
+      const updatedUser = { ...userDetails, ...newData };
 
-    setUserDetails(updatedUser); 
+      setUserDetails(updatedUser);
 
-    await setItem("user", JSON.stringify(updatedUser)); 
-  } catch (e) {
-    console.log("Update user error:", e);
-  }
-};
+      await setItem("user", JSON.stringify(updatedUser));
+    } catch (e) {
+      console.log("Update user error:", e);
+    }
+  };
+
+  /**
+   * saveTokenAndRefresh — called after a successful DigiLocker KYC callback.
+   *
+   * The backend returns a brand-new JWT (with updated accountStatus / kyc data).
+   * This helper:
+   *  1. Saves the new token to Keychain (same key as login: "username"/"password")
+   *  2. Decodes the JWT payload to extract user fields
+   *  3. Persists user data to AsyncStorage so it survives app restarts
+   *  4. Calls refreshAuth() to update React state
+   *
+   * Option B note: if we later switch to expo-web-browser deep-link flow,
+   * this is the same function to call after parsing the deep-link URL params.
+   */
+  const saveTokenAndRefresh = async (newToken, kycUser) => {
+    try {
+      // 1. Persist new JWT to Keychain (same pattern as login)
+      await Keychain.setGenericPassword("propenu_user", newToken);
+
+      // 2. Merge updated KYC user data into existing userDetails
+      if (kycUser) {
+        const merged = { ...userDetails, ...kycUser };
+        await setItem("user", JSON.stringify(merged));
+        setUserDetails(merged);
+      }
+
+      // 3. Reload from storage to ensure consistency
+      await refreshAuth();
+    } catch (e) {
+      console.log("saveTokenAndRefresh error:", e);
+    }
+  };
 
   useEffect(() => {
     refreshAuth();
@@ -49,7 +81,8 @@ const updateUserDetails = async (newData) => {
         isChecking,
         userDetails,
         refreshAuth,
-        updateUserDetails, 
+        updateUserDetails,
+        saveTokenAndRefresh, // ← exposed for KYC WebView callback
       }}
     >
       {children}
@@ -58,3 +91,4 @@ const updateUserDetails = async (newData) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
+

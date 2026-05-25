@@ -347,4 +347,85 @@ export const userServices = {
       throw error;
     }
   },
+
+  // ─── DigiLocker KYC ──────────────────────────────────────────────────────
+
+  /**
+   * GET /api/users/kyc/start
+   * Returns { url } — the DigiLocker OAuth authorization URL.
+   * Option A: pass this URL to KycWebViewModal.
+   * Option B: pass this URL to WebBrowser.openAuthSessionAsync().
+   */
+  startKyc: async () => {
+    const token = await getToken();
+    const response = await fetch(`${ENV.BASE_URL}${API_ROUTES.KYC.START}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err?.message || "Failed to start KYC");
+    }
+
+    return response.json(); // { url }
+  },
+
+  /**
+   * PATCH /api/users/kyc/details
+   * Accepts { name, email, pincode, locality, city, state } (all optional).
+   * Returns { token, user } — a fresh JWT with accountStatus reset to kyc_pending.
+   * Call saveTokenAndRefresh(data.token) in AuthContext after this.
+   */
+  updateKycDetails: async (payload) => {
+    console.log({ payload });
+    const token = await getToken();
+    const response = await fetch(
+      `${ENV.BASE_URL}${API_ROUTES.KYC.UPDATE_DETAILS}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      },
+    );
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err?.message || "Failed to update KYC details");
+    }
+    const data = await response.json();
+    console.log("response", data);
+    return data; // { token, user }
+  },
+
+  getUserProfile: async () => {
+    const token = await getToken();
+    if (!token) return null;
+    try {
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.AUTH.VERIFY_TOKEN}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch user profile");
+      }
+      const data = await response.json();
+      return data; // returns { user: { ... } }
+    } catch (error) {
+      console.log("Error fetching user profile:", error);
+      throw error;
+    }
+  },
 };

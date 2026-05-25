@@ -44,7 +44,7 @@ import Dropdownui from "../../../components/ui/DropDownUI";
 import DateInputField from "../../../components/ui/DateInputField";
 import PricingDetails from "../../../components/ui/PricingDetails";
 import { submitBasicThunk } from "../../../redux/thunk/SubmitPropertyThunk";
-import { ToastSuccess } from "../../../utils/Toast";
+import { ToastSuccess, ToastError } from "../../../utils/Toast";
 
 export default function BasicDetailsStep() {
   const {
@@ -251,6 +251,7 @@ export default function BasicDetailsStep() {
       })
       .catch((err) => {
         console.error("Basic step failed", err);
+        ToastError(err?.message || String(err));
       });
   };
 

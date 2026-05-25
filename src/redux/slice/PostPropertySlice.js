@@ -31,6 +31,7 @@ const detectCategoryFromDraft = (draft, fallback) => {
 const initialState = {
   currentStep: 1,
   progressPercent: 0,
+  percentage: 0,
   propertyType: "residential",
   draftId: null,
   base: {
@@ -109,6 +110,7 @@ const postPropertySlice = createSlice({
       state.draftId = draft._id;
       state.currentStep = draft.completion?.step ?? 1;
       state.progressPercent = draft.completion?.percent ?? 0;
+      state.percentage = draft.completion?.percent ?? 0;
 
       const category = detectCategoryFromDraft(draft, state.propertyType);
       state.propertyType = category;
@@ -262,6 +264,7 @@ const postPropertySlice = createSlice({
       state.draftId = draft._id;
       state.propertyType = detectCategoryFromDraft(draft, state.propertyType);
       state.currentStep = 1;
+      state.percentage = draft.completion?.percent ?? 0;
     });
   },
 });

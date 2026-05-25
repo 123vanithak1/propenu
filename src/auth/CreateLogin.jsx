@@ -168,19 +168,21 @@ export default function CreateLogin({ navigation }) {
   };
   const handleLogin = async () => {
     try {
+      const fullNumber = `+${callingCode}${phone}`;
       const res = await apiService.createAccount({
         name: username,
-        // email: email,
-        phone: phone,
+        email: email,
+        phone: fullNumber,
         role: role,
       });
 
       if (res?.status === 200) {
         ToastSuccess("OTP sent successfully");
         navigation.navigate("OTPLogin", {
-          phone: phone,
+          phone: fullNumber,
           name: username,
           role: role,
+          email: email,
         });
       }
     } catch (err) {

@@ -12,16 +12,21 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Feather from "react-native-vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
-import { ToastInfo, ToastSuccess } from "../../utils/Toast";
+import { ToastError, ToastInfo, ToastSuccess } from "../../utils/Toast";
 import { useAuth } from "../../context/AuthContext";
 import { setItem, getItem, clearStorage } from "../../utils/Storage";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-
 import * as Keychain from "react-native-keychain";
+
+import { ENV } from "../../../config";
+import { userServices } from "../../services/userServices";
+import KycWebViewModal from "../../components/ui/KycWebViewModal";
+import KycStatusBadge from "../../components/ui/KycStatusBadge";
+
 const SettingsScreen = () => {
-  const { isLoggedIn, updateUserDetails, userDetails, refreshAuth } = useAuth();
+  const { isLoggedIn, updateUserDetails, userDetails, refreshAuth, saveTokenAndRefresh } = useAuth();
   const navigation = useNavigation();
   const [isEditing, setIsEditing] = useState(false);
 
@@ -32,9 +37,51 @@ const SettingsScreen = () => {
     city: userDetails?.city || "",
   });
 
-  // const [image, setImage] = useState("");
   const [image, setImage] = useState(null);
 
+  // ── KYC state ─────────────────────────────────────────────────────────────
+  const [kycModalVisible, setKycModalVisible] = useState(false);
+  const [kycAuthUrl, setKycAuthUrl] = useState("");
+  const [kycLoading, setKycLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refreshUserProfile = async (showToast = false) => {
+    try {
+      setRefreshing(true);
+      const data = await userServices.getUserProfile();
+      if (data?.user) {
+        await updateUserDetails(data.user);
+        if (showToast) {
+          ToastSuccess("KYC status updated successfully");
+        }
+      }
+    } catch (err) {
+      console.error("Failed to refresh user profile:", err);
+      if (showToast) {
+        ToastError("Failed to refresh KYC status");
+      }
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  // Inline "update details" for rejected KYC
+  const [isEditingKyc, setIsEditingKyc] = useState(false);
+  const [kycForm, setKycForm] = useState({
+    name: userDetails?.name || "",
+    email: userDetails?.email || "",
+    city: userDetails?.city || "",
+    state: userDetails?.state || "",
+    locality: userDetails?.locality || "",
+    pincode: userDetails?.pincode || "",
+  });
+  const [kycUpdateLoading, setKycUpdateLoading] = useState(false);
+
+  // ── Derived KYC values from context ───────────────────────────────────────
+  const kycStatus = userDetails?.kyc?.status;
+  const kycRemark = userDetails?.kyc?.remarks;
+
+  // ── Image picker ──────────────────────────────────────────────────────────
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -52,18 +99,18 @@ const SettingsScreen = () => {
 
     if (!result.canceled) {
       const uri = result.assets[0].uri;
-
       setImage(uri);
       await setItem("profileImage", uri);
     }
   };
+
+  // ── Logout ────────────────────────────────────────────────────────────────
   const handleLogout = async () => {
     if (userDetails != null) {
       await clearStorage();
       await Keychain.resetGenericPassword();
       await new Promise((resolve) => setTimeout(resolve, 100));
       await refreshAuth();
-      // setUserData(null);
       ToastSuccess("Logged out successfully");
       navigation.navigate("HomeStack", { screen: "Home" });
     } else {
@@ -71,14 +118,12 @@ const SettingsScreen = () => {
     }
   };
 
+  // ── Effects ───────────────────────────────────────────────────────────────
   useEffect(() => {
     const loadImage = async () => {
       const savedImage = await getItem("profileImage");
-      if (savedImage) {
-        setImage(savedImage);
-      }
+      if (savedImage) setImage(savedImage);
     };
-
     loadImage();
   }, []);
 
@@ -90,12 +135,105 @@ const SettingsScreen = () => {
         email: userDetails?.email || "",
         city: userDetails?.city || "",
       });
+      setKycForm({
+        name: userDetails?.name || "",
+        email: userDetails?.email || "",
+        city: userDetails?.city || "",
+        state: userDetails?.state || "",
+        locality: userDetails?.locality || "",
+        pincode: userDetails?.pincode || "",
+      });
     }
   }, [userDetails]);
 
+  useEffect(() => {
+    if (isLoggedIn) {
+      refreshUserProfile(false);
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      if (isLoggedIn) {
+        refreshUserProfile(false);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, isLoggedIn]);
+
+  // ── KYC handlers ──────────────────────────────────────────────────────────
+
+  /** Called when user taps "Verify KYC" or "Retry KYC" */
+  const handleStartKyc = async () => {
+    if (!isLoggedIn) {
+      ToastInfo("Please log in to verify KYC");
+      return;
+    }
+    try {
+      setKycLoading(true);
+      const { url } = await userServices.startKyc();
+      setKycAuthUrl(url);
+      setKycModalVisible(true);
+    } catch (err) {
+      console.error("Start KYC error:", err);
+      ToastError("Could not start KYC. Please try again.");
+    } finally {
+      setKycLoading(false);
+    }
+  };
+
+  /** WebView intercepted a successful redirect */
+  const handleKycSuccess = async ({ token, kycStatus: status, remark }) => {
+    setKycModalVisible(false);
+
+    // Build a minimal kycUser object so the context updates immediately
+    const kycUser = {
+      kyc: {
+        status,
+        remarks: remark,
+        provider: "digilocker",
+      },
+    };
+
+    await saveTokenAndRefresh(token, kycUser);
+
+    if (status === "verified") {
+      ToastSuccess("🎉 KYC Verified successfully!");
+    } else if (status === "pending") {
+      ToastInfo("KYC is under review. We'll notify you soon.");
+    } else {
+      ToastError(`KYC not approved. ${remark || "Please update your details."}`);
+    }
+  };
+
+  /** WebView reported a failure */
+  const handleKycFailure = (msg) => {
+    setKycModalVisible(false);
+    ToastError(msg || "KYC verification failed. Please try again.");
+  };
+
+  /** Save updated KYC details (inline edit on rejected flow) */
+  const handleSaveKycDetails = async () => {
+    try {
+      setKycUpdateLoading(true);
+      const data = await userServices.updateKycDetails(kycForm);
+      // Backend returns a new token + user with status reset to kyc_pending
+      await saveTokenAndRefresh(data.token, data.user);
+      setIsEditingKyc(false);
+      ToastSuccess("Details updated. You can now retry KYC.");
+    } catch (err) {
+      console.error("Update KYC details error:", err);
+      ToastError(err?.message || "Failed to update details.");
+    } finally {
+      setKycUpdateLoading(false);
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Profile Card */}
+      {/* ── Profile Card ── */}
       <View style={styles.profileCard}>
         <Pressable style={styles.avatarWrapper} onPress={pickImage}>
           {image ? (
@@ -116,7 +254,7 @@ const SettingsScreen = () => {
         </View>
       </View>
 
-      {/* Personal Information */}
+      {/* ── Personal Information ── */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Personal information</Text>
@@ -156,14 +294,13 @@ const SettingsScreen = () => {
               editing={isEditing}
               onChange={(v) => setForm({ ...form, city: v })}
             />
+
             {isEditing && (
               <View style={styles.actions}>
                 <Pressable
                   style={styles.cancelBtn}
                   onPress={() => {
                     setIsEditing(false);
-
-                    // reset
                     setForm({
                       name: userDetails?.name || "",
                       phone: userDetails?.phone || "",
@@ -178,7 +315,6 @@ const SettingsScreen = () => {
                 <Pressable
                   style={styles.saveBtn}
                   onPress={async () => {
-                    console.log("SAVE DATA:", form);
                     await updateUserDetails(form);
                     setIsEditing(false);
                   }}
@@ -190,37 +326,150 @@ const SettingsScreen = () => {
           </View>
         </View>
       </View>
-      {/* LOGOUT BUTTON */}
-      <Pressable
-        onPress={handleLogout}
-        style={[styles.menuItem]}
-      >
+
+      {/* ── KYC Verification ── */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>KYC Verification</Text>
+
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            {isLoggedIn && (
+              <Pressable
+                style={styles.editBtn}
+                onPress={() => refreshUserProfile(true)}
+                disabled={refreshing}
+              >
+                <MaterialIcons name="refresh" size={14} color="#666" />
+                <Text style={styles.editText}>
+                  {refreshing ? "Refreshing..." : "Refresh"}
+                </Text>
+              </Pressable>
+            )}
+
+            {/* Show "Update Details" edit toggle only on rejected status */}
+            {kycStatus === "rejected" && !isEditingKyc && (
+              <Pressable
+                style={styles.editBtn}
+                onPress={() => setIsEditingKyc(true)}
+              >
+                <Text style={styles.editText}>Update Details</Text>
+                <Feather name="edit-2" size={14} color="#666" />
+              </Pressable>
+            )}
+          </View>
+        </View>
+
+        <View style={styles.kycCard}>
+          {/* Status badge / verify button */}
+          <KycStatusBadge
+            kycStatus={kycStatus}
+            kycRemark={kycRemark}
+            onVerify={handleStartKyc}
+            loading={kycLoading}
+          />
+
+          {/* Inline "Update Details" form — only for rejected status */}
+          {kycStatus === "rejected" && isEditingKyc && (
+            <View style={styles.kycEditForm}>
+              <Text style={styles.kycEditTitle}>
+                Update your details to match Aadhaar, then retry KYC.
+              </Text>
+
+              <View style={styles.infoGrid}>
+                <InfoField
+                  label="Full Name (as on Aadhaar)"
+                  value={kycForm.name}
+                  editing
+                  onChange={(v) => setKycForm({ ...kycForm, name: v })}
+                />
+                <InfoField
+                  label="Email"
+                  value={kycForm.email}
+                  editing
+                  onChange={(v) => setKycForm({ ...kycForm, email: v })}
+                />
+                <InfoField
+                  label="City"
+                  value={kycForm.city}
+                  editing
+                  onChange={(v) => setKycForm({ ...kycForm, city: v })}
+                />
+                <InfoField
+                  label="State"
+                  value={kycForm.state}
+                  editing
+                  onChange={(v) => setKycForm({ ...kycForm, state: v })}
+                />
+                <InfoField
+                  label="Locality"
+                  value={kycForm.locality}
+                  editing
+                  onChange={(v) => setKycForm({ ...kycForm, locality: v })}
+                />
+                <InfoField
+                  label="Pincode"
+                  value={kycForm.pincode}
+                  editing
+                  onChange={(v) => setKycForm({ ...kycForm, pincode: v })}
+                  keyboardType="numeric"
+                />
+              </View>
+
+              <View style={styles.actions}>
+                <Pressable
+                  style={styles.cancelBtn}
+                  onPress={() => {
+                    setIsEditingKyc(false);
+                    setKycForm({
+                      name: userDetails?.name || "",
+                      email: userDetails?.email || "",
+                      city: userDetails?.city || "",
+                      state: userDetails?.state || "",
+                      locality: userDetails?.locality || "",
+                      pincode: userDetails?.pincode || "",
+                    });
+                  }}
+                >
+                  <Text style={styles.cancelText}>Cancel</Text>
+                </Pressable>
+
+                <Pressable
+                  style={[styles.saveBtn, kycUpdateLoading && styles.saveBtnDisabled]}
+                  onPress={handleSaveKycDetails}
+                  disabled={kycUpdateLoading}
+                >
+                  <Text style={styles.saveText}>
+                    {kycUpdateLoading ? "Saving…" : "Save & Retry KYC"}
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
+        </View>
+      </View>
+
+      {/* ── Logout ── */}
+      <Pressable onPress={handleLogout} style={[styles.menuItem]}>
         <AntDesign name="logout" size={19} color="#E53935" />
         <Text style={[styles.label, styles.logoutLabel]}>Logout</Text>
       </Pressable>
 
-      {/* KYC Verification */}
-      {/* <View style={styles.section}>
-        <Text style={styles.sectionTitle}>KYC Verification</Text>
-
-        <View style={styles.kycCard}>
-          <Text style={styles.kycLabel}>Driving License</Text>
-          <View style={styles.verified}>
-            <MaterialIcons name="verified" size={18} color="#27A361" />
-            <Text style={styles.verifiedText}>Verification done</Text>
-          </View>
-        </View>
-      </View> */}
-
-      {/* Footer */}
-      {/* <Pressable>
-        <Text style={styles.deactivate}>Deactivate Account</Text>
-      </Pressable> */}
+      {/* ── DigiLocker WebView Modal ── */}
+      <KycWebViewModal
+        visible={kycModalVisible}
+        authUrl={kycAuthUrl}
+        frontendUrl={ENV.FRONTEND_URL}
+        onSuccess={handleKycSuccess}
+        onFailure={handleKycFailure}
+        onClose={() => setKycModalVisible(false)}
+      />
     </ScrollView>
   );
 };
 
-const InfoField = ({ label, value, editing, onChange }) => (
+// ── Sub-component ─────────────────────────────────────────────────────────────
+
+const InfoField = ({ label, value, editing, onChange, keyboardType }) => (
   <View style={styles.infoField}>
     <Text style={styles.infoLabel}>{label}</Text>
 
@@ -231,6 +480,7 @@ const InfoField = ({ label, value, editing, onChange }) => (
         style={styles.input}
         placeholder={`Enter ${label}`}
         placeholderTextColor="gray"
+        keyboardType={keyboardType || "default"}
       />
     ) : (
       <Text style={styles.infoValue}>{value || "--"}</Text>
@@ -239,10 +489,13 @@ const InfoField = ({ label, value, editing, onChange }) => (
 );
 
 export default SettingsScreen;
+
+// ── Styles ────────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   container: {
     padding: 12,
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: "#F9F9F9",
   },
 
@@ -265,7 +518,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    // borderWidth:1,
     borderColor: "#ccc",
     backgroundColor: "#eeeeee",
   },
@@ -355,49 +607,32 @@ const styles = StyleSheet.create({
     color: "#333",
   },
 
+  // KYC card
   kycCard: {
     backgroundColor: "#FFF",
     borderRadius: 12,
-    marginTop: 10,
     padding: 16,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     elevation: 1,
+    gap: 16,
   },
 
-  verified: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
+  kycEditForm: {
+    gap: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+    paddingTop: 16,
   },
 
-  verifiedText: {
-    color: "#27A361",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-
-  deactivate: {
-    color: "#D32F2F",
-    textDecorationLine: "underline",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    marginTop: 4,
+  kycEditTitle: {
     fontSize: 12,
+    color: "#666",
+    lineHeight: 18,
   },
 
+  // Shared action row
   actions: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    // marginTop: 16,
     alignItems: "center",
     gap: 10,
     width: "100%",
@@ -418,6 +653,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#27A361",
   },
 
+  saveBtnDisabled: {
+    backgroundColor: "#a3d9b8",
+  },
+
   cancelText: {
     color: "#333",
     fontWeight: "500",
@@ -427,21 +666,32 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
   },
+
+  input: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginTop: 4,
+    fontSize: 12,
+  },
+
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
     paddingHorizontal: 23,
     marginTop: 25,
-    // paddingVertical: 14,
     borderRadius: 14,
   },
+
   label: {
     flex: 1,
     fontSize: 14,
     fontWeight: 400,
-    // color: "#82868d",
   },
+
   logoutLabel: {
     color: "#E53935",
     fontWeight: "500",

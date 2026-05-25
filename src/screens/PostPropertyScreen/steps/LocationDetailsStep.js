@@ -28,7 +28,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { ToastSuccess } from "../../../utils/Toast";
+import { ToastSuccess, ToastError } from "../../../utils/Toast";
 import { search } from "india-pincode-search";
 
 const LocationDetailsStep = () => {
@@ -133,6 +133,7 @@ const LocationDetailsStep = () => {
       })
       .catch((err) => {
         console.log("Location step failed", err);
+        ToastError(err?.message || String(err));
       });
   };
 
@@ -286,6 +287,11 @@ const LocationDetailsStep = () => {
         <Text style={styles.markLocation}>
           Click on the map to mark the exact location of your property.
         </Text>
+        {getCustomError("location", "Please select location on map") ? (
+          <Text style={styles.errorText}>
+            {getCustomError("location", "Please select location on map")}
+          </Text>
+        ) : null}
 
         {/* Nearby places */}
         <NearbyLocationSearch city={base.city} state={base.state} />
@@ -380,5 +386,11 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  errorText: {
+    color: "#DC2626",
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 3,
   },
 });

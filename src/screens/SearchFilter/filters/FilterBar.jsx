@@ -10,7 +10,7 @@ const FilterBar = () => {
   const navigation = useNavigation();
 
   const LISTING_TYPES = [
-    { label: "Buy", value: "buy" },
+    { label: "Sale", value: "sale" },
     { label: "Rent", value: "rent" },
   ];
 

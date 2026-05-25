@@ -20,7 +20,8 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useAuth } from "../context/AuthContext";
 
 const OTPLoginModal = ({ route, navigation }) => {
-  const { phone, name = "", role = "" } = route.params;
+  const { phone, name = "", role = "", email } = route.params;
+  console.log(route.params);
   const { refreshAuth } = useAuth();
 
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -54,6 +55,7 @@ const OTPLoginModal = ({ route, navigation }) => {
       setLoading(true);
       if (name && role) {
         otpResult = await apiService.requestOTP({
+          email: email,
           name: name,
           phone: phone,
           role: role,
@@ -114,7 +116,14 @@ const OTPLoginModal = ({ route, navigation }) => {
       await refreshAuth();
       ToastSuccess("OTP verified successfully");
       console.log("Login successful......");
-      navigation.pop(2);
+
+      const routes = navigation.getState()?.routes || [];
+      const loginIndex = routes.findIndex((r) => r.name === "Login");
+      if (loginIndex !== -1) {
+        navigation.pop(routes.length - loginIndex);
+      } else {
+        navigation.pop(2);
+      }
 
       //  To get the token
       // const credentials = await Keychain.getGenericPassword();

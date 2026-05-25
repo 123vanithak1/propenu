@@ -201,6 +201,16 @@ export const basicDetailsSchema = z
           message: "Carpet area is required",
         });
       }
+
+      if (carpetArea && builtUpArea) {
+        if (Number(carpetArea) > Number(builtUpArea)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["carpetArea"],
+            message: "Carpet area must be less than or equal to built-up area",
+          });
+        }
+      }
     }
 
     if (category === "land") {

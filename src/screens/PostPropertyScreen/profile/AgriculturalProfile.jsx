@@ -180,6 +180,58 @@ const AgriculturalProfile = () => {
     );
   };
 
+  const addMoreImages = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      ToastError("Permission required to access images");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 0.8,
+    });
+
+    if (result.canceled) return;
+
+    const newAssets = result.assets || [];
+    const totalImages = [...files, ...newAssets];
+    if (totalImages.length > 10) {
+      ToastError("You can upload a maximum of 10 photos");
+      return;
+    }
+
+    setFiles(totalImages);
+    setFileStoreFiles("postProperty", totalImages);
+    dispatch(
+      setBaseField({
+        key: "galleryFiles",
+        value: totalImages.map((img) => ({
+          uri: img.uri,
+          name: img.fileName || "image.jpg",
+          type: img.type,
+        })),
+      }),
+    );
+  };
+
+  const deleteImage = (indexToDelete) => {
+    const updatedFiles = files.filter((_, idx) => idx !== indexToDelete);
+    setFiles(updatedFiles);
+    setFileStoreFiles("postProperty", updatedFiles);
+    dispatch(
+      setBaseField({
+        key: "galleryFiles",
+        value: updatedFiles.map((img) => ({
+          uri: img.uri,
+          name: img.fileName || "image.jpg",
+          type: img.type,
+        })),
+      }),
+    );
+  };
+
   const handleAgriculturalSubmitDetails = () => {
     setShowErrors(true);
 
@@ -217,6 +269,7 @@ const AgriculturalProfile = () => {
       })
       .catch((error) => {
         console.log("🔥 FULL ERROR FROM API:", error);
+        ToastError(error?.message || String(error));
       });
   };
   const Section = ({ title, subtitle, children }) => (
@@ -575,31 +628,32 @@ const AgriculturalProfile = () => {
         {/* Preview images after upload */}
         <Text style={styles.label}>Add photos of your property</Text>
         <View style={styles.previewContainer}>
-          {files?.length > 0 &&
-            files.map((img, index) => (
+          {files.map((img, index) => (
+            <View key={index} style={styles.previewImageWrapper}>
               <Image
-                key={index}
                 source={{ uri: img.uri }}
                 style={styles.previewImage}
               />
-            ))}
-          {/* {files.map((img, index) => (
-            <Image
-              key={index}
-              source={{ uri: img.uri }}
-              style={styles.previewImage}
-            />
-          ))} */}
+              <Pressable
+                style={styles.deleteBadge}
+                onPress={() => deleteImage(index)}
+              >
+                <Ionicons name="close-circle" size={20} color="red" />
+              </Pressable>
+            </View>
+          ))}
+          {files.length > 0 && files.length < 10 && (
+            <Pressable style={styles.addPhotoGridItem} onPress={addMoreImages}>
+              <Ionicons name="camera-outline" size={24} color="#22C55E" />
+              <Text style={styles.addPhotoGridText}>Add Photo</Text>
+            </Pressable>
+          )}
         </View>
         {/* Image Upload */}
-        <Pressable style={styles.uploadBox} onPress={pickImages}>
-          <ImageListIcon width={50} height={40} color="#82D1A3" />
+        {files.length === 0 && (
+          <Pressable style={styles.uploadBox} onPress={pickImages}>
+            <ImageListIcon width={50} height={40} color="#82D1A3" />
 
-          {files.length > 0 ? (
-            <Text style={styles.uploadText}>
-              {files.length} image(s) selected
-            </Text>
-          ) : (
             <View style={styles.uploadContent}>
               <Text style={styles.uploadText}>
                 Tap to upload property images
@@ -609,9 +663,9 @@ const AgriculturalProfile = () => {
                 Max 5 photos upto size 10 MB • png, jpg
               </Text>
             </View>
-          )}
-          <Text style={styles.uploadButton}>Upload photos</Text>
-        </Pressable>
+            <Text style={styles.uploadButton}>Upload photos</Text>
+          </Pressable>
+        )}
         {showErrors && fieldErrors?.images ? (
           <Text style={styles.errorText}>{fieldErrors?.images}</Text>
         ) : null}
@@ -840,14 +894,45 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     marginBottom: 10,
   },
+  previewImageWrapper: {
+    width: "30%",
+    height: 100,
+    marginRight: 8,
+    marginBottom: 8,
+    position: "relative",
+  },
   previewImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  deleteBadge: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    backgroundColor: "white",
+    borderRadius: 10,
+    zIndex: 10,
+  },
+  addPhotoGridItem: {
     width: "30%",
     height: 100,
     borderRadius: 8,
-    marginRight: 8,
-    marginBottom: 8,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderStyle: "dashed",
+    borderColor: "#22C55E",
+    backgroundColor: "#F1FCF5",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  addPhotoGridText: {
+    fontSize: 11,
+    color: "#22C55E",
+    marginTop: 4,
+    fontWeight: "500",
   },
   uploadBox: {
     borderWidth: 1,

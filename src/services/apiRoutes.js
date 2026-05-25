@@ -53,4 +53,11 @@ export const API_ROUTES = {
     PAYMENT_CREATE :"/api/payments/create",
     VERIFY_PAYMENT :"/api/payments/verify"
   },
+
+  // DigiLocker KYC endpoints
+  KYC: {
+    START: "/api/users/kyc/start",           // GET  → returns { url }
+    UPDATE_DETAILS: "/api/users/kyc/details", // PATCH → returns { token, user }
+  },
 };
+

@@ -41,7 +41,7 @@ export const locationDetailsSchema = z
     location: z.object({
       type: z.literal("Point"),
       coordinates: z.tuple([z.number(), z.number()]),
-    }),
+    }).optional(),
 
     nearbyPlaces: z.array(nearbyPlaceSchema).optional(),
   })

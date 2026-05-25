@@ -3,17 +3,18 @@ import useDimensions from "../../components/CustomHooks/UseDimension";
 import { apiService } from "../../services/apiService";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
-import { setCategory } from "../../redux/slice/FilterSlice";
+import { setCategory, setListingType } from "../../redux/slice/FilterSlice";
 
 const CardHome = ({ title, icon, id }) => {
   const navigation = useNavigation();
   const { width, height, isLandscape } = useDimensions();
     const dispatch = useDispatch();
 
-  const handlePress = async () => {
+  const handlePress = () => {
     console.log("Sending... ", id, title);
+    dispatch(setCategory(title));
+    dispatch(setListingType({ label: "Sale", value: "sale" }));
     navigation.navigate("PropertyList");
-     dispatch(setCategory(title));
   };
 
   return (

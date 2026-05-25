@@ -4,10 +4,9 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   listingTypeLabel: "Buy",
-  listingTypeValue: "buy",
+  listingTypeValue: "sale",
 
-  // category: "Residential",
-  category: "null",
+  category: "Residential",
 
   searchText: "",
 
