@@ -14,7 +14,7 @@ import { agentServices } from "../../services/agentServices";
 import Octicons from "@expo/vector-icons/Octicons";
 import { NotVerified, Verified } from "../../../assets/svg/Logo";
 import RazorpayCheckout from "react-native-razorpay";
-import { ToastSuccess } from "../../utils/Toast";
+import { ToastError, ToastSuccess } from "../../utils/Toast";
 import { useAuth } from "../../context/AuthContext";
 
 // for agent onlyyyyyyyyyy
@@ -24,7 +24,7 @@ const BuyPlans = ({ navigation }) => {
   const flatListRef = useRef(null);
 
   useEffect(() => {
-    if (plans.length > 1) {
+    if (plans && plans.length > 1) {
       setTimeout(() => {
         flatListRef.current?.scrollToOffset({
           offset: 250,
@@ -56,6 +56,7 @@ const BuyPlans = ({ navigation }) => {
         const order = await agentServices.createPaymentOrder({
           planId: plan._id,
           userType: "agent",
+          userId: userDetails?.id,
         });
 
         if (order?.free) {
@@ -95,6 +96,7 @@ const BuyPlans = ({ navigation }) => {
           });
       } catch (err) {
         console.error("Payment failed", err);
+        ToastError(err?.message || "Payment failed. Please try again.");
       }
     };
     return (

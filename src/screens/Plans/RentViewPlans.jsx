@@ -14,7 +14,7 @@ import { agentServices } from "../../services/agentServices";
 import Octicons from "@expo/vector-icons/Octicons";
 import { NotVerified, Verified } from "../../../assets/svg/Logo";
 import RazorpayCheckout from "react-native-razorpay";
-import { ToastSuccess } from "../../utils/Toast";
+import { ToastError, ToastSuccess } from "../../utils/Toast";
 import { useAuth } from "../../context/AuthContext";
 
 const RentViewPlans = ({ navigation }) => {
@@ -59,6 +59,7 @@ const RentViewPlans = ({ navigation }) => {
         const order = await agentServices.createPaymentOrder({
           planId: plan._id,
           userType: "agent",
+          userId: userDetails?.id,
         });
 
         if (order?.free) {
@@ -98,6 +99,7 @@ const RentViewPlans = ({ navigation }) => {
           });
       } catch (err) {
         console.error("Payment failed", err);
+        ToastError(err?.message || "Payment failed. Please try again.");
       }
     };
     return (

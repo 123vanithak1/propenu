@@ -47,7 +47,11 @@ const ResidentialCard = ({ item }) => {
 
         {/* Top-right like icon */}
         <View style={styles.likeIcon}>
-          <LikedIconContainer id={item?.id} slug={item?.slug} type={item?.type} />
+          <LikedIconContainer
+            id={item?.id}
+            slug={item?.slug}
+            type={item?.type}
+          />
         </View>
       </View>
       {/* Content */}

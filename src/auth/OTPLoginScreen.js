@@ -14,10 +14,11 @@ import useDimensions from "../components/CustomHooks/UseDimension";
 import { setItem } from "../utils/Storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Keychain from "react-native-keychain";
-import { ToastSuccess } from "../utils/Toast";
+import { ToastSuccess, ToastInfo } from "../utils/Toast";
 import { BigLogo } from "../../assets/svg/LogoPropenu";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useAuth } from "../context/AuthContext";
+import KycPromptModal from "../components/ui/KycPromptModal";
 
 const OTPLoginModal = ({ route, navigation }) => {
   const { phone, name = "", role = "", email } = route.params;
@@ -27,6 +28,7 @@ const OTPLoginModal = ({ route, navigation }) => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const { width, isLandscape } = useDimensions();
+  const [kycPromptVisible, setKycPromptVisible] = useState(false);
 
   const inputs = useRef([]);
 
@@ -117,12 +119,18 @@ const OTPLoginModal = ({ route, navigation }) => {
       ToastSuccess("OTP verified successfully");
       console.log("Login successful......");
 
-      const routes = navigation.getState()?.routes || [];
-      const loginIndex = routes.findIndex((r) => r.name === "Login");
-      if (loginIndex !== -1) {
-        navigation.pop(routes.length - loginIndex);
+      if (name && role) {
+        // ── Sign-up flow: show mandatory KYC interstitial ──────────────────
+        setKycPromptVisible(true);
       } else {
-        navigation.pop(2);
+        // ── Login flow: pop back to the screen before the auth stack ───────
+        const routes = navigation.getState()?.routes || [];
+        const loginIndex = routes.findIndex((r) => r.name === "Login");
+        if (loginIndex !== -1) {
+          navigation.pop(routes.length - loginIndex);
+        } else {
+          navigation.pop(2);
+        }
       }
 
       //  To get the token
@@ -194,6 +202,22 @@ const OTPLoginModal = ({ route, navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* ── Mandatory KYC interstitial for new sign-ups ── */}
+      <KycPromptModal
+        visible={kycPromptVisible}
+        onDismiss={() => {
+          setKycPromptVisible(false);
+          // Navigate home after dismissing (skip or KYC done)
+          const routes = navigation.getState()?.routes || [];
+          const loginIndex = routes.findIndex((r) => r.name === "Login");
+          if (loginIndex !== -1) {
+            navigation.pop(routes.length - loginIndex);
+          } else {
+            navigation.pop(2);
+          }
+        }}
+      />
     </SafeAreaView>
   );
 };

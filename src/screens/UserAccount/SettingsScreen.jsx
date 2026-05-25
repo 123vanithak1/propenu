@@ -7,6 +7,8 @@ import {
   Pressable,
   ScrollView,
   TextInput,
+  ActivityIndicator,
+  Linking,
 } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Feather from "react-native-vector-icons/Feather";
@@ -19,6 +21,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as Keychain from "react-native-keychain";
+import { useQuery } from "@tanstack/react-query";
 
 import { ENV } from "../../../config";
 import { userServices } from "../../services/userServices";
@@ -44,6 +47,25 @@ const SettingsScreen = () => {
   const [kycAuthUrl, setKycAuthUrl] = useState("");
   const [kycLoading, setKycLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  // ── Membership history ────────────────────────────────────────────────────
+  const { data: membershipData, isLoading: historyLoading } = useQuery({
+    queryKey: ["membership-history-settings"],
+    queryFn: userServices.getMembershipHistory,
+    enabled: isLoggedIn,
+  });
+
+  const handleOpenInvoice = async (url) => {
+    try {
+      if (!url) return;
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      }
+    } catch (error) {
+      console.error("Invoice open error:", error);
+    }
+  };
 
   const refreshUserProfile = async (showToast = false) => {
     try {
@@ -448,6 +470,77 @@ const SettingsScreen = () => {
         </View>
       </View>
 
+      {/* ── Membership History ── */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Membership History</Text>
+        </View>
+
+        {historyLoading ? (
+          <View style={styles.historyLoadingBox}>
+            <ActivityIndicator size="small" color="#27A361" />
+            <Text style={styles.historyLoadingText}>Loading history…</Text>
+          </View>
+        ) : !membershipData?.history?.length ? (
+          <View style={styles.historyEmptyBox}>
+            <AntDesign name="inbox" size={32} color="#ccc" />
+            <Text style={styles.historyEmptyText}>No subscription history yet</Text>
+          </View>
+        ) : (
+          membershipData.history.map((item, index) => (
+            <View key={index} style={styles.historyCard}>
+              {/* Top row: plan name + status badge */}
+              <View style={styles.historyTopRow}>
+                <View style={{ flex: 1, gap: 3 }}>
+                  <Text style={styles.historyPlanName}>{item.planName}</Text>
+                  <View style={styles.historyTagRow}>
+                    <View style={styles.historyChip}>
+                      <Text style={styles.historyChipText}>{item.category}</Text>
+                    </View>
+                    {item.tier && (
+                      <View style={[styles.historyChip, styles.historyTierChip]}>
+                        <Text style={styles.historyChipText}>{item.tier}</Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+                <HistoryStatusBadge status={item.status} />
+              </View>
+
+              {/* Date row */}
+              <View style={styles.historyDateRow}>
+                <AntDesign name="calendar" size={12} color="#888" />
+                <Text style={styles.historyDateText}>
+                  {formatHistoryDate(item.startDate)} → {formatHistoryDate(item.endDate)}
+                </Text>
+              </View>
+
+              {/* Price row */}
+              <View style={styles.historyPriceRow}>
+                <Text style={styles.historyPrice}>₹{item.price}/-</Text>
+                <Text style={styles.historyPurchased}>
+                  Purchased {formatHistoryDate(item.purchasedAt)}
+                </Text>
+              </View>
+
+              {/* Invoice button */}
+              {item.invoiceUrl ? (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.invoiceBtn,
+                    pressed && styles.invoiceBtnPressed,
+                  ]}
+                  onPress={() => handleOpenInvoice(item.invoiceUrl)}
+                >
+                  <AntDesign name="cloud-download" size={15} color="#27A361" />
+                  <Text style={styles.invoiceBtnText}>Download Invoice</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          ))
+        )}
+      </View>
+
       {/* ── Logout ── */}
       <Pressable onPress={handleLogout} style={[styles.menuItem]}>
         <AntDesign name="logout" size={19} color="#E53935" />
@@ -487,6 +580,42 @@ const InfoField = ({ label, value, editing, onChange, keyboardType }) => (
     )}
   </View>
 );
+
+// ── Helpers ────────────────────────────────────────────────────────────────────────────────
+const formatHistoryDate = (dateStr) =>
+  new Date(dateStr).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+
+// ── HistoryStatusBadge ───────────────────────────────────────────────────────────────────
+const HistoryStatusBadge = ({ status }) => {
+  const isActive = status === "active";
+  return (
+    <View
+      style={[
+        styles.historyBadge,
+        { backgroundColor: isActive ? "#f0fdf4" : "#fef2f2" },
+      ]}
+    >
+      <View
+        style={[
+          styles.historyBadgeDot,
+          { backgroundColor: isActive ? "#27A361" : "#ef4444" },
+        ]}
+      />
+      <Text
+        style={[
+          styles.historyBadgeText,
+          { color: isActive ? "#15803d" : "#b91c1c" },
+        ]}
+      >
+        {isActive ? "Active" : "Expired"}
+      </Text>
+    </View>
+  );
+};
 
 export default SettingsScreen;
 
@@ -695,5 +824,130 @@ const styles = StyleSheet.create({
   logoutLabel: {
     color: "#E53935",
     fontWeight: "500",
+  },
+
+  // ── Membership History ──────────────────────────────────────────────────
+  historyCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e8f5ee",
+    padding: 14,
+    marginBottom: 12,
+    gap: 10,
+    elevation: 1,
+  },
+  historyTopRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+  },
+  historyPlanName: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#111",
+  },
+  historyTagRow: {
+    flexDirection: "row",
+    gap: 6,
+    flexWrap: "wrap",
+    marginTop: 4,
+  },
+  historyChip: {
+    backgroundColor: "#f0f0f0",
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 20,
+  },
+  historyTierChip: {
+    backgroundColor: "#eff6ff",
+  },
+  historyChipText: {
+    fontSize: 10,
+    color: "#555",
+    textTransform: "capitalize",
+  },
+  historyBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 20,
+  },
+  historyBadgeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  historyBadgeText: {
+    fontSize: 11,
+    fontWeight: "600",
+  },
+  historyDateRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  historyDateText: {
+    fontSize: 11,
+    color: "#666",
+  },
+  historyPriceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  historyPrice: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#27A361",
+  },
+  historyPurchased: {
+    fontSize: 11,
+    color: "#999",
+  },
+  invoiceBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    backgroundColor: "#f0fdf4",
+    borderWidth: 1,
+    borderColor: "#bbf7d0",
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  invoiceBtnPressed: {
+    backgroundColor: "#dcfce7",
+  },
+  invoiceBtnText: {
+    fontSize: 13,
+    color: "#27A361",
+    fontWeight: "600",
+  },
+  historyLoadingBox: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    paddingVertical: 24,
+    alignItems: "center",
+    gap: 8,
+    elevation: 1,
+  },
+  historyLoadingText: {
+    fontSize: 12,
+    color: "#999",
+  },
+  historyEmptyBox: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    paddingVertical: 32,
+    alignItems: "center",
+    gap: 10,
+    elevation: 1,
+  },
+  historyEmptyText: {
+    fontSize: 13,
+    color: "#aaa",
   },
 });

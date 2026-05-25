@@ -17,7 +17,7 @@ const PromoBanner = () => {
     <View style={styles.container}>
       <View style={styles.leftSection}>
         <Text style={styles.title}>
-          Haven’t subscribed yet? Upgrade now to unlock more leads and grow your
+          Haven't subscribed yet? Upgrade now to unlock more leads and grow your
           property reach.
         </Text>
 

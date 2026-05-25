@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   View,
   Text,
-  ScrollView,
   StyleSheet,
   FlatList,
   ActivityIndicator,
   Pressable,
+  Animated,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -15,6 +15,180 @@ import { agentServices } from "../../services/agentServices";
 import PromoBanner from "../../components/ui/PromoBanner";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
+// Category Map
+const categoryLabelMap = {
+  buy: "Buy view",
+  rent_view: "Rent view",
+};
+
+// Date Formatter
+const formatDate = (date) =>
+  new Date(date).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+
+// Animated Card Component
+const AnimatedPlanCard = ({ plan, index, navigation }) => {
+  // Animation values
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+  const translateYAnim = useRef(new Animated.Value(30)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 400,
+        delay: index * 100, // Staggered animation effect
+        useNativeDriver: true,
+      }),
+      Animated.spring(translateYAnim, {
+        toValue: 0,
+        tension: 50,
+        friction: 8,
+        delay: index * 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [index, opacityAnim, translateYAnim]);
+
+  // Date Math
+  const startDate = new Date(plan.startDate);
+  const endDate = new Date(plan.endDate);
+  const now = Date.now();
+
+  const totalDays = Math.max((endDate - startDate) / (1000 * 60 * 60 * 24), 1);
+  const elapsedDays =
+    now < startDate ? 0 : (now - startDate) / (1000 * 60 * 60 * 24);
+  const planProgress = Math.min((elapsedDays / totalDays) * 100, 100);
+  const remainingDays = Math.max(
+    Math.ceil((endDate - now) / (1000 * 60 * 60 * 24)),
+    0,
+  );
+
+  const usageProgress =
+    plan.total > 0 ? Math.min((plan.used / plan.total) * 100, 100) : 0;
+
+  const isExpired = now > endDate;
+  const isExpiringSoon = !isExpired && remainingDays <= 7;
+  const isPropertyPlan = plan.unit === "properties";
+
+  // Status Colors
+  let badgeStyle = styles.activeBadge;
+  let statusTextColor = "#10B981"; // Emerald
+  let statusText = "Active";
+
+  if (isExpired) {
+    badgeStyle = styles.expiredBadge;
+    statusTextColor = "#EF4444"; // Red
+    statusText = "Expired";
+  } else if (isExpiringSoon) {
+    badgeStyle = styles.expiringBadge;
+    statusTextColor = "#F59E0B"; // Amber
+    statusText = "Expiring Soon";
+  }
+
+  return (
+    <Animated.View
+      style={[
+        styles.card,
+        {
+          opacity: opacityAnim,
+          transform: [{ translateY: translateYAnim }],
+        },
+      ]}
+    >
+      {/* Top Section */}
+      <View style={styles.headerRow}>
+        <View style={styles.iconBox}>
+          <Icon name="workspace-premium" size={28} color="#10B981" />
+        </View>
+
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.planName}>{plan.planName}</Text>
+          <Text style={styles.subText}>
+            {plan.userType} • {categoryLabelMap[plan.category] ?? plan.category}
+          </Text>
+          <Text style={styles.dateText}>
+            Purchased {formatDate(plan.startDate)}
+          </Text>
+        </View>
+
+        {/* Status Badge */}
+        <View style={[styles.statusBadge, badgeStyle]}>
+          <Text style={[styles.statusText, { color: statusTextColor }]}>
+            {statusText}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.divider} />
+
+      {/* Progress Section */}
+      <View style={styles.progressPanel}>
+        {/* Duration Progress */}
+        <View style={styles.progressBlock}>
+          <View style={styles.progressHeader}>
+            <Text style={styles.progressTitle}>Plan Duration</Text>
+            <Text style={styles.progressSubtitle}>
+              {remainingDays} days left
+            </Text>
+          </View>
+          <View style={styles.progressBarBg}>
+            <View
+              style={[
+                styles.progressBar,
+                { width: `${planProgress}%` },
+                isExpiringSoon && { backgroundColor: "#F59E0B" },
+                isExpired && { backgroundColor: "#EF4444" },
+              ]}
+            />
+          </View>
+        </View>
+
+        {/* Usage Progress */}
+        <View style={styles.progressBlock}>
+          <View style={styles.progressHeader}>
+            <Text style={styles.progressTitle}>
+              {isPropertyPlan ? "Property Listings" : "Owner Contacts"}
+            </Text>
+            <Text style={styles.progressSubtitle}>
+              {plan.used} / {plan.total} used
+            </Text>
+          </View>
+          <View style={styles.progressBarBg}>
+            <View
+              style={[
+                styles.progressBar,
+                { width: `${usageProgress}%` },
+                usageProgress >= 90 && { backgroundColor: "#F59E0B" },
+                usageProgress >= 100 && { backgroundColor: "#EF4444" },
+              ]}
+            />
+          </View>
+          <Text style={styles.remainingText}>
+            {plan.remaining} {plan.unit} remaining
+          </Text>
+        </View>
+      </View>
+
+      {/* Upgrade Action */}
+      <Pressable
+        style={({ pressed }) => [
+          styles.upgradeButton,
+          pressed && { opacity: 0.8 },
+        ]}
+        onPress={() => navigation.navigate("OwnerRentPlans")}
+      >
+        <Text style={styles.upgradeText}>Upgrade Plan</Text>
+        <Icon name="arrow-forward" size={16} color="#10B981" />
+      </Pressable>
+    </Animated.View>
+  );
+};
+
+// Main Component
 const Membership = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
@@ -27,27 +201,17 @@ const Membership = () => {
         category: "sell",
       }),
   });
+
   const { data: my_subscription, isLoading: subsciptionLoading } = useQuery({
     queryKey: ["my-subscrpition"],
     queryFn: agentServices.getMySubscription,
   });
-  const categoryLabelMap = {
-    buy: "Buy view",
-    rent_view: "Rent view",
-  };
-
-  const formatDate = (date) =>
-    new Date(date).toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
 
   if (PlansLoading || subsciptionLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#27AE60" />
-        <Text>Loading...</Text>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#10B981" />
+        <Text style={styles.loadingText}>Loading Memberships...</Text>
       </View>
     );
   }
@@ -56,261 +220,169 @@ const Membership = () => {
     return <PromoBanner />;
   }
 
-  const renderPlanCard = ({ item: plan }) => {
-    const startDate = new Date(plan.startDate);
-    const endDate = new Date(plan.endDate);
-    const now = Date.now();
-
-    const totalDays = Math.max(
-      (endDate - startDate) / (1000 * 60 * 60 * 24),
-      1,
-    );
-
-    const elapsedDays =
-      now < startDate ? 0 : (now - startDate) / (1000 * 60 * 60 * 24);
-
-    const planProgress = Math.min((elapsedDays / totalDays) * 100, 100);
-
-    const remainingDays = Math.max(
-      Math.ceil((endDate - now) / (1000 * 60 * 60 * 24)),
-      0,
-    );
-
-    const usageProgress =
-      plan.total > 0 ? Math.min((plan.used / plan.total) * 100, 100) : 0;
-
-    const isExpired = now > endDate;
-    const isExpiringSoon = !isExpired && remainingDays <= 7;
-
-    const isPropertyPlan = plan.unit === "properties";
-
-    return (
-      <View style={styles.card}>
-        {/* Status Badge */}
-        <View
-          style={[
-            styles.statusBadge,
-            isExpired
-              ? styles.expired
-              : isExpiringSoon
-                ? styles.expiring
-                : styles.active,
-          ]}
-        >
-          <Text style={styles.statusText}>
-            {isExpired
-              ? "Expired"
-              : isExpiringSoon
-                ? "Expiring Soon"
-                : "Active"}
-          </Text>
-        </View>
-
-        {/* Left Section */}
-        <View style={styles.row}>
-          <View style={styles.iconBox}>
-            <Icon name="workspace-premium" size={28} color="#27AE60" />
-          </View>
-
-          <View style={{ flex: 1 }}>
-            <Text style={styles.planName}>{plan.planName}</Text>
-            <Text style={styles.subText}>
-              {plan.userType} •{" "}
-              {categoryLabelMap[plan.category] ?? plan.category}
-            </Text>
-
-            <Text style={styles.dateText}>
-              Purchased on {formatDate(plan.startDate)}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.hrline} />
-        {/* Right Section (Progress Panel) */}
-        <View style={styles.progressPanel}>
-          {/* Duration */}
-          <View style={styles.progressBlock}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressLabel}>
-                Plan duration ({remainingDays} days left)
-              </Text>
-            </View>
-
-            <View style={styles.progressBarBg}>
-              <View
-                style={[styles.progressBar, { width: `${planProgress}%` }]}
-              />
-            </View>
-          </View>
-
-          {/* Usage */}
-          <View style={styles.progressBlock}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressLabel}>
-                {isPropertyPlan ? "Property listings" : "Owner contacts"} (
-                {plan.used}/{plan.total})
-              </Text>
-            </View>
-
-            <View style={styles.progressBarBg}>
-              <View
-                style={[
-                  styles.progressBar,
-                  usageProgress >= 100 && {
-                    backgroundColor: "red",
-                  },
-                  { width: `${usageProgress}%` },
-                ]}
-              />
-            </View>
-
-            <Text style={styles.remainingText}>
-              {plan.remaining} remaining {plan.unit}
-            </Text>
-          </View>
-        </View>
-        <Pressable
-          style={styles.upgradeButton}
-          onPress={() => navigation.navigate("OwnerRentPlans")}
-          //     if (plan.category === "buy") {
-          //       navigation.navigate("BuyPlans");
-          //     } else if (plan.category === "rent_view") {
-          //       navigation.navigate("RentPlans");
-          //     } else {
-          //       navigation.navigate("Pricing");
-          //     }
-          //   }}
-        >
-          <Text style={styles.upgradeText}>Upgrade Plan</Text>
-        </Pressable>
-      </View>
-    );
-  };
   return (
     <View style={[styles.mainContainer, { paddingBottom: insets.bottom }]}>
       <FlatList
         data={my_subscription.plans}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={renderPlanCard}
-        contentContainerStyle={{ paddingHorizontal: 15, paddingTop: 5 }}
+        renderItem={({ item, index }) => (
+          <AnimatedPlanCard plan={item} index={index} navigation={navigation} />
+        )}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
 };
 
 export default Membership;
+
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
+    backgroundColor: "#F8FAFC", // Modern off-white/gray background
+  },
+  listContent: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 24,
+  },
+  loadingContainer: {
+    flex: 1,
     justifyContent: "center",
-    backgroundColor: "#fff",
+    alignItems: "center",
+    backgroundColor: "#F8FAFC",
+  },
+  loadingText: {
+    marginTop: 12,
+    color: "#64748B",
+    fontSize: 14,
   },
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 12,
-    borderWidth: 1,
-    marginBottom: 15,
-    borderColor: "#E0F2E9",
-    // elevation: 2,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    // Modern shadow implementation
+    shadowColor: "#64748B",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
-  row: {
+  headerRow: {
     flexDirection: "row",
-    marginBottom: 10,
-  },
-  hrline: {
-    height: 1,
-    marginBottom: 7,
-    backgroundColor: "#faf3f3",
+    alignItems: "flex-start",
   },
   iconBox: {
-    height: 56,
-    width: 56,
-    borderRadius: 10,
-    backgroundColor: "#F4FBF6",
+    height: 52,
+    width: 52,
+    borderRadius: 14,
+    backgroundColor: "#ECFDF5",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
+    marginRight: 14,
+  },
+  headerTextContainer: {
+    flex: 1,
+    justifyContent: "center",
+    paddingRight: 10,
   },
   planName: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#000",
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#0F172A",
+    marginBottom: 2,
   },
   subText: {
-    fontSize: 12,
-    color: "gray",
-    marginTop: 2,
+    fontSize: 13,
+    color: "#64748B",
+    fontWeight: "500",
+    textTransform: "capitalize",
   },
   dateText: {
+    fontSize: 12,
+    color: "#94A3B8",
+    marginTop: 4,
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    position: "absolute",
+    right: 0,
+    top: 0,
+  },
+  activeBadge: {
+    backgroundColor: "#ECFDF5",
+  },
+  expiringBadge: {
+    backgroundColor: "#FEF3C7",
+  },
+  expiredBadge: {
+    backgroundColor: "#FEF2F2",
+  },
+  statusText: {
     fontSize: 11,
-    color: "gray",
-    marginTop: 3,
+    fontWeight: "700",
   },
-  upgradeButton: {
-    // width:"60%",
-    // alignSelf:"flex-end",
-    backgroundColor: "#e7f8ec",
-    paddingVertical: 8,
-    borderRadius: 6,
-    marginTop: 5,
-    alignItems: "center",
-  },
-  upgradeText: {
-    color: "#27AE60",
-    fontWeight: "600",
-    fontSize: 15,
+  divider: {
+    height: 1,
+    backgroundColor: "#F1F5F9",
+    marginVertical: 16,
   },
   progressPanel: {
-    // backgroundColor: "#F4FBF6",
-    borderRadius: 8,
-    // padding: 12,
+    marginBottom: 8,
   },
   progressBlock: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   progressHeader: {
-    marginBottom: 6,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
   },
-  progressLabel: {
+  progressTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#334155",
+  },
+  progressSubtitle: {
     fontSize: 12,
-    color: "#555",
+    fontWeight: "500",
+    color: "#64748B",
   },
   progressBarBg: {
-    height: 3,
-    backgroundColor: "#ddd",
+    height: 6, // Thicker bar
+    backgroundColor: "#E2E8F0",
     borderRadius: 10,
     overflow: "hidden",
   },
   progressBar: {
-    height: 3,
-    backgroundColor: "#27AE60",
+    height: "100%",
+    backgroundColor: "#10B981", // Modern Emerald Green
+    borderRadius: 10,
   },
   remainingText: {
-    fontSize: 11,
-    color: "#666",
-    marginTop: 4,
+    fontSize: 12,
+    color: "#64748B",
+    marginTop: 6,
+    fontWeight: "500",
   },
-  statusBadge: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 20,
+  upgradeButton: {
+    flexDirection: "row",
+    backgroundColor: "#ECFDF5",
+    paddingVertical: 12,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 8,
+    gap: 6,
   },
-  active: {
-    backgroundColor: "#edf7f1",
-  },
-  expired: {
-    backgroundColor: "#fdf1f1",
-  },
-  expiring: {
-    backgroundColor: "#fcf9f2",
-  },
-  statusText: {
-    fontSize: 10,
-    color: "#27AE60",
-    fontWeight: "600",
+  upgradeText: {
+    color: "#10B981",
+    fontWeight: "700",
+    fontSize: 14,
   },
 });
