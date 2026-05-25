@@ -176,6 +176,13 @@ const CustomDrawerContent = ({ navigation, state }) => {
     }
   };
 
+  const handleGoHome = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "HomeStack" }],
+    });
+  };
+
   const navigateByRole = () => {
     switch (userDetails?.roleName) {
       case "agent":
@@ -264,6 +271,17 @@ const CustomDrawerContent = ({ navigation, state }) => {
       {/*--------------------Based on the role rendering menu items---------------------- */}
       {/* <View style={styles.hrline} /> */}
       <ScrollView style={styles.dataContainer}>
+        <View style={styles.userDataContainer}>
+          <Pressable
+            onPress={handleGoHome}
+            style={styles.menuItem}
+          >
+            <TabBarHome width={22} height={22} color="#27AE60" />
+            <Text style={[styles.label, styles.activeLabel, { paddingLeft: 10 }]}>Home</Text>
+          </Pressable>
+          <View style={styles.hrline} />
+        </View>
+
         {userDetails?.roleName === "agent" && (
           <View style={styles.userDataContainer}>
             <Text style={[styles.headingData, { paddingVertical: 8 }]}>

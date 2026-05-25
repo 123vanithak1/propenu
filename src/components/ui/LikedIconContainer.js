@@ -4,10 +4,21 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { userServices } from "../../services/userServices";
 import { useAuth } from "../../context/AuthContext";
 import { ToastSuccess } from "../../utils/Toast";
+import { useRoute } from "@react-navigation/native";
+import { useQueryClient } from "@tanstack/react-query";
 
 const LikedIconContainer = ({ slug, id, type }) => {
   const [liked, setLiked] = useState(false);
   const { isLoggedIn } = useAuth();
+  const queryClient = useQueryClient();
+
+  let route;
+  try {
+    route = useRoute();
+  } catch (e) {
+    route = null;
+  }
+  const isDelete = route?.name === "ShortListedProperties" || route?.name === "ShortListed";
 
   useEffect(() => {
     checkInitialStatus();
@@ -57,6 +68,7 @@ const LikedIconContainer = ({ slug, id, type }) => {
         ToastSuccess(
           previous ? "Property removed from shortlist" : "Property shortlisted",
         );
+        queryClient.invalidateQueries({ queryKey: ["shortlistedProperties"] });
       } else {
         setLiked(previous);
       }
@@ -72,7 +84,11 @@ const LikedIconContainer = ({ slug, id, type }) => {
       hitSlop={6}
       style={({ pressed }) => [styles.container, pressed && styles.pressed]}
     >
-      <Entypo name="heart" size={18} color={liked ? "#DD3355" : "#575555"} />
+      {isDelete ? (
+        <Entypo name="trash" size={16} color="#DD3355" />
+      ) : (
+        <Entypo name="heart" size={18} color={liked ? "#DD3355" : "#575555"} />
+      )}
     </Pressable>
   );
 };

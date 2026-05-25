@@ -9,6 +9,7 @@ import {
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import PostProperty from "../screens/PostPropertyScreen/PostProperty";
 import PropertyDetailsScreen from "../screens/PropertyDetails/PropertyDetailsScreen";
+import ProjectDetailsScreen from "../screens/PropertyDetails/ProjectDetailsScreen";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import PropertyListScreen from "../screens/PropertyListScreen/PropertyListScreen";
 import MoreResidentialDetails from "../screens/PropertyListScreen/MoreDetails/MoreResidentialDetails";
@@ -58,6 +59,7 @@ const HEADER_TYPES = {
   HOME: "HOME",
   INNER: "INNER",
   NONE: "NONE",
+  BACK_WITH_LOCATION: "BACK_WITH_LOCATION",
 };
 
 export default function StackNavigator() {
@@ -110,6 +112,23 @@ export default function StackNavigator() {
     </View>
   );
 
+  const renderBackButton = (navigation) => (
+    <View style={styles.menuContainer}>
+      <Pressable
+        onPress={navigation.goBack}
+        hitSlop={10}
+        style={styles.menuButton}
+      >
+        <MaterialIcons
+          name="arrow-back"
+          size={28}
+          color="#000"
+          style={{ textAlignVertical: "center" }}
+        />
+      </Pressable>
+    </View>
+  );
+
   const renderLocationDropdown = () => (
     <Pressable style={styles.select} onPress={handleCity}>
       <LocationIcon width={20} height={20} />
@@ -147,6 +166,7 @@ export default function StackNavigator() {
       case "HOME":
         return {
           ...baseHeader,
+          title,
           headerTitle: () => null,
           headerLeft: () => renderMenuButton(navigation),
           headerRight: () => renderLocationDropdown(),
@@ -156,10 +176,19 @@ export default function StackNavigator() {
       case "INNER":
         return {
           ...baseHeader,
+          title,
           headerTitle: title,
           headerTitleAlign: "left",
           headerBackTitleVisible: false,
           headerRight: undefined,
+        };
+      case "BACK_WITH_LOCATION":
+        return {
+          ...baseHeader,
+          title,
+          headerTitle: () => null,
+          headerLeft: () => renderBackButton(navigation),
+          headerRight: () => renderLocationDropdown(),
         };
       case "NONE":
         return {
@@ -220,9 +249,15 @@ export default function StackNavigator() {
     },
 
     {
+      name: "ProjectDetails",
+      component: ProjectDetailsScreen,
+      headerType: HEADER_TYPES.NONE,
+    },
+
+    {
       name: "PropertyList",
       component: PropertyListScreen,
-      headerType: HEADER_TYPES.HOME,
+      headerType: HEADER_TYPES.BACK_WITH_LOCATION,
       title: "Property List",
     },
 
@@ -260,7 +295,7 @@ export default function StackNavigator() {
     {
       name: "CategoryFilter",
       component: CategoryFilterScreen,
-      headerType: HEADER_TYPES.HOME,
+      headerType: HEADER_TYPES.BACK_WITH_LOCATION,
       title: "Category Filter",
     },
 

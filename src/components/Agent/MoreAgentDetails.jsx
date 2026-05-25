@@ -16,6 +16,7 @@ import ResidentialCard from "../../screens/PropertyListScreen/Cards/ResidentialC
 import CommercialCard from "../../screens/PropertyListScreen/Cards/CommercialCard";
 import LandCard from "../../screens/PropertyListScreen/Cards/LandCard";
 import AgriculturalCard from "../../screens/PropertyListScreen/Cards/AgriculturalCard";
+import ProjectCard from "../../screens/PropertyListScreen/Cards/ProjectCard";
 
 const MoreAgentDetails = ({ route }) => {
   const { slug } = route.params;
@@ -177,9 +178,12 @@ const MoreAgentDetails = ({ route }) => {
             </Text>
           </View>
         ) : (
-          activeProperties.map((item, index) => (
-            <ActiveCard key={index} item={item} />
-          ))
+          activeProperties.map((item, index) => {
+            if (item?.type === "FeaturedProject") {
+              return <ProjectCard key={index} item={item} />;
+            }
+            return <ActiveCard key={index} item={item} />;
+          })
         )}
       </View>
 

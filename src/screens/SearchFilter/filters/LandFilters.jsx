@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
+import Fuse from "fuse.js";
 import {
   Switch,
   View,
@@ -48,6 +49,21 @@ const LandFilters = () => {
   const [step, setStep] = useState(1);
   const dispatch = useDispatch();
   const cityData = useSelector(selectCityWithLocalities);
+  const localityNames = useMemo(() => {
+    return cityData?.localities
+      ? [...new Set(cityData.localities.map((item) => item.name))]
+      : [];
+  }, [cityData]);
+
+  const filteredLocalities = useMemo(() => {
+    if (!locationInput.trim()) {
+      return localityNames;
+    }
+    const fuse = new Fuse(localityNames, {
+      threshold: 0.3,
+    });
+    return fuse.search(locationInput).map((res) => res.item);
+  }, [localityNames, locationInput]);
   const localities = useSelector(selectLocalitiesByCity);
   const filtersState = useSelector((state) => state.filters);
 
@@ -290,7 +306,7 @@ const LandFilters = () => {
           </Text>
 
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
-            {[...new Set(localities.map((l) => l.name))].map((name) => (
+            {filteredLocalities.map((name) => (
               <Pressable
                 key={name}
                 style={{
@@ -302,6 +318,12 @@ const LandFilters = () => {
                 onPress={() => {
                   if (!locations.includes(name)) {
                     setLocations([...locations, name]);
+                    dispatch(
+                      setLandFilter({
+                        key: "locality",
+                        value: name,
+                      }),
+                    );
                   }
                 }}
               >

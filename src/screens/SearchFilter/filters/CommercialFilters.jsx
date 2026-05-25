@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
+import Fuse from "fuse.js";
 import {
   Switch,
   View,
@@ -58,9 +59,21 @@ const CommercialFilters = () => {
 
   const inputRef = useRef(null);
   const TOTAL_STEPS = 3;
-  const localityNames = [
-    ...new Set(cityData.localities.map((item) => item.name)),
-  ];
+  const localityNames = useMemo(() => {
+    return cityData?.localities
+      ? [...new Set(cityData.localities.map((item) => item.name))]
+      : [];
+  }, [cityData]);
+
+  const filteredLocalities = useMemo(() => {
+    if (!locationInput.trim()) {
+      return localityNames;
+    }
+    const fuse = new Fuse(localityNames, {
+      threshold: 0.3,
+    });
+    return fuse.search(locationInput).map((res) => res.item);
+  }, [localityNames, locationInput]);
   console.log("commercial filters :", commercial);
 
   /* -------------------- BUDGET -------------------- */
@@ -313,7 +326,7 @@ const CommercialFilters = () => {
           </Text>
 
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
-            {[...new Set(localities.map((l) => l.name))].map((name) => (
+            {filteredLocalities.map((name) => (
               <Pressable
                 key={name}
                 style={{
@@ -325,6 +338,12 @@ const CommercialFilters = () => {
                 onPress={() => {
                   if (!locations.includes(name)) {
                     setLocations([...locations, name]);
+                    dispatch(
+                      setCommercialFilter({
+                        key: "locality",
+                        value: name,
+                      }),
+                    );
                   }
                 }}
               >

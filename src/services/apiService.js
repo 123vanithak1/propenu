@@ -13,6 +13,8 @@ export const apiService = {
         body: JSON.stringify(payload),
       });
       const data = await response.json();
+      console.log(response.status);
+      // console.log({ data });
       return {
         status: response.status,
         data,
@@ -195,7 +197,6 @@ export const apiService = {
     }
   },
 
-
   agricultural: async () => {
     try {
       const response = await fetch(
@@ -299,14 +300,16 @@ export const apiService = {
   },
 
   agentDetailsBySlug: async (id) => {
-
     try {
-      const response = await fetch(`${ENV.BASE_URL}${API_ROUTES.USER.AGENT}/slug/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${ENV.BASE_URL}${API_ROUTES.USER.AGENT}/slug/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
 
       const data = await response.json();
 
@@ -460,7 +463,7 @@ export const apiService = {
     }
   },
   residential_category_search: async (slug) => {
-    console.log(slug, "IDddddddddddddddddddddddddddd")
+    console.log(slug, "IDddddddddddddddddddddddddddd");
     try {
       const response = await fetch(
         `${ENV.BASE_URL}${API_ROUTES.SEARCH.RESIDENTIAL_CATEGORY_SEARCH}/slug/${slug}`,

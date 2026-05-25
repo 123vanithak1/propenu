@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { View, Text, Button, StyleSheet, Pressable } from "react-native";
 import StepIndicator from "./StepsIndicator";
 import StepRenderer from "./MainContent/StepRenderer";
@@ -18,12 +18,10 @@ export default function PostProperty({ navigation }) {
   const currentStep = useSelector((state) => state.postProperty.currentStep);
   const isFirstStep = currentStep === 1;
   const isLastStep = currentStep === STEPS.length;
-  
-  const propertyType = useSelector(
-    (state) => state.postProperty.propertyType,
-  );
 
-    useEffect(() => {
+  const propertyType = useSelector((state) => state.postProperty.propertyType);
+
+  useEffect(() => {
     if (!propertyType) return;
 
     dispatch(createDraftThunk(propertyType))
@@ -35,9 +33,9 @@ export default function PostProperty({ navigation }) {
   }, [propertyType, dispatch]);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor:"white"}}>
-      <StepIndicator steps={STEPS} currentStep={currentStep - 1} />
-      <StepRenderer />
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+      {/* <StepIndicator steps={STEPS} currentStep={currentStep - 1} /> */}
+      {/* <StepRenderer /> */}
     </SafeAreaView>
   );
 }

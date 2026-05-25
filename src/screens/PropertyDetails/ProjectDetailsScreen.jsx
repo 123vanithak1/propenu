@@ -25,7 +25,7 @@ import Specifications from "./detailProperty/Specifications";
 import RenderHTML from "react-native-render-html";
 import useDimensions from "../../components/CustomHooks/UseDimension";
 
-const PropertyDetailsScreen = ({ route, navigation }) => {
+const ProjectDetailsScreen = ({ route, navigation }) => {
   const { width } = useDimensions();
   const { propertyId } = route.params;
   const [property, setProperty] = useState(null);
@@ -446,7 +446,7 @@ const PropertyDetailsScreen = ({ route, navigation }) => {
   );
 };
 
-export default PropertyDetailsScreen;
+export default ProjectDetailsScreen;
 const styles = StyleSheet.create({
   safe: {
     flex: 1,

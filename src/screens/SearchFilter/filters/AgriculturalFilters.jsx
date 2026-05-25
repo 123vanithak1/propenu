@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
+import Fuse from "fuse.js";
 import {
   Switch,
   View,
@@ -49,6 +50,22 @@ const AgriculturalFilters = () => {
   const cityData = useSelector(selectCityWithLocalities);
   const localities = useSelector(selectLocalitiesByCity);
   const filtersState = useSelector((state) => state.filters);
+
+  const localityNames = useMemo(() => {
+    return cityData?.localities
+      ? [...new Set(cityData.localities.map((item) => item.name))]
+      : [];
+  }, [cityData]);
+
+  const filteredLocalities = useMemo(() => {
+    if (!locationInput.trim()) {
+      return localityNames;
+    }
+    const fuse = new Fuse(localityNames, {
+      threshold: 0.3,
+    });
+    return fuse.search(locationInput).map((res) => res.item);
+  }, [localityNames, locationInput]);
 
   const { selectedCity } = useCity();
 
@@ -264,7 +281,7 @@ const AgriculturalFilters = () => {
           </Text>
 
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
-            {[...new Set(localities.map((l) => l.name))].map((name) => (
+            {filteredLocalities.map((name) => (
               <Pressable
                 key={name}
                 style={{
@@ -276,6 +293,12 @@ const AgriculturalFilters = () => {
                 onPress={() => {
                   if (!locations.includes(name)) {
                     setLocations([...locations, name]);
+                    dispatch(
+                      setAgriculturalFilter({
+                        key: "locality",
+                        value: name,
+                      }),
+                    );
                   }
                 }}
               >

@@ -12,6 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "jsEngine": "hermes",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.propenu.app"
@@ -27,8 +28,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "@react-native-community/datetimepicker"
-    ]
+    "plugins": ["@react-native-community/datetimepicker"]
   }
 }

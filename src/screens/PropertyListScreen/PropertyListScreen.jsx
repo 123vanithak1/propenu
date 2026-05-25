@@ -13,6 +13,7 @@ import ResidentialCard from "./Cards/ResidentialCard";
 import CommercialCard from "./Cards/CommercialCard";
 import LandCard from "./Cards/LandCard";
 import AgriculturalCard from "./Cards/AgriculturalCard";
+import ProjectCard from "./Cards/ProjectCard";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import { apiService } from "../../services/apiService";
 import SearchBar from "../../components/ui/SearchBar";
@@ -109,6 +110,9 @@ const PropertyListScreen = ({ navigation }) => {
 
   const renderPropertyCard = useCallback(
     ({ item }) => {
+      if (item?.type === "FeaturedProject") {
+        return <ProjectCard item={item} />;
+      }
       switch (category.toLowerCase()) {
         case "residential":
           return <ResidentialCard item={item} />;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,101 +6,193 @@ import {
   Pressable,
   ScrollView,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
+
 import { userServices } from "../../services/userServices";
-import * as Keychain from "react-native-keychain";
 import ResidentialCard from "../PropertyListScreen/Cards/ResidentialCard";
 import LandCard from "../PropertyListScreen/Cards/LandCard";
 import AgriculturalCard from "../PropertyListScreen/Cards/AgriculturalCard";
 import CommercialCard from "../PropertyListScreen/Cards/CommercialCard";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import ProjectCard from "../PropertyListScreen/Cards/ProjectCard";
 import { useQuery } from "@tanstack/react-query";
 
-const type = [
+const ORDERED_CATEGORIES = [
   { label: "Residential", value: "Residential" },
   { label: "Commercial", value: "Commercial" },
-  { label: "Land", value: "Land" },
+  { label: "Plots", value: "Land" },
   { label: "Agricultural", value: "Agricultural" },
+  { label: "Projects", value: "FeaturedProject" },
 ];
 
-const ShortListedScreen = () => {
-  // const [likedProperties, setLikedProperties] = useState(null);
-  const [selected, setSelected] = useState("Residential");
-  const insets = useSafeAreaInsets();
+const normalizeCategory = (type) => {
+  if (!type) return null;
+  const normalized = type.toLowerCase().trim();
+  if (normalized.includes("residential"))
+    return { label: "Residential", value: "Residential" };
+  if (normalized.includes("commercial"))
+    return { label: "Commercial", value: "Commercial" };
+  if (normalized.includes("land") || normalized.includes("plot"))
+    return { label: "Plots", value: "Land" };
+  if (normalized.includes("agricultural"))
+    return { label: "Agricultural", value: "Agricultural" };
+  if (normalized.includes("project") || normalized.includes("featured"))
+    return { label: "Projects", value: "FeaturedProject" };
+  return null;
+};
 
-  const handleSelect = (item) => {
-    setSelected(item.value);
-  };
+const ShortListedScreen = ({ navigation }) => {
+  const [selectedTab, setSelectedTab] = useState("");
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["shortlistedProperties"],
     queryFn: userServices.getShortlistedProperties,
   });
 
-  console.log("Shortlisted properties checking :", data);
-
-  if (isLoading)
-    return <ActivityIndicator size="large" style={{ color: "#27AE60" }} />;
-
-  if (error) return console.log("failed to get shortlisted :", error);
-
   const likedProperties = data?.data ?? [];
+
+  const activeCategories = useMemo(() => {
+    const seen = new Set();
+    likedProperties.forEach((item) => {
+      const cat = normalizeCategory(item?.propertyType);
+      if (cat) {
+        seen.add(cat.value);
+      }
+    });
+    return ORDERED_CATEGORIES.filter((cat) => seen.has(cat.value));
+  }, [likedProperties]);
+
+  useEffect(() => {
+    if (activeCategories.length > 0) {
+      const exists = activeCategories.some((cat) => cat.value === selectedTab);
+      if (!exists) {
+        setSelectedTab(activeCategories[0].value);
+      }
+    }
+  }, [activeCategories, selectedTab]);
+
+  const filteredProperties = useMemo(() => {
+    return likedProperties.filter(
+      (item) =>
+        item?.propertyType &&
+        normalizeCategory(item.propertyType)?.value === selectedTab,
+    );
+  }, [likedProperties, selectedTab]);
+
+  const displayProperties = useMemo(() => {
+    if (activeCategories.length <= 1) {
+      return likedProperties;
+    }
+    return filteredProperties;
+  }, [activeCategories, likedProperties, filteredProperties]);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#27AE60" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.loaderContainer}>
+        <Text>Failed to load shortlisted properties</Text>
+      </View>
+    );
+  }
 
   const CARD_COMPONENT = {
     Residential: ResidentialCard,
     Commercial: CommercialCard,
     Land: LandCard,
     Agricultural: AgriculturalCard,
+    FeaturedProject: ProjectCard,
   };
 
-  const filteredProperties =
-    likedProperties?.filter((item) => item.propertyType === selected) || [];
-
   return (
-    <ScrollView style={[styles.mainContainer]}>
-      <>
-        <Text style={styles.label}>Property Type</Text>
-        <View style={styles.container}>
-          {type.map((item) => {
-            const active = selected === item.value;
-
-            return (
-              <Pressable
-                key={item.value}
-                onPress={() => handleSelect(item)}
-                style={[styles.chip, active && styles.activeChip]}
-              >
-                <Text style={[styles.text, active && styles.activeText]}>
-                  {item.label}
-                </Text>
-              </Pressable>
-            );
-          })}
+    <View style={styles.mainContainer}>
+      {likedProperties.length === 0 ? (
+        <View style={styles.noDataText}>
+          <Text>Not shortlisted any property</Text>
         </View>
+      ) : (
+        <>
+          {activeCategories.length > 1 && (
+            <>
+              <Text style={styles.label}>Property Type</Text>
 
-        {filteredProperties.length > 0 ? (
-          filteredProperties.map((item) => {
-            console.log("hhhhhhhhhhhhhhhhhhh0", item)
-            const Card = CARD_COMPONENT[selected];
-            return <Card key={item?._id} item={item?.property} />;
-          })
-        ) : (
-          <View style={styles.noDataText}>
-            <Text>Not shortlisted any property</Text>
-          </View>
-        )}
-      </>
-    </ScrollView>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.tabsScrollView}
+                contentContainerStyle={styles.tabsContainer}
+              >
+                {activeCategories.map((item) => {
+                  const active = selectedTab === item.value;
+                  return (
+                    <Pressable
+                      key={item.value}
+                      onPress={() => setSelectedTab(item.value)}
+                      style={[styles.chip, active && styles.activeChip]}
+                    >
+                      <Text
+                        style={[styles.tabText, active && styles.activeTabText]}
+                      >
+                        {item.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            </>
+          )}
+
+          <FlatList
+            data={displayProperties}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => {
+              const normalizedVal = normalizeCategory(item?.propertyType)?.value;
+              const Card = CARD_COMPONENT[normalizedVal];
+
+              if (!Card || !item?.property) return null;
+
+              const propertyWithId = {
+                ...item.property,
+                id: item.property.id || item.property._id,
+                type: item.propertyType || item.property.type,
+                gallery: item.property.gallery || item.property.gallerySummary,
+              };
+
+              return <Card item={propertyWithId} />;
+            }}
+          />
+        </>
+      )}
+    </View>
   );
 };
 
 export default ShortListedScreen;
 
 const styles = StyleSheet.create({
-  mainContainer: { flex: 1, paddingHorizontal: 10, backgroundColor: "white" },
-  container: {
+  mainContainer: {
+    flex: 1,
+    paddingHorizontal: 10,
+    backgroundColor: "white",
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  tabsScrollView: {
+    marginTop: 12,
+    marginBottom: 8,
+    maxHeight: 45,
+  },
+  tabsContainer: {
     flexDirection: "row",
-    flexWrap: "wrap",
     gap: 10,
   },
   label: {
@@ -112,19 +204,15 @@ const styles = StyleSheet.create({
   chip: {
     paddingVertical: 7,
     paddingHorizontal: 8,
-    // borderRadius: 10,
-    // borderBottomWidth: 1,
-    // borderColor: "#ccc",
     backgroundColor: "#fff",
   },
   activeChip: {
     borderColor: "#27AE60",
   },
-  text: {
+  tabText: {
     fontSize: 13,
-    // fontWeight:500
   },
-  activeText: {
+  activeTabText: {
     borderBottomWidth: 1,
     borderColor: "#27AE60",
     color: "#27AE60",
@@ -136,5 +224,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    marginTop: 50,
   },
 });

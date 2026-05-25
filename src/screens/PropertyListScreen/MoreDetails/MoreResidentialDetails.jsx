@@ -17,10 +17,11 @@ import useDimensions from "../../../components/CustomHooks/UseDimension";
 import NearByLocations from "../../PropertyDetails/detailProperty/NearByLocation";
 import AmenitiesWithModal from "../../PropertyDetails/detailProperty/AmenitiesWithModal";
 import { PhoneIcon, LocationIcon } from "../../../../assets/svg/Logo";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
 import { useAuth } from "../../../context/AuthContext";
 
-const MoreResidentialDetails = ({ route }) => {
+const MoreResidentialDetails = ({ route, navigation }) => {
   const { width, height } = useDimensions();
   const { slug } = route.params;
   const { isLoggedIn, userDetails } = useAuth();
@@ -65,6 +66,21 @@ const MoreResidentialDetails = ({ route }) => {
     );
   }
 
+  if (!loading && !details) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={{ padding: 16, paddingBottom: 0 }}>
+          <Pressable onPress={() => navigation.goBack()} hitSlop={10}>
+            <Ionicons name="arrow-back" size={24} color="#000" />
+          </Pressable>
+        </View>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <Text>No property found</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   const MetaItem = ({ Icon, label, value }) => (
     <View style={styles.metaItem}>
       {/* {Icon} */}
@@ -92,12 +108,21 @@ const MoreResidentialDetails = ({ route }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* IMAGE GALLERY */}
-        <AutoImageSlider
-          images={details?.gallery?.map((img) => ({ uri: img.url })) || []}
-          height={height * 0.3}
-          width={width}
-        />
+        <View style={styles.imageWrapper}>
+          <Pressable
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={24} color="#000" />
+          </Pressable>
+
+          {/* IMAGE GALLERY */}
+          <AutoImageSlider
+            images={details?.gallery?.map((img) => ({ uri: img.url })) || []}
+            height={height * 0.3}
+            width={width}
+          />
+        </View>
 
         {/* PRICE + TITLE */}
         <View style={styles.header}>
@@ -245,6 +270,17 @@ const MoreResidentialDetails = ({ route }) => {
 };
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
+  imageWrapper: { position: "relative" },
+  backButton: {
+    position: "absolute",
+    top: 16,
+    left: 16,
+    zIndex: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    padding: 6,
+    borderRadius: 20,
+    elevation: 5,
+  },
   loadingContainer: {
     flex: 1,
     alignItems: "center",

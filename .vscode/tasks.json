@@ -1,0 +1,85 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Expo Start",
+      "type": "shell",
+      "command": "npx expo start",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Expo Prebuild",
+      "type": "shell",
+      "command": "npx expo prebuild",
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Expo Android",
+      "type": "shell",
+      "command": "npx expo run:android",
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Expo iOS Device",
+      "type": "shell",
+      "command": "npx expo run:ios --device",
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Expo Prebuild + Android",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Expo Prebuild",
+        "Expo Android"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Expo Prebuild + iOS Device",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Expo Prebuild",
+        "Expo iOS Device"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Expo Start + Android",
+      "dependsOrder": "parallel",
+      "dependsOn": [
+        "Expo Start",
+        "Expo Android"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Expo Start + iOS Device",
+      "dependsOrder": "parallel",
+      "dependsOn": [
+        "Expo Start",
+        "Expo iOS Device"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

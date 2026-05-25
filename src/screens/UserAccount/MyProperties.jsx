@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import Fuse from "fuse.js";
 import {
   View,
   Text,
@@ -62,12 +63,11 @@ const MyProperties = () => {
     }
 
     if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (p) =>
-          p.title?.toLowerCase().includes(q) ||
-          p.address?.toLowerCase().includes(q),
-      );
+      const fuse = new Fuse(list, {
+        keys: ["title", "address"],
+        threshold: 0.3,
+      });
+      list = fuse.search(search).map((res) => res.item);
     }
 
     if (status !== "All") {

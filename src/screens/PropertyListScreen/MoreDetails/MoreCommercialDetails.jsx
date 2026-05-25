@@ -30,8 +30,9 @@ import {
 } from "../../../../assets/svg/Logo";
 import { ToastSuccess, ToastInfo } from "../../../utils/Toast";
 import { useAuth } from "../../../context/AuthContext";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
-const MoreCommercialDetails = ({ route }) => {
+const MoreCommercialDetails = ({ route, navigation }) => {
   const { width, height } = useDimensions();
   const { slug } = route.params;
   const { isLoggedIn, userDetails } = useAuth();
@@ -102,11 +103,20 @@ const MoreCommercialDetails = ({ route }) => {
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* IMAGE GALLERY */}
-        <AutoImageSlider
-          images={details?.gallery?.map((img) => ({ uri: img.url })) || []}
-          height={height * 0.3}
-          width={width}
-        />
+        <View style={styles.imageWrapper}>
+          <Pressable
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={24} color="#000" />
+          </Pressable>
+
+          <AutoImageSlider
+            images={details?.gallery?.map((img) => ({ uri: img.url })) || []}
+            height={height * 0.3}
+            width={width}
+          />
+        </View>
 
         {/* PRICE + TITLE */}
         <View style={styles.header}>
@@ -324,6 +334,19 @@ const styles = StyleSheet.create({
   },
 
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
+  imageWrapper: {
+    position: "relative",
+  },
+  backButton: {
+    position: "absolute",
+    top: 16,
+    left: 16,
+    zIndex: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    padding: 6,
+    borderRadius: 20,
+    elevation: 5,
+  },
 });
 
 export default MoreCommercialDetails;

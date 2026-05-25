@@ -6,34 +6,38 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { PhoneIcon } from "../../../assets/svg/Logo";
 import { prevStep } from "../../redux/slice/PostPropertySlice";
 import { useAppDispatch } from "../../redux/store/store";
+import { useNavigation } from "@react-navigation/native";
 
 const StepIndicator = ({ steps = [], currentStep = 0 }) => {
   const { propertyType, percentage } = useSelector(
     (state) => state.postProperty,
   );
   const dispatch = useAppDispatch();
+  const navigation = useNavigation();
   if (!steps.length) return null;
 
   const totalSteps = steps.length;
   const currentLabel = steps[currentStep] || "";
-  const isDisabled = currentStep === 0;
   
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        {/* {currentStep > 0 && ( */}
         <Pressable
-          disabled={isDisabled}
-          onPress={() => dispatch(prevStep())}
+          onPress={() => {
+            if (currentStep === 0) {
+              navigation.goBack();
+            } else {
+              dispatch(prevStep());
+            }
+          }}
           hitSlop={10}
         >
           <Ionicons
             name="arrow-back-outline"
             size={20}
-            color={isDisabled ? "#9CA3AF" : "#000"}
+            color="#000"
           />
         </Pressable>
-        {/* )} */}
         <View style={styles.help}>
           <Text style={styles.helpText}>Need Help? </Text>
           <FontAwesome name="phone" size={14} color="#27AE60" />

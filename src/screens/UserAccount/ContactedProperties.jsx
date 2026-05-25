@@ -6,20 +6,42 @@ import {
   Image,
   ActivityIndicator,
   Pressable,
+  Platform,
+  ScrollView,
 } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import { userServices } from "../../services/userServices";
 import { LocationIcon } from "../../../assets/svg/Logo";
 import formatINR from "../../utils/FormatINR";
 import { useQuery } from "@tanstack/react-query";
 
-const tabTypes = [
+const ORDERED_CATEGORIES = [
+  { label: "Residential", value: "residentials" },
+  { label: "Commercial", value: "commercials" },
   { label: "Plots", value: "landplots" },
+  { label: "Agricultural", value: "agriculturals" },
   { label: "Projects", value: "featuredprojects" },
 ];
 
+const normalizeCategory = (type) => {
+  if (!type) return null;
+  const normalized = type.toLowerCase().trim();
+  if (normalized.includes("residential"))
+    return { label: "Residential", value: "residentials" };
+  if (normalized.includes("commercial"))
+    return { label: "Commercial", value: "commercials" };
+  if (normalized.includes("land") || normalized.includes("plot"))
+    return { label: "Plots", value: "landplots" };
+  if (normalized.includes("agricultural"))
+    return { label: "Agricultural", value: "agriculturals" };
+  if (normalized.includes("project") || normalized.includes("featured"))
+    return { label: "Projects", value: "featuredprojects" };
+  return { label: type, value: normalized };
+};
+
 const ContactedProperties = () => {
-  const [selectedTab, setSelectedTab] = useState("landplots");
+  const [selectedTab, setSelectedTab] = useState("");
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["contactedProperties"],
@@ -27,16 +49,45 @@ const ContactedProperties = () => {
   });
 
   const contactedProperties = data?.properties ?? [];
-  const total = data?.total ?? 0;
-  // console.log("Properties : ", JSON.stringify(contactedProperties, null, 2));
+
+  const activeCategories = useMemo(() => {
+    const seen = new Set();
+    contactedProperties.forEach((item) => {
+      const cat = normalizeCategory(item?.propertyType);
+      if (cat) {
+        seen.add(cat.value);
+      }
+    });
+    return ORDERED_CATEGORIES.filter((cat) => seen.has(cat.value));
+  }, [contactedProperties]);
+
+  useEffect(() => {
+    if (activeCategories.length > 0) {
+      const exists = activeCategories.some((cat) => cat.value === selectedTab);
+      if (!exists) {
+        setSelectedTab(activeCategories[0].value);
+      }
+    }
+  }, [activeCategories, selectedTab]);
+
+  const filteredProperties = useMemo(() => {
+    return contactedProperties.filter(
+      (item) =>
+        item?.propertyType &&
+        normalizeCategory(item.propertyType)?.value === selectedTab,
+    );
+  }, [contactedProperties, selectedTab]);
+
+  const displayProperties = useMemo(() => {
+    if (activeCategories.length <= 1) {
+      return contactedProperties;
+    }
+    return filteredProperties;
+  }, [activeCategories, contactedProperties, filteredProperties]);
 
   if (isLoading)
     return <ActivityIndicator size="large" style={{ color: "#27AE60" }} />;
   if (error) return console.log("failed to get contacted properties :", error);
-
-  const filteredProperties = contactedProperties.filter(
-    (item) => item?.propertyType === selectedTab,
-  );
 
   const PropertyCard = ({ item }) => {
     console.log("item.propetry : ", JSON.stringify(item?.heroImage, null, 2));
@@ -64,8 +115,11 @@ const ContactedProperties = () => {
                   {item.locality}, {item.city}
                 </Text>
               </View>
-
-              <Text style={styles.ownerName}>Owner : {item?.owner?.name}</Text>
+              {item?.owner?.name ? (
+                <Text style={styles.ownerName}>
+                  Owner : {item?.owner?.name}
+                </Text>
+              ) : null}
             </View>
 
             {item?.price ? (
@@ -79,41 +133,48 @@ const ContactedProperties = () => {
 
   return (
     <View style={styles.container}>
-      {/* <Text style={styles.title}>My Contact Listing</Text>
-      <Text style={styles.subTitle}>
-        Properties you have contacted ({filteredProperties?.length ?? 0})
-      </Text> */}
-
-      <View style={styles.tabsContainer}>
-        {tabTypes.map((item) => {
-          const active = selectedTab === item.value;
-          return (
-            <Pressable
-              key={item.value}
-              onPress={() => setSelectedTab(item.value)}
-              style={[styles.chip, active && styles.activeChip]}
-            >
-              <Text style={[styles.tabText, active && styles.activeTabText]}>
-                {item.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
-
-      {filteredProperties?.length > 0 ? (
-        <FlatList
-          data={filteredProperties}
-          keyExtractor={(item) => {
-            console.log("item : ", JSON.stringify(item, null, 2));
-            return item.leadId;
-          }}
-          renderItem={({ item }) => <PropertyCard item={item} />}
-        />
-      ) : (
+      {contactedProperties.length === 0 ? (
         <View style={styles.noContent}>
-          <Text>No contacted properties available</Text>
+          <Text style={styles.noContentText}>No properties are contacted.</Text>
         </View>
+      ) : (
+        <>
+          {activeCategories.length > 1 && (
+            <>
+              <Text style={styles.label}>Property Type</Text>
+
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.tabsScrollView}
+                contentContainerStyle={styles.tabsContainer}
+              >
+                {activeCategories.map((item) => {
+                  const active = selectedTab === item.value;
+                  return (
+                    <Pressable
+                      key={item.value}
+                      onPress={() => setSelectedTab(item.value)}
+                      style={[styles.chip, active && styles.activeChip]}
+                    >
+                      <Text
+                        style={[styles.tabText, active && styles.activeTabText]}
+                      >
+                        {item.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            </>
+          )}
+
+          <FlatList
+            data={displayProperties}
+            keyExtractor={(item) => item.leadId}
+            renderItem={({ item }) => <PropertyCard item={item} />}
+          />
+        </>
       )}
     </View>
   );
@@ -125,12 +186,14 @@ const styles = StyleSheet.create({
     paddingTop: 3,
     backgroundColor: "white",
   },
-  tabsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
+  tabsScrollView: {
     marginTop: 12,
     marginBottom: 8,
+    maxHeight: 45,
+  },
+  tabsContainer: {
+    flexDirection: "row",
+    gap: 10,
   },
   chip: {
     paddingVertical: 7,
@@ -169,6 +232,7 @@ const styles = StyleSheet.create({
   },
   sale: {
     backgroundColor: "#27AE60",
+    margin: 5,
     paddingHorizontal: 8,
     paddingVertical: 3,
     position: "absolute",
@@ -202,6 +266,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  noContentText: {
+    fontSize: 14,
+    color: "gray",
+  },
   content: {
     paddingVertical: 10,
     paddingHorizontal: 10,
@@ -228,6 +296,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 5,
     borderRadius: 7,
+  },
+  label: {
+    marginBottom: 8,
+    marginTop: 6,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  segmentedControl: {
+    marginBottom: 15,
   },
 });
 export default ContactedProperties;
